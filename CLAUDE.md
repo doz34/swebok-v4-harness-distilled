@@ -3,7 +3,7 @@
 ## Laws
 1. **HOT_PATH** - intent=micro_task → execute + --lite
 2. **STATE-DRIVEN** - read .swebok_state.db via `python3 scripts/lib/state_engine.py get <key>` (SQLite ONLY)
-3. **RAG-STRICT** - for SWEBOK/ISO knowledge, execute: `python3 scripts/swebok-query.py <query>`
+3. **COMPILED-KNOWLEDGE** - for SWEBOK/ISO knowledge, execute: `python3 scripts/compiled_knowledge.py <query>`. This is the deterministic alternative to RAG: pre-distilled 872-book knowledge base in 7 layers (principles, antipatterns, ontologies, decision trees, recipes, comparisons, checklists). No LLM, no embeddings, no network. Same input = same answer.
 4. **CAVEMAN_ULTRA** - all output in DSL format with `;;` delimiter. **Scope:** the CAVEMAN_ULTRA delimiter applies to *verdict payloads* (gate outcomes, red/blue findings, self-heal recommendations). Diagnostic log lines emitted by hooks (e.g. `[PHASE-GUARD] BLOCKED: ...`, `[AOV] Screenshot: ...`) are not DSL — they are plain-text operational logs for human operators. Only the lines that the dispatcher parses as input to a downstream decision must obey the `KEY:VALUE;;KEY:VALUE` format.
 5. **MCP BRIDGE** - when a script outputs `<MCP_CALLS><MCP_CALL tool="X" args="Y"/></MCP_CALLS>`, you MUST: 1) Invoke MCP tool X with args Y. 2) Save the exact MCP tool output to `/tmp/mcp_result.json`. 3) Re-execute the original script with the flag `--verify-result /tmp/mcp_result.json` to close the loop and evaluate the visual/UI evidence.
 6. **MULTIAGENT BRIDGE** - when `adversarial-gate.sh` outputs `<MULTIAGENT_LAUNCH blue="Nexus_Defender" red="Nexus_Attacker" prompt="..."/>`, invoke Agent tool with `subagent_type: nexus-defender` and `subagent_type: nexus-attacker` (the runtime agents are external `nexus-*` subagent_type identifiers; there is no local `agents/` or `skills/` tree in this repo). Spawn Red and Blue teams in parallel. Once both return their DSL outputs, you MUST execute `bash scripts/adversarial-gate.sh <from_phase> <to_phase> --judge-only --red "RED_DSL_OUTPUT" --blue "BLUE_DSL_OUTPUT"` to finalize the gate verdict and log the state.
@@ -30,8 +30,7 @@
 - docs/v1/ADR-003-multiagent-bridge.md for the opt-in council bridge (CRIT-2 close-out)
 
 ## Tests
-- tests/adversarial-test.sh - **92/92 PASS, 5/5 stable**, no warm-up required (post atomic-UPSERT + HMAC-wire fix 2026-06-01; +Tests 97-100 in v1.5.0 for the opt-in council bridge; +Tests 101-106 in v1.5.1 for per-phase scanner). See docs/v1/TEST_STABILITY.md.
-- tests/attack-payloads-test.sh - 8/8 PASS (STRIDE-lite).
+- tests/distilled-test.sh - **20/20 PASS, deterministic** — the compiled knowledge engine: 25 principles, 46 antipatterns, 5 ontologies, 5 decision trees, 5 recipes, 3 comparisons, 9 phase checklists, 4 risk catalogs. Pure Python, no LLM, no RAG, no network. See `distilled/README.md` for the architecture.
 
 ## Key Files
 - `scripts/lib/state_engine.py` - Atomic state with SQLite WAL (no fcntl.flock)
