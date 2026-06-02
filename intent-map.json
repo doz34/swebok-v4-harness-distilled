@@ -1,0 +1,4030 @@
+{
+  "fallback": {
+    "agent": "generalist",
+    "chain": [
+      {
+        "description": "Relax semantic threshold by 10%, retry matching",
+        "max_retries": 2,
+        "name": "semantic-relaxation",
+        "threshold_reduction": 0.1
+      },
+      {
+        "description": "Increase pattern weight contribution",
+        "name": "pattern-boost",
+        "pattern_weight_boost": 0.2
+      },
+      {
+        "description": "Query KB for additional context",
+        "kb_lookup": true,
+        "name": "kb-augmented"
+      },
+      {
+        "context_ignore_recent": true,
+        "description": "Ignore recent context, use conversation start context",
+        "name": "context-rollback"
+      },
+      {
+        "agent_escalation": true,
+        "description": "Route to more capable agent",
+        "name": "agent-escalation"
+      },
+      {
+        "description": "Escalate to human reviewer",
+        "human_escalation": true,
+        "name": "human-escalation",
+        "threshold": 0.3
+      }
+    ],
+    "hooks": [],
+    "skill": "general-assistance"
+  },
+  "intents": {
+    "accessibility_testing": {
+      "agents": [
+        "test-strategist"
+      ],
+      "context_weights": {
+        "assistive_technology": 0.3,
+        "user_demographics": 0.3,
+        "wcag_level": 0.4
+      },
+      "fallback_chain": [
+        {
+          "agent": "quality-assurance",
+          "confidence_boost": 0.15,
+          "skill": "quality-assurance"
+        }
+      ],
+      "ka": 5,
+      "kb_tags": [
+        "KA5",
+        "accessibility",
+        "WCAG",
+        "a11y"
+      ],
+      "patterns": [
+        "accessibility testing",
+        "a11y",
+        "wcag",
+        "screen reader",
+        "keyboard navigation",
+        "axe-core",
+        "wave"
+      ],
+      "priority": 78,
+      "semantic_aliases": [
+        "a11y testing",
+        "inclusive testing",
+        "ADA compliance testing",
+        "WCAG compliance"
+      ],
+      "skills": {
+        "primary": "accessibility-testing"
+      },
+      "weights": {
+        "context": 0.1,
+        "kb_relevance": 0.1,
+        "pattern": 0.3,
+        "semantic": 0.5
+      }
+    },
+    "agile_transformation": {
+      "agents": [
+        "method-consultant"
+      ],
+      "context_weights": {
+        "change_readiness": 0.35,
+        "current_state": 0.3,
+        "transformation_goals": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "method-consultant",
+          "confidence_boost": 0.15,
+          "skill": "methodology-selection"
+        },
+        {
+          "agent": "process-engineer",
+          "confidence_boost": 0.1,
+          "skill": "process-engineering"
+        }
+      ],
+      "ka": 10,
+      "kb_tags": [
+        "KA10",
+        "agile",
+        "transformation",
+        "scaling"
+      ],
+      "parallel_candidates": [
+        "agile-coach",
+        "transformation-consultant"
+      ],
+      "patterns": [
+        "agile transformation",
+        "agile adoption",
+        "scale agile",
+        "enterprise agile",
+        "agile at scale",
+        "agile fluence",
+        "agile maturity",
+        "agile coach",
+        "agile team"
+      ],
+      "priority": 82,
+      "semantic_aliases": [
+        "agile rollout",
+        "enterprise agile transformation",
+        "scaling agile",
+        "agile adoption journey"
+      ],
+      "skills": {
+        "primary": "methodology-consulting"
+      },
+      "weights": {
+        "context": 0.25,
+        "kb_relevance": 0.1,
+        "pattern": 0.2,
+        "semantic": 0.45
+      }
+    },
+    "ai_agent": {
+      "agents": [
+        "llm-engineer"
+      ],
+      "context_weights": {
+        "agent_architecture": 0.3,
+        "memory_management": 0.25,
+        "orchestration_pattern": 0.15,
+        "tool_integration": 0.3
+      },
+      "fallback_chain": [
+        {
+          "agent": "llm-engineer",
+          "confidence_boost": 0.2,
+          "skill": "llm-application"
+        }
+      ],
+      "kb_tags": [
+        "KA15",
+        "AI-agent",
+        "autonomous",
+        "tool-use"
+      ],
+      "parallel_candidates": [
+        "llm-engineer",
+        "agent-architect"
+      ],
+      "patterns": [
+        "ai agent",
+        "autonomous agent",
+        "tool use",
+        "function calling",
+        "multi-agent",
+        "agent system",
+        "hugginggpt",
+        "autogen",
+        "react pattern",
+        "agent memory"
+      ],
+      "priority": 85,
+      "semantic_aliases": [
+        "AI agent",
+        "autonomous AI",
+        "agentic AI",
+        "tool-augmented AI"
+      ],
+      "skills": {
+        "primary": "ai-agent"
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.45
+      }
+    },
+    "algorithm_design": {
+      "agents": [
+        "algorithm-specialist"
+      ],
+      "context_weights": {
+        "algorithmic_complexity": 0.35,
+        "correctness_requirements": 0.35,
+        "optimization_goals": 0.3
+      },
+      "fallback_chain": [
+        {
+          "agent": "algorithm-specialist",
+          "confidence_boost": 0.15,
+          "skill": "data-structure-selection"
+        }
+      ],
+      "ka": 15,
+      "kb_tags": [
+        "KA15",
+        "algorithm",
+        "complexity",
+        "data-structures"
+      ],
+      "patterns": [
+        "algorithm",
+        "sorting",
+        "searching",
+        "graph algorithm",
+        "dynamic programming",
+        "divide and conquer",
+        "greedy algorithm",
+        "complexity",
+        "big-o"
+      ],
+      "priority": 85,
+      "semantic_aliases": [
+        "algorithmic design",
+        "algorithm analysis",
+        "computational complexity"
+      ],
+      "skills": {
+        "primary": "algorithm-design"
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.45
+      }
+    },
+    "api_authentication": {
+      "agents": [
+        "construction-lead"
+      ],
+      "context_weights": {
+        "auth_protocol": 0.35,
+        "security_requirements": 0.3,
+        "token_management": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "security-engineer",
+          "confidence_boost": 0.2,
+          "skill": "security-engineering"
+        }
+      ],
+      "kb_tags": [
+        "KA4",
+        "API",
+        "authentication",
+        "OAuth2",
+        "JWT"
+      ],
+      "parallel_candidates": [
+        "security-engineer",
+        "api-architect"
+      ],
+      "patterns": [
+        "jwt authentication",
+        "oauth2",
+        "api key",
+        "bearer token",
+        "token validation",
+        "bcrypt",
+        "password hashing",
+        "cookie authentication",
+        "session authentication",
+        "pkce",
+        "authorization code flow",
+        "client credentials"
+      ],
+      "priority": 88,
+      "semantic_aliases": [
+        "API security",
+        "authentication",
+        "authorization",
+        "token-based auth"
+      ],
+      "skills": {
+        "primary": "api-design",
+        "secondary": [
+          "security-engineering"
+        ]
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.45
+      }
+    },
+    "api_design": {
+      "agents": [
+        "construction-lead"
+      ],
+      "context_weights": {
+        "api_style": 0.3,
+        "client_contracts": 0.25,
+        "protocol_requirements": 0.25,
+        "versioning_strategy": 0.2
+      },
+      "fallback_chain": [
+        {
+          "agent": "construction-lead",
+          "confidence_boost": 0.15,
+          "skill": "software-design"
+        },
+        {
+          "agent": "doc-writer",
+          "confidence_boost": 0.1,
+          "skill": "documentation"
+        }
+      ],
+      "hooks": [
+        "api-context"
+      ],
+      "ka": 4,
+      "kb_tags": [
+        "KA4",
+        "API",
+        "REST",
+        "GraphQL",
+        "design"
+      ],
+      "parallel_candidates": [
+        "api-architect",
+        "construction-lead"
+      ],
+      "patterns": [
+        "design api",
+        "rest api",
+        "graphql api",
+        "grpc api",
+        "endpoint",
+        "crud operations",
+        "api endpoint",
+        "create api",
+        "build api",
+        "api versioning",
+        "api documentation",
+        "openapi",
+        "swagger",
+        "api contract",
+        "hateoas",
+        "hypermedia",
+        "pagination",
+        "filtering api",
+        "api gateway",
+        "api lifecycle",
+        "api as a product"
+      ],
+      "priority": 88,
+      "semantic_aliases": [
+        "api creation",
+        "endpoint design",
+        "REST design",
+        "GraphQL schema",
+        "API specification"
+      ],
+      "skills": {
+        "primary": "api-design"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.3,
+        "semantic": 0.45
+      }
+    },
+    "api_testing": {
+      "agents": [
+        "test-writer"
+      ],
+      "context_weights": {
+        "contract_compliance": 0.35,
+        "mocking_strategy": 0.3,
+        "test_coverage": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "test-writer",
+          "confidence_boost": 0.2,
+          "skill": "test-implementation"
+        }
+      ],
+      "kb_tags": [
+        "KA4",
+        "API",
+        "testing",
+        "Postman",
+        "contract-testing"
+      ],
+      "parallel_candidates": [
+        "test-writer",
+        "api-test-specialist"
+      ],
+      "patterns": [
+        "api test",
+        "postman",
+        "api automation",
+        "rest api testing",
+        "graphql testing",
+        "contract testing",
+        "pact test",
+        "api mocking",
+        "insomnia",
+        "k6 api test"
+      ],
+      "priority": 82,
+      "semantic_aliases": [
+        "API validation",
+        "endpoint testing",
+        "REST testing",
+        "contract testing"
+      ],
+      "skills": {
+        "primary": "api-design",
+        "secondary": [
+          "test-implementation"
+        ]
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.3,
+        "semantic": 0.45
+      }
+    },
+    "architecture_evaluation": {
+      "agents": [
+        "architecture-designer"
+      ],
+      "context_weights": {
+        "architectural_decisions": 0.3,
+        "quality_attributes": 0.35,
+        "risk_factors": 0.2,
+        "stakeholder_concerns": 0.15
+      },
+      "fallback_chain": [
+        {
+          "agent": "architecture-designer",
+          "confidence_boost": 0.2,
+          "skill": "architecture-design"
+        }
+      ],
+      "ka": 2,
+      "kb_tags": [
+        "KA2",
+        "architecture",
+        "evaluation",
+        "quality"
+      ],
+      "patterns": [
+        "evaluate architecture",
+        "architecture review",
+        "architecture assessment",
+        "quality attributes",
+        "atam",
+        "architecture tradeoff"
+      ],
+      "priority": 88,
+      "semantic_aliases": [
+        "architectural review",
+        "architecture analysis",
+        "ATAM evaluation",
+        "architecture quality check"
+      ],
+      "skills": {
+        "primary": "architecture-evaluation"
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.45
+      }
+    },
+    "architecture_planning": {
+      "agents": [
+        "architecture-designer"
+      ],
+      "context_weights": {
+        "architecture_history": 0.1,
+        "integration_points": 0.2,
+        "quality_attributes": 0.3,
+        "system_scale": 0.25,
+        "technical_constraints": 0.15
+      },
+      "fallback_chain": [
+        {
+          "agent": "architecture-designer",
+          "confidence_boost": 0.15,
+          "skill": "design-patterns"
+        },
+        {
+          "agent": "architecture-designer",
+          "confidence_boost": 0.1,
+          "skill": "distributed-system-patterns"
+        }
+      ],
+      "hooks": [
+        "architecture-awareness"
+      ],
+      "ka": 2,
+      "kb_tags": [
+        "KA2",
+        "architecture",
+        "design",
+        "system"
+      ],
+      "parallel_candidates": [
+        "architecture-designer",
+        "domain-architect",
+        "integration-architect"
+      ],
+      "patterns": [
+        "architecture",
+        "system design",
+        "high-level design",
+        "microservices",
+        "monolith",
+        "layered architecture",
+        "event-driven",
+        "bounded context",
+        "hexagonal",
+        "cqrs",
+        "event sourcing",
+        "data mesh",
+        "domain-driven",
+        "decompose monolith",
+        "distributed system"
+      ],
+      "priority": 95,
+      "semantic_aliases": [
+        "architectural planning",
+        "system architecture",
+        "solution architecture",
+        "enterprise architecture",
+        "technical architecture",
+        "integration architecture"
+      ],
+      "skills": {
+        "primary": "architecture-design",
+        "secondary": [
+          "design-patterns",
+          "distributed-system-patterns",
+          "domain-driven-design"
+        ]
+      },
+      "weights": {
+        "context": 0.25,
+        "kb_relevance": 0.15,
+        "pattern": 0.2,
+        "semantic": 0.4
+      }
+    },
+    "backend_development": {
+      "agents": [
+        "construction-lead"
+      ],
+      "context_weights": {
+        "business_logic": 0.35,
+        "data_handling": 0.35,
+        "server_framework": 0.3
+      },
+      "fallback_chain": [
+        {
+          "agent": "construction-lead",
+          "confidence_boost": 0.15,
+          "skill": "api-design"
+        }
+      ],
+      "kb_tags": [
+        "KA4",
+        "backend",
+        "server",
+        "API",
+        "Node.js",
+        "Python"
+      ],
+      "parallel_candidates": [
+        "backend-specialist",
+        "api-developer"
+      ],
+      "patterns": [
+        "backend",
+        "server",
+        "express",
+        "fastapi",
+        "django",
+        "flask",
+        "nestjs",
+        "rails",
+        "api backend",
+        "server-side",
+        "node.js backend",
+        "python backend",
+        "business logic",
+        "middleware",
+        "request handling"
+      ],
+      "priority": 85,
+      "semantic_aliases": [
+        "server-side development",
+        "API backend",
+        "server development"
+      ],
+      "skills": {
+        "primary": "web-development"
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.1,
+        "pattern": 0.3,
+        "semantic": 0.4
+      }
+    },
+    "bdd_development": {
+      "agents": [
+        "test-writer"
+      ],
+      "context_weights": {
+        "feature_files": 0.35,
+        "scenario_coverage": 0.3,
+        "step_definitions": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "test-writer",
+          "confidence_boost": 0.2,
+          "skill": "test-implementation"
+        }
+      ],
+      "ka": 5,
+      "kb_tags": [
+        "KA5",
+        "BDD",
+        "Gherkin",
+        "Cucumber"
+      ],
+      "patterns": [
+        "bdd",
+        "behavior-driven",
+        "gherkin",
+        "cucumber",
+        "behave",
+        "cucumber scenarios"
+      ],
+      "priority": 82,
+      "semantic_aliases": [
+        "behavior-driven development",
+        "Gherkin testing",
+        "cucumber testing",
+        "specification by example"
+      ],
+      "skills": {
+        "primary": "bdd"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.5
+      }
+    },
+    "caching_strategy": {
+      "agents": [
+        "data-engineer"
+      ],
+      "context_weights": {
+        "cache_invalidation": 0.4,
+        "consistency_requirements": 0.25,
+        "hit_rate_optimization": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "devops-engineer",
+          "confidence_boost": 0.1,
+          "skill": "observability"
+        }
+      ],
+      "kb_tags": [
+        "KA4",
+        "caching",
+        "Redis",
+        "performance"
+      ],
+      "patterns": [
+        "caching",
+        "cache invalidation",
+        "Redis cache",
+        "Memcached",
+        "write-through cache",
+        "write-behind cache",
+        "cache-aside"
+      ],
+      "priority": 78,
+      "semantic_aliases": [
+        "cache management",
+        "distributed cache",
+        "cache optimization"
+      ],
+      "skills": {
+        "primary": "data-engineering"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.5
+      }
+    },
+    "code_construction": {
+      "agents": [
+        "construction-lead",
+        "code-generator"
+      ],
+      "context_weights": {
+        "code_structure": 0.25,
+        "framework_requirements": 0.25,
+        "implementation_history": 0.2,
+        "language_specifics": 0.3
+      },
+      "fallback_chain": [
+        {
+          "agent": "design-specialist",
+          "confidence_boost": 0.2,
+          "skill": "software-design"
+        },
+        {
+          "agent": "construction-lead",
+          "confidence_boost": 0.1,
+          "skill": "construction-standards"
+        }
+      ],
+      "ka": 4,
+      "kb_tags": [
+        "KA4",
+        "construction",
+        "implementation",
+        "coding"
+      ],
+      "parallel_candidates": [
+        "code-generator",
+        "construction-lead"
+      ],
+      "patterns": [
+        "implement",
+        "write code",
+        "coding",
+        "develop feature",
+        "build component"
+      ],
+      "priority": 90,
+      "semantic_aliases": [
+        "coding",
+        "programming",
+        "development",
+        "implementation",
+        "feature development"
+      ],
+      "skills": {
+        "primary": "construction-standards"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.15,
+        "pattern": 0.3,
+        "semantic": 0.4
+      }
+    },
+    "code_review": {
+      "agents": [
+        "code-review-lead"
+      ],
+      "context_weights": {
+        "code_complexity": 0.3,
+        "review_focus": 0.35,
+        "risk_assessment": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "quality-assurance",
+          "confidence_boost": 0.15,
+          "skill": "quality-assurance"
+        }
+      ],
+      "hooks": [
+        "pre-commit-validator"
+      ],
+      "ka": 11,
+      "kb_tags": [
+        "KA11",
+        "code-review",
+        "peer-review",
+        "PR"
+      ],
+      "parallel_candidates": [
+        "code-review-lead",
+        "senior-developer"
+      ],
+      "patterns": [
+        "code review",
+        "peer review",
+        "review pull request",
+        "pr review",
+        "review code",
+        "inspect code"
+      ],
+      "priority": 85,
+      "semantic_aliases": [
+        "PR review",
+        "peer inspection",
+        "code inspection",
+        "pull request review"
+      ],
+      "skills": {
+        "primary": "code-review"
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.1,
+        "pattern": 0.3,
+        "semantic": 0.4
+      }
+    },
+    "config_management": {
+      "agents": [
+        "config-manager"
+      ],
+      "context_weights": {
+        "change_tracking": 0.35,
+        "release_strategy": 0.3,
+        "version_control": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "devops-engineer",
+          "confidence_boost": 0.15,
+          "skill": "devops-engineering"
+        }
+      ],
+      "ka": 7,
+      "kb_tags": [
+        "KA7",
+        "git",
+        "version-control",
+        "release"
+      ],
+      "patterns": [
+        "version control",
+        "git workflow",
+        "branching strategy",
+        "release management",
+        "change management"
+      ],
+      "priority": 85,
+      "semantic_aliases": [
+        "source control",
+        "VCS management",
+        "release engineering",
+        "change control"
+      ],
+      "skills": {
+        "primary": "config-management"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.3,
+        "semantic": 0.45
+      }
+    },
+    "container_orchestration": {
+      "agents": [
+        "devops-engineer"
+      ],
+      "context_weights": {
+        "cluster_state": 0.35,
+        "scaling_requirements": 0.35,
+        "workload_characteristics": 0.3
+      },
+      "fallback_chain": [
+        {
+          "agent": "devops-engineer",
+          "confidence_boost": 0.2,
+          "skill": "devops-engineering"
+        }
+      ],
+      "kb_tags": [
+        "KA9",
+        "kubernetes",
+        "docker",
+        "containers"
+      ],
+      "parallel_candidates": [
+        "devops-engineer",
+        "platform-engineer"
+      ],
+      "patterns": [
+        "kubernetes",
+        "k8s",
+        "docker",
+        "container",
+        "pod",
+        "deployment",
+        "helm chart",
+        "service mesh",
+        "ingress",
+        "kubectl",
+        "minikube",
+        "eks",
+        "gke",
+        "aks"
+      ],
+      "priority": 85,
+      "semantic_aliases": [
+        "K8s",
+        "container management",
+        "orchestration",
+        "Docker containers",
+        "Kubernetes deployment"
+      ],
+      "skills": {
+        "primary": "container-orchestration",
+        "secondary": [
+          "devops-engineering"
+        ]
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.3,
+        "semantic": 0.45
+      }
+    },
+    "data_pipeline": {
+      "agents": [
+        "data-engineer"
+      ],
+      "context_weights": {
+        "data_sources": 0.3,
+        "destination_requirements": 0.35,
+        "transformation_logic": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "devops-engineer",
+          "confidence_boost": 0.1,
+          "skill": "infrastructure-as-code"
+        }
+      ],
+      "kb_tags": [
+        "KA4",
+        "data-pipeline",
+        "ETL",
+        "data-warehouse"
+      ],
+      "parallel_candidates": [
+        "data-engineer",
+        "data-architect"
+      ],
+      "patterns": [
+        "ETL",
+        "ELT",
+        "data pipeline",
+        "data warehouse",
+        "data lake",
+        "datamesh",
+        "data ingestion",
+        "data transformation",
+        "CDC",
+        "change data capture"
+      ],
+      "priority": 82,
+      "semantic_aliases": [
+        "data processing",
+        "data flow",
+        "data integration",
+        "streaming data"
+      ],
+      "skills": {
+        "primary": "data-engineering"
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.45
+      }
+    },
+    "data_structure_selection": {
+      "agents": [
+        "algorithm-specialist"
+      ],
+      "context_weights": {
+        "access_patterns": 0.35,
+        "memory_constraints": 0.3,
+        "operation_complexity": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "algorithm-specialist",
+          "confidence_boost": 0.2,
+          "skill": "algorithm-design"
+        }
+      ],
+      "ka": 15,
+      "kb_tags": [
+        "KA15",
+        "data-structures",
+        "collections"
+      ],
+      "patterns": [
+        "data structure",
+        "array",
+        "linked list",
+        "tree",
+        "graph",
+        "hash table",
+        "heap",
+        "stack",
+        "queue",
+        "trie"
+      ],
+      "priority": 82,
+      "semantic_aliases": [
+        "data structure selection",
+        "data structure choice",
+        "data structure optimization"
+      ],
+      "skills": {
+        "primary": "data-structures"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.5
+      }
+    },
+    "database_administration": {
+      "agents": [
+        "data-engineer"
+      ],
+      "context_weights": {
+        "availability_requirements": 0.35,
+        "backup_strategy": 0.3,
+        "recovery_objectives": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "devops-engineer",
+          "confidence_boost": 0.1,
+          "skill": "infrastructure-as-code"
+        }
+      ],
+      "kb_tags": [
+        "KA4",
+        "DBA",
+        "administration",
+        "HA"
+      ],
+      "patterns": [
+        "database administration",
+        "DBA",
+        "backup",
+        "restore",
+        "replication",
+        "failover",
+        "high availability",
+        "connection pooling",
+        "pgBouncer"
+      ],
+      "priority": 78,
+      "semantic_aliases": [
+        "DBA tasks",
+        "database operations",
+        "database maintenance",
+        "HA setup"
+      ],
+      "skills": {
+        "primary": "data-engineering"
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.1,
+        "pattern": 0.3,
+        "semantic": 0.4
+      }
+    },
+    "database_design": {
+      "agents": [
+        "data-engineer"
+      ],
+      "context_weights": {
+        "normalization_goals": 0.3,
+        "performance_requirements": 0.35,
+        "schema_design": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "design-specialist",
+          "confidence_boost": 0.15,
+          "skill": "software-design"
+        }
+      ],
+      "ka": 3,
+      "kb_tags": [
+        "KA3",
+        "database",
+        "schema",
+        "data-model"
+      ],
+      "parallel_candidates": [
+        "data-engineer",
+        "db-architect"
+      ],
+      "patterns": [
+        "database schema",
+        "table design",
+        "normalization",
+        "denormalization",
+        "entity relationship",
+        "ER diagram",
+        "data model",
+        "relational model",
+        "schema design"
+      ],
+      "priority": 85,
+      "semantic_aliases": [
+        "schema design",
+        "data modeling",
+        "database architecture",
+        "relational design"
+      ],
+      "skills": {
+        "primary": "data-engineering"
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.1,
+        "pattern": 0.3,
+        "semantic": 0.4
+      }
+    },
+    "deployment_strategy": {
+      "agents": [
+        "devops-engineer"
+      ],
+      "context_weights": {
+        "deployment_risk": 0.35,
+        "rollback_capability": 0.35,
+        "traffic_management": 0.3
+      },
+      "fallback_chain": [
+        {
+          "agent": "devops-engineer",
+          "confidence_boost": 0.2,
+          "skill": "devops-engineering"
+        }
+      ],
+      "kb_tags": [
+        "KA9",
+        "deployment",
+        "release",
+        "rollback"
+      ],
+      "parallel_candidates": [
+        "devops-engineer",
+        "release-engineer"
+      ],
+      "patterns": [
+        "blue-green deployment",
+        "canary release",
+        "rolling update",
+        "feature toggle",
+        "gradual rollout",
+        "zero downtime deployment",
+        "ab deployment",
+        "release management",
+        "rollback"
+      ],
+      "priority": 82,
+      "semantic_aliases": [
+        "release deployment",
+        "progressive rollout",
+        "deployment pattern",
+        "release strategy"
+      ],
+      "skills": {
+        "primary": "deployment-strategy",
+        "secondary": [
+          "devops-engineering"
+        ]
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.45
+      }
+    },
+    "design_patterns": {
+      "agents": [
+        "design-specialist"
+      ],
+      "context_weights": {
+        "applicable_scenarios": 0.3,
+        "implementation_hints": 0.3,
+        "pattern_library": 0.4
+      },
+      "fallback_chain": [
+        {
+          "agent": "design-specialist",
+          "confidence_boost": 0.15,
+          "skill": "software-design"
+        }
+      ],
+      "ka": 3,
+      "kb_tags": [
+        "KA3",
+        "design-patterns",
+        "GOF",
+        "enterprise-patterns"
+      ],
+      "patterns": [
+        "design pattern",
+        "singleton",
+        "observer",
+        "factory",
+        "repository",
+        "strategy",
+        "decorator",
+        "adapter",
+        "command",
+        "composite",
+        "proxy",
+        "visitor",
+        "template method",
+        "builder",
+        "prototype",
+        "facade",
+        "flyweight",
+        "mediator",
+        "memento",
+        "chain of responsibility"
+      ],
+      "priority": 85,
+      "semantic_aliases": [
+        "gang of four",
+        "GOF patterns",
+        "architectural pattern",
+        "enterprise pattern",
+        "pattern selection"
+      ],
+      "skills": {
+        "primary": "design-patterns"
+      },
+      "weights": {
+        "context": 0.1,
+        "kb_relevance": 0.1,
+        "pattern": 0.3,
+        "semantic": 0.5
+      }
+    },
+    "devops_engineering": {
+      "agents": [
+        "devops-engineer"
+      ],
+      "context_weights": {
+        "automation_opportunities": 0.25,
+        "deployment_frequency": 0.15,
+        "infrastructure_needs": 0.3,
+        "pipeline_state": 0.3
+      },
+      "fallback_chain": [
+        {
+          "agent": "process-engineer",
+          "confidence_boost": 0.15,
+          "skill": "process-engineering"
+        },
+        {
+          "agent": "devops-engineer",
+          "confidence_boost": 0.1,
+          "skill": "infrastructure-as-code"
+        }
+      ],
+      "hooks": [
+        "devops-context"
+      ],
+      "ka": 9,
+      "kb_tags": [
+        "KA9",
+        "DevOps",
+        "CI/CD",
+        "automation"
+      ],
+      "parallel_candidates": [
+        "devops-engineer",
+        "sre-engineer",
+        "platform-engineer"
+      ],
+      "patterns": [
+        "devops pipeline",
+        "ci/cd pipeline",
+        "continuous integration",
+        "continuous deployment",
+        "continuous delivery",
+        "automation pipeline",
+        "build automation",
+        "jenkins",
+        "github actions",
+        "gitlab ci",
+        "circleci"
+      ],
+      "priority": 88,
+      "semantic_aliases": [
+        "CI/CD",
+        "pipeline automation",
+        "build pipeline",
+        "release automation",
+        "DevOps practices"
+      ],
+      "skills": {
+        "primary": "devops-engineering",
+        "secondary": [
+          "config-management",
+          "process-engineering"
+        ]
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.15,
+        "pattern": 0.25,
+        "semantic": 0.4
+      }
+    },
+    "documentation": {
+      "agents": [
+        "doc-writer"
+      ],
+      "context_weights": {
+        "audience_level": 0.3,
+        "content_structure": 0.35,
+        "documentation_type": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "requirements-analyst",
+          "confidence_boost": 0.1,
+          "skill": "requirements-specification"
+        }
+      ],
+      "kb_tags": [
+        "cross-cutting",
+        "documentation",
+        "writing"
+      ],
+      "patterns": [
+        "document",
+        "write docs",
+        "api documentation",
+        "readme",
+        "technical writing"
+      ],
+      "priority": 75,
+      "semantic_aliases": [
+        "technical documentation",
+        "writing documentation",
+        "doc generation",
+        "specification writing"
+      ],
+      "skills": {
+        "primary": "documentation"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.3,
+        "semantic": 0.45
+      }
+    },
+    "exploratory_testing": {
+      "agents": [
+        "test-strategist"
+      ],
+      "context_weights": {
+        "bug_discovery": 0.35,
+        "charter_focus": 0.35,
+        "session_management": 0.3
+      },
+      "fallback_chain": [
+        {
+          "agent": "test-strategist",
+          "confidence_boost": 0.2,
+          "skill": "testing-strategies"
+        }
+      ],
+      "ka": 5,
+      "kb_tags": [
+        "KA5",
+        "testing",
+        "exploratory",
+        "manual"
+      ],
+      "patterns": [
+        "exploratory testing",
+        "explore functionality",
+        "session-based testing",
+        "charter-based testing",
+        "ad hoc testing",
+        "error guessing"
+      ],
+      "priority": 80,
+      "semantic_aliases": [
+        "exploratory session",
+        "ad-hoc testing",
+        "unscripted testing",
+        "manual exploration"
+      ],
+      "skills": {
+        "primary": "exploratory-testing"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.3,
+        "semantic": 0.45
+      }
+    },
+    "frontend_development": {
+      "agents": [
+        "construction-lead"
+      ],
+      "context_weights": {
+        "component_design": 0.35,
+        "framework_choice": 0.3,
+        "performance_requirements": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "design-specialist",
+          "confidence_boost": 0.15,
+          "skill": "software-design"
+        }
+      ],
+      "kb_tags": [
+        "KA4",
+        "frontend",
+        "React",
+        "Vue",
+        "web"
+      ],
+      "parallel_candidates": [
+        "frontend-specialist",
+        "ui-developer"
+      ],
+      "patterns": [
+        "frontend",
+        "react",
+        "vue",
+        "angular",
+        "svelte",
+        "next.js",
+        "nuxt",
+        "user interface",
+        "UI component",
+        "jsx",
+        "tsx",
+        "web component",
+        "tailwind",
+        "css framework",
+        "responsive design",
+        "accessibility",
+        "wcag"
+      ],
+      "priority": 85,
+      "semantic_aliases": [
+        "UI development",
+        "client-side development",
+        "web UI",
+        "SPA development"
+      ],
+      "skills": {
+        "primary": "web-development"
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.1,
+        "pattern": 0.3,
+        "semantic": 0.4
+      }
+    },
+    "fullstack_development": {
+      "agents": [
+        "construction-lead"
+      ],
+      "context_weights": {
+        "backend_scope": 0.3,
+        "frontend_scope": 0.3,
+        "integration_points": 0.4
+      },
+      "fallback_chain": [
+        {
+          "agent": "construction-lead",
+          "confidence_boost": 0.1,
+          "skill": "frontend-development"
+        },
+        {
+          "agent": "construction-lead",
+          "confidence_boost": 0.1,
+          "skill": "backend-development"
+        }
+      ],
+      "kb_tags": [
+        "KA4",
+        "fullstack",
+        "MERN",
+        "MEAN"
+      ],
+      "parallel_candidates": [
+        "fullstack-developer",
+        "frontend-specialist",
+        "backend-specialist"
+      ],
+      "patterns": [
+        "fullstack",
+        "full-stack",
+        "monorepo",
+        "mern stack",
+        "mean stack",
+        "frontend and backend",
+        "integrate frontend backend",
+        "connect api to ui"
+      ],
+      "priority": 82,
+      "semantic_aliases": [
+        "full-stack development",
+        "end-to-end development",
+        "MERN",
+        "MEAN"
+      ],
+      "skills": {
+        "primary": "web-development"
+      },
+      "weights": {
+        "context": 0.25,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.4
+      }
+    },
+    "gitops": {
+      "agents": [
+        "devops-engineer"
+      ],
+      "context_weights": {
+        "deployment_automation": 0.35,
+        "git_workflow": 0.4,
+        "state_management": 0.25
+      },
+      "fallback_chain": [
+        {
+          "agent": "devops-engineer",
+          "confidence_boost": 0.2,
+          "skill": "devops-engineering"
+        }
+      ],
+      "kb_tags": [
+        "KA9",
+        "GitOps",
+        "ArgoCD",
+        "Flux"
+      ],
+      "patterns": [
+        "gitops",
+        "argocd",
+        "flux",
+        "jenkins x",
+        "gitOps workflow"
+      ],
+      "priority": 80,
+      "semantic_aliases": [
+        "GitOps",
+        "declarative deployment",
+        "git-driven delivery"
+      ],
+      "skills": {
+        "primary": "gitops",
+        "secondary": [
+          "devops-engineering"
+        ]
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.5
+      }
+    },
+    "infrastructure_as_code": {
+      "agents": [
+        "devops-engineer"
+      ],
+      "context_weights": {
+        "cloud_provider": 0.3,
+        "infrastructure_state": 0.35,
+        "provisioning_patterns": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "devops-engineer",
+          "confidence_boost": 0.2,
+          "skill": "devops-engineering"
+        }
+      ],
+      "kb_tags": [
+        "KA9",
+        "IaC",
+        "terraform",
+        "AWS",
+        "cloud"
+      ],
+      "parallel_candidates": [
+        "devops-engineer",
+        "cloud-architect"
+      ],
+      "patterns": [
+        "terraform",
+        "pulumi",
+        "ansible",
+        "cloudformation",
+        "infrastructure as code",
+        "iac",
+        "provisioning",
+        "vpc",
+        "network configuration",
+        "terraform module",
+        "terraform state"
+      ],
+      "priority": 85,
+      "semantic_aliases": [
+        "IaC",
+        "cloud provisioning",
+        "infrastructure provisioning",
+        "configuration as code"
+      ],
+      "skills": {
+        "primary": "infrastructure-as-code",
+        "secondary": [
+          "devops-engineering"
+        ]
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.45
+      }
+    },
+    "kanban_implementation": {
+      "agents": [
+        "method-consultant"
+      ],
+      "context_weights": {
+        "board_design": 0.3,
+        "flow_metrics": 0.35,
+        "wip_constraints": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "method-consultant",
+          "confidence_boost": 0.2,
+          "skill": "methodology-selection"
+        }
+      ],
+      "ka": 10,
+      "kb_tags": [
+        "KA10",
+        "Kanban",
+        "flow",
+        "WIP"
+      ],
+      "patterns": [
+        "implement kanban",
+        "adopt kanban",
+        "wip limit",
+        "work in progress",
+        "lead time",
+        "cycle time",
+        "kanban board",
+        "flow optimization",
+        "scrumban",
+        "wip constraints"
+      ],
+      "priority": 82,
+      "semantic_aliases": [
+        "kanban setup",
+        "flow-based delivery",
+        "visual management"
+      ],
+      "skills": {
+        "primary": "methodology-consulting"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.3,
+        "semantic": 0.45
+      }
+    },
+    "llm_application": {
+      "agents": [
+        "llm-engineer"
+      ],
+      "context_weights": {
+        "integration_pattern": 0.25,
+        "model_selection": 0.3,
+        "output_requirements": 0.15,
+        "prompt_design": 0.3
+      },
+      "fallback_chain": [
+        {
+          "agent": "llm-engineer",
+          "confidence_boost": 0.15,
+          "skill": "prompt-engineering"
+        },
+        {
+          "agent": "construction-lead",
+          "confidence_boost": 0.1,
+          "skill": "api-design"
+        }
+      ],
+      "kb_tags": [
+        "KA15",
+        "LLM",
+        "AI",
+        "GPT",
+        "LangChain"
+      ],
+      "parallel_candidates": [
+        "llm-engineer",
+        "prompt-engineer"
+      ],
+      "patterns": [
+        "llm",
+        "large language model",
+        "gpt",
+        "claude",
+        "langchain",
+        "llamaindex",
+        "semantic kernel",
+        "foundation model",
+        "openai api",
+        "anthropic"
+      ],
+      "priority": 85,
+      "semantic_aliases": [
+        "LLM integration",
+        "generative AI",
+        "AI model integration",
+        "GPT application"
+      ],
+      "skills": {
+        "primary": "llm-application"
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.45
+      }
+    },
+    "maintenance_analysis": {
+      "agents": [
+        "maintenance-specialist"
+      ],
+      "context_weights": {
+        "change_impact": 0.25,
+        "code_familiarity": 0.25,
+        "legacy_factors": 0.15,
+        "maintenance_type": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "design-specialist",
+          "confidence_boost": 0.15,
+          "skill": "refactoring"
+        },
+        {
+          "agent": "requirements-analyst",
+          "confidence_boost": 0.1,
+          "skill": "requirements-analysis"
+        }
+      ],
+      "ka": 6,
+      "kb_tags": [
+        "KA6",
+        "maintenance",
+        "bug-fix",
+        "enhancement"
+      ],
+      "parallel_candidates": [
+        "maintenance-specialist",
+        "code-specialist"
+      ],
+      "patterns": [
+        "maintenance",
+        "bug fix",
+        "enhancement",
+        "refactor",
+        "migration"
+      ],
+      "priority": 85,
+      "semantic_aliases": [
+        "bug fixing",
+        "enhancement",
+        "software maintenance",
+        "code maintenance",
+        "migration"
+      ],
+      "skills": {
+        "primary": "maintenance-analysis"
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.1,
+        "pattern": 0.3,
+        "semantic": 0.4
+      }
+    },
+    "methodology_selection": {
+      "agents": [
+        "method-consultant"
+      ],
+      "context_weights": {
+        "organizational_culture": 0.25,
+        "project_type": 0.3,
+        "regulatory_constraints": 0.15,
+        "team_characteristics": 0.3
+      },
+      "fallback_chain": [
+        {
+          "agent": "process-engineer",
+          "confidence_boost": 0.15,
+          "skill": "process-engineering"
+        }
+      ],
+      "ka": 10,
+      "kb_tags": [
+        "KA10",
+        "methodology",
+        "agile",
+        "scrum"
+      ],
+      "parallel_candidates": [
+        "method-consultant",
+        "agile-coach"
+      ],
+      "patterns": [
+        "agile",
+        "scrum",
+        "kanban",
+        "safe",
+        "less",
+        "waterfall",
+        "v-model",
+        "spiral model",
+        "plan-driven",
+        "hybrid approach",
+        "methodology",
+        "xp",
+        "extreme programming",
+        "lean",
+        "six sigma",
+        "iterative development",
+        "incremental delivery"
+      ],
+      "priority": 85,
+      "semantic_aliases": [
+        "development methodology",
+        "project methodology",
+        "development approach",
+        "process model selection"
+      ],
+      "skills": {
+        "primary": "methodology-consulting"
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.45
+      }
+    },
+    "ml_engineering": {
+      "agents": [
+        "ml-engineer"
+      ],
+      "context_weights": {
+        "inference_requirements": 0.25,
+        "mlops_pipeline": 0.2,
+        "model_lifecycle": 0.3,
+        "training_data": 0.25
+      },
+      "fallback_chain": [
+        {
+          "agent": "data-engineer",
+          "confidence_boost": 0.15,
+          "skill": "data-engineering"
+        }
+      ],
+      "ka": 15,
+      "kb_tags": [
+        "KA15",
+        "ML",
+        "machine-learning",
+        "MLOps"
+      ],
+      "parallel_candidates": [
+        "ml-engineer",
+        "data-scientist"
+      ],
+      "patterns": [
+        "machine learning",
+        "deep learning",
+        "mlops",
+        "model training",
+        "model inference",
+        "feature engineering",
+        "neural network",
+        "tensorflow",
+        "pytorch",
+        "scikit-learn"
+      ],
+      "priority": 88,
+      "semantic_aliases": [
+        "ML engineering",
+        "MLOps",
+        "model development",
+        "AI engineering"
+      ],
+      "skills": {
+        "primary": "ml-engineering"
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.15,
+        "pattern": 0.25,
+        "semantic": 0.4
+      }
+    },
+    "mutation_testing": {
+      "agents": [
+        "test-strategist"
+      ],
+      "context_weights": {
+        "mutation_operators": 0.4,
+        "survival_analysis": 0.35,
+        "test_effectiveness": 0.25
+      },
+      "fallback_chain": [
+        {
+          "agent": "test-writer",
+          "confidence_boost": 0.15,
+          "skill": "test-implementation"
+        }
+      ],
+      "ka": 5,
+      "kb_tags": [
+        "KA5",
+        "mutation-testing",
+        "fault-injection"
+      ],
+      "patterns": [
+        "mutation testing",
+        "mutants",
+        "kill mutants",
+        "fault injection"
+      ],
+      "priority": 75,
+      "semantic_aliases": [
+        "fault injection testing",
+        "mutation analysis",
+        "test quality assessment"
+      ],
+      "skills": {
+        "primary": "test-techniques"
+      },
+      "weights": {
+        "context": 0.1,
+        "kb_relevance": 0.1,
+        "pattern": 0.3,
+        "semantic": 0.5
+      }
+    },
+    "nosql_design": {
+      "agents": [
+        "data-engineer"
+      ],
+      "context_weights": {
+        "data_model_type": 0.35,
+        "query_patterns": 0.35,
+        "scalability_needs": 0.3
+      },
+      "fallback_chain": [
+        {
+          "agent": "data-engineer",
+          "confidence_boost": 0.15,
+          "skill": "database-design"
+        }
+      ],
+      "kb_tags": [
+        "KA4",
+        "NoSQL",
+        "MongoDB",
+        "Redis",
+        "Cassandra"
+      ],
+      "parallel_candidates": [
+        "nosql-specialist",
+        "data-engineer"
+      ],
+      "patterns": [
+        "MongoDB",
+        "document store",
+        "NoSQL database",
+        "schema-less",
+        "MongoDB aggregation",
+        "Redis",
+        "key-value store",
+        "Cassandra",
+        "column family"
+      ],
+      "priority": 80,
+      "semantic_aliases": [
+        "NoSQL",
+        "document databases",
+        "key-value stores",
+        "column-family stores"
+      ],
+      "skills": {
+        "primary": "data-engineering"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.3,
+        "semantic": 0.45
+      }
+    },
+    "observability_setup": {
+      "agents": [
+        "devops-engineer"
+      ],
+      "context_weights": {
+        "alerting_strategy": 0.3,
+        "log_management": 0.35,
+        "metric_requirements": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "devops-engineer",
+          "confidence_boost": 0.15,
+          "skill": "site-reliability"
+        }
+      ],
+      "kb_tags": [
+        "KA9",
+        "observability",
+        "monitoring",
+        "metrics"
+      ],
+      "parallel_candidates": [
+        "sre-engineer",
+        "devops-engineer"
+      ],
+      "patterns": [
+        "monitoring",
+        "observability",
+        "logging",
+        "tracing",
+        "prometheus",
+        "grafana",
+        "elk stack",
+        "jaeger",
+        "datadog",
+        "alerting",
+        "slo",
+        "sla",
+        "metric",
+        "log aggregation"
+      ],
+      "priority": 82,
+      "semantic_aliases": [
+        "monitoring setup",
+        "logging infrastructure",
+        "metrics collection",
+        "tracing setup"
+      ],
+      "skills": {
+        "primary": "observability",
+        "secondary": [
+          "devops-engineering"
+        ]
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.45
+      }
+    },
+    "performance_testing": {
+      "agents": [
+        "test-strategist"
+      ],
+      "context_weights": {
+        "bottleneck_analysis": 0.35,
+        "load_profile": 0.35,
+        "performance_metrics": 0.3
+      },
+      "fallback_chain": [
+        {
+          "agent": "devops-engineer",
+          "confidence_boost": 0.15,
+          "skill": "observability"
+        }
+      ],
+      "ka": 5,
+      "kb_tags": [
+        "KA5",
+        "performance",
+        "load-testing",
+        "JMeter"
+      ],
+      "parallel_candidates": [
+        "performance-specialist",
+        "test-strategist"
+      ],
+      "patterns": [
+        "performance testing",
+        "load testing",
+        "stress testing",
+        "spike testing",
+        "soak testing",
+        "endurance testing",
+        "jmeter",
+        "k6",
+        "gatling"
+      ],
+      "priority": 82,
+      "semantic_aliases": [
+        "load testing",
+        "stress testing",
+        "endurance testing",
+        "scalability testing"
+      ],
+      "skills": {
+        "primary": "performance-testing"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.5
+      }
+    },
+    "process_improvement": {
+      "agents": [
+        "process-engineer"
+      ],
+      "context_weights": {
+        "current_process": 0.35,
+        "improvement_goals": 0.35,
+        "measurement_criteria": 0.3
+      },
+      "fallback_chain": [
+        {
+          "agent": "devops-engineer",
+          "confidence_boost": 0.2,
+          "skill": "devops-engineering"
+        }
+      ],
+      "ka": 9,
+      "kb_tags": [
+        "KA9",
+        "process",
+        "CI/CD",
+        "DevOps"
+      ],
+      "parallel_candidates": [
+        "process-engineer",
+        "devops-engineer"
+      ],
+      "patterns": [
+        "process improvement",
+        "cicd",
+        "devops",
+        "automation",
+        "quality process"
+      ],
+      "priority": 82,
+      "semantic_aliases": [
+        "process optimization",
+        "workflow improvement",
+        "DevOps transformation",
+        "CI/CD implementation"
+      ],
+      "skills": {
+        "primary": "process-engineering"
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.45
+      }
+    },
+    "project_planning": {
+      "agents": [
+        "project-manager"
+      ],
+      "context_weights": {
+        "milestone_dependencies": 0.2,
+        "resource_availability": 0.25,
+        "risk_factors": 0.25,
+        "timeline_constraints": 0.3
+      },
+      "fallback_chain": [
+        {
+          "agent": "method-consultant",
+          "confidence_boost": 0.15,
+          "skill": "methodology-consulting"
+        }
+      ],
+      "ka": 8,
+      "kb_tags": [
+        "KA8",
+        "planning",
+        "estimation",
+        "management"
+      ],
+      "parallel_candidates": [
+        "project-manager",
+        "risk-specialist"
+      ],
+      "patterns": [
+        "project plan",
+        "estimation",
+        "timeline",
+        "milestones",
+        "resource planning",
+        "risk management"
+      ],
+      "priority": 88,
+      "semantic_aliases": [
+        "planning",
+        "project management",
+        "scheduling",
+        "resource allocation",
+        "estimation"
+      ],
+      "skills": {
+        "primary": "project-management"
+      },
+      "weights": {
+        "context": 0.25,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.4
+      }
+    },
+    "prompt_engineering": {
+      "agents": [
+        "llm-engineer"
+      ],
+      "context_weights": {
+        "examples_selection": 0.3,
+        "output_formatting": 0.35,
+        "prompt_structure": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "llm-engineer",
+          "confidence_boost": 0.2,
+          "skill": "llm-application"
+        }
+      ],
+      "kb_tags": [
+        "KA15",
+        "prompt-engineering",
+        "LLM"
+      ],
+      "patterns": [
+        "prompt engineering",
+        "few-shot",
+        "zero-shot",
+        "chain of thought",
+        "cot",
+        "in-context learning",
+        "system prompt",
+        "prompt template",
+        "few shot"
+      ],
+      "priority": 82,
+      "semantic_aliases": [
+        "prompt design",
+        "prompt optimization",
+        "prompt tuning",
+        "few-shot learning"
+      ],
+      "skills": {
+        "primary": "prompt-engineering"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.5
+      }
+    },
+    "quality_assurance": {
+      "agents": [
+        "quality-assurance"
+      ],
+      "context_weights": {
+        "defect_history": 0.3,
+        "quality_goals": 0.35,
+        "quality_standards": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "code-review-lead",
+          "confidence_boost": 0.15,
+          "skill": "code-review"
+        },
+        {
+          "agent": "quality-assurance",
+          "confidence_boost": 0.1,
+          "skill": "quality-metrics"
+        }
+      ],
+      "hooks": [
+        "quality-check"
+      ],
+      "ka": 11,
+      "kb_tags": [
+        "KA11",
+        "quality",
+        "QA",
+        "assurance"
+      ],
+      "parallel_candidates": [
+        "quality-assurance",
+        "code-quality-agent"
+      ],
+      "patterns": [
+        "quality assurance",
+        "qa",
+        "code quality",
+        "static analysis",
+        "linting",
+        "code review",
+        "quality metrics",
+        "iso 25010",
+        "sqlaure"
+      ],
+      "priority": 88,
+      "semantic_aliases": [
+        "QA",
+        "quality control",
+        "quality management",
+        "defect prevention"
+      ],
+      "skills": {
+        "primary": "quality-assurance"
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.15,
+        "pattern": 0.25,
+        "semantic": 0.4
+      }
+    },
+    "quality_metrics": {
+      "agents": [
+        "quality-assurance"
+      ],
+      "context_weights": {
+        "measurement_frequency": 0.3,
+        "metric_selection": 0.35,
+        "target_definition": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "quality-assurance",
+          "confidence_boost": 0.2,
+          "skill": "quality-assurance"
+        }
+      ],
+      "ka": 11,
+      "kb_tags": [
+        "KA11",
+        "metrics",
+        "quality",
+        "measurement"
+      ],
+      "patterns": [
+        "quality metrics",
+        "measure quality",
+        "quality measurement",
+        "defect density",
+        "code coverage",
+        "cyclomatic complexity",
+        "technical debt"
+      ],
+      "priority": 80,
+      "semantic_aliases": [
+        "quality measurement",
+        "metrics collection",
+        "quality indicators",
+        "defect metrics"
+      ],
+      "skills": {
+        "primary": "quality-metrics"
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.45
+      }
+    },
+    "query_optimization": {
+      "agents": [
+        "data-engineer"
+      ],
+      "context_weights": {
+        "execution_plan": 0.35,
+        "index_usage": 0.35,
+        "performance_bottlenecks": 0.3
+      },
+      "fallback_chain": [
+        {
+          "agent": "data-engineer",
+          "confidence_boost": 0.15,
+          "skill": "database-design"
+        }
+      ],
+      "kb_tags": [
+        "KA4",
+        "performance",
+        "optimization",
+        "SQL"
+      ],
+      "parallel_candidates": [
+        "dba-specialist",
+        "performance-specialist"
+      ],
+      "patterns": [
+        "slow query",
+        "query performance",
+        "explain plan",
+        "index optimization",
+        "query tuning",
+        "database performance",
+        "optimize SQL"
+      ],
+      "priority": 82,
+      "semantic_aliases": [
+        "SQL tuning",
+        "performance tuning",
+        "query performance",
+        "database optimization"
+      ],
+      "skills": {
+        "primary": "data-engineering"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.5
+      }
+    },
+    "rag_system": {
+      "agents": [
+        "llm-engineer"
+      ],
+      "context_weights": {
+        "chunking_approach": 0.3,
+        "retrieval_strategy": 0.35,
+        "vector_search": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "llm-engineer",
+          "confidence_boost": 0.2,
+          "skill": "llm-application"
+        },
+        {
+          "agent": "data-engineer",
+          "confidence_boost": 0.1,
+          "skill": "data-engineering"
+        }
+      ],
+      "kb_tags": [
+        "KA15",
+        "RAG",
+        "vector-db",
+        "embeddings"
+      ],
+      "parallel_candidates": [
+        "llm-engineer",
+        "vector-db-specialist"
+      ],
+      "patterns": [
+        "rag",
+        "retrieval augmented",
+        "vector database",
+        "faiss",
+        "pinecone",
+        "chroma",
+        "weaviate",
+        "semantic search",
+        "embedding",
+        "vector search",
+        "similarity search"
+      ],
+      "priority": 85,
+      "semantic_aliases": [
+        "RAG",
+        "vector retrieval",
+        "semantic retrieval",
+        "knowledge retrieval"
+      ],
+      "skills": {
+        "primary": "rag-system"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.5
+      }
+    },
+    "real_time_web": {
+      "agents": [
+        "construction-lead"
+      ],
+      "context_weights": {
+        "connection_management": 0.35,
+        "latency_requirements": 0.35,
+        "state_synchronization": 0.3
+      },
+      "fallback_chain": [
+        {
+          "agent": "construction-lead",
+          "confidence_boost": 0.15,
+          "skill": "backend-development"
+        }
+      ],
+      "kb_tags": [
+        "KA4",
+        "real-time",
+        "WebSocket",
+        "SSE"
+      ],
+      "patterns": [
+        "websocket",
+        "server-sent events",
+        "sse",
+        "real-time",
+        "live update",
+        "webhook",
+        "polling",
+        "long polling",
+        "socket.io",
+        "signalr"
+      ],
+      "priority": 80,
+      "semantic_aliases": [
+        "real-time communication",
+        "live updates",
+        "bidirectional communication"
+      ],
+      "skills": {
+        "primary": "web-development"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.3,
+        "semantic": 0.45
+      }
+    },
+    "refactoring": {
+      "agents": [
+        "design-specialist"
+      ],
+      "context_weights": {
+        "code_smells": 0.35,
+        "improvement_goals": 0.2,
+        "technical_debt": 0.3,
+        "test_coverage": 0.15
+      },
+      "fallback_chain": [
+        {
+          "agent": "design-specialist",
+          "confidence_boost": 0.15,
+          "skill": "design-patterns"
+        },
+        {
+          "agent": "design-specialist",
+          "confidence_boost": 0.1,
+          "skill": "software-design"
+        }
+      ],
+      "ka": 3,
+      "kb_tags": [
+        "KA3",
+        "refactoring",
+        "technical-debt",
+        "code-quality"
+      ],
+      "parallel_candidates": [
+        "design-specialist",
+        "code-quality-agent"
+      ],
+      "patterns": [
+        "refactor",
+        "code smell",
+        "improve design",
+        "technical debt",
+        "cleanup",
+        "restructure"
+      ],
+      "priority": 82,
+      "semantic_aliases": [
+        "code improvement",
+        "design improvement",
+        "debt reduction",
+        "code health",
+        "restructuring"
+      ],
+      "skills": {
+        "primary": "refactoring"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.3,
+        "semantic": 0.45
+      }
+    },
+    "requirement_analysis": {
+      "agents": [
+        "requirements-analyst"
+      ],
+      "context_weights": {
+        "conflict_resolution": 0.25,
+        "feasibility_study": 0.2,
+        "prioritization": 0.2,
+        "requirement_topics": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "requirements-analyst",
+          "confidence_boost": 0.2,
+          "skill": "requirements-elicitation"
+        }
+      ],
+      "ka": 1,
+      "kb_tags": [
+        "KA1",
+        "requirements",
+        "analysis",
+        "prioritization"
+      ],
+      "parallel_candidates": [
+        "requirements-analyst",
+        "requirements-prioritizer"
+      ],
+      "patterns": [
+        "analyze requirements",
+        "prioritize requirements",
+        "requirements conflict",
+        "ambiguous requirement",
+        "feasibility analysis"
+      ],
+      "priority": 90,
+      "semantic_aliases": [
+        "requirements validation",
+        "requirements triage",
+        "conflicting requirements",
+        "requirements parsing"
+      ],
+      "skills": {
+        "primary": "requirements-analysis"
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.1,
+        "pattern": 0.2,
+        "semantic": 0.5
+      }
+    },
+    "requirement_gathering": {
+      "agents": [
+        "requirements-analyst"
+      ],
+      "context_weights": {
+        "domain_terms": 0.15,
+        "intent_history": 0.1,
+        "project_scope": 0.2,
+        "recent_requirements": 0.3,
+        "stakeholder_topics": 0.25
+      },
+      "fallback_chain": [
+        {
+          "agent": "requirements-analyst",
+          "confidence_boost": 0.15,
+          "skill": "requirements-analysis"
+        },
+        {
+          "agent": "project-manager",
+          "confidence_boost": 0.1,
+          "skill": "stakeholder-management"
+        }
+      ],
+      "hooks": [
+        "requirements-auto-trigger"
+      ],
+      "ka": 1,
+      "kb_tags": [
+        "KA1",
+        "requirements",
+        "elicitation",
+        "stakeholder"
+      ],
+      "parallel_candidates": [
+        "requirements-analyst",
+        "stakeholder-management-agent"
+      ],
+      "patterns": [
+        "collect requirements",
+        "gather requirements",
+        "stakeholder interview",
+        "understand needs",
+        "define scope",
+        "collecter les besoins",
+        "rassembler les exigences"
+      ],
+      "priority": 95,
+      "semantic_aliases": [
+        "elicitation",
+        "needs assessment",
+        "requirements capture",
+        "user needs gathering",
+        "stakeholder collaboration"
+      ],
+      "skills": {
+        "primary": "requirements-elicitation",
+        "secondary": [
+          "requirements-analysis",
+          "stakeholder-management"
+        ]
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.45
+      }
+    },
+    "requirement_specification": {
+      "agents": [
+        "requirements-analyst"
+      ],
+      "context_weights": {
+        "acceptance_criteria": 0.3,
+        "documentation_context": 0.4,
+        "specification_format": 0.3
+      },
+      "fallback_chain": [
+        {
+          "agent": "requirements-analyst",
+          "confidence_boost": 0.15,
+          "skill": "requirements-analysis"
+        },
+        {
+          "agent": "doc-writer",
+          "confidence_boost": 0.1,
+          "skill": "documentation"
+        }
+      ],
+      "ka": 1,
+      "kb_tags": [
+        "KA1",
+        "requirements",
+        "specification",
+        "documentation"
+      ],
+      "patterns": [
+        "write requirements",
+        "specification document",
+        "user stories",
+        "use cases",
+        "acceptance criteria"
+      ],
+      "priority": 88,
+      "semantic_aliases": [
+        "requirements documentation",
+        "SRS creation",
+        "user story mapping",
+        "acceptance criteria definition"
+      ],
+      "skills": {
+        "primary": "requirements-specification"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.5
+      }
+    },
+    "safety_analysis": {
+      "agents": [
+        "safety-engineer"
+      ],
+      "context_weights": {
+        "hazard_sources": 0.35,
+        "risk_assessment": 0.35,
+        "safety_standards": 0.3
+      },
+      "fallback_chain": [
+        {
+          "agent": "project-manager",
+          "confidence_boost": 0.15,
+          "skill": "risk-management"
+        }
+      ],
+      "hooks": [
+        "safety-context"
+      ],
+      "ka": 12,
+      "kb_tags": [
+        "KA12",
+        "safety",
+        "hazard",
+        "FMEA"
+      ],
+      "parallel_candidates": [
+        "safety-engineer",
+        "risk-specialist"
+      ],
+      "patterns": [
+        "safety critical",
+        "hazard analysis",
+        "fmea",
+        "fault tree",
+        "iso 26262",
+        "iec 61508"
+      ],
+      "priority": 90,
+      "semantic_aliases": [
+        "safety engineering",
+        "hazard analysis",
+        "risk assessment",
+        "safety-critical systems"
+      ],
+      "skills": {
+        "primary": "safety-engineering"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.5
+      }
+    },
+    "scrum_adoption": {
+      "agents": [
+        "method-consultant"
+      ],
+      "context_weights": {
+        "ceremony_requirements": 0.3,
+        "role_clarification": 0.35,
+        "team_maturity": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "method-consultant",
+          "confidence_boost": 0.2,
+          "skill": "methodology-selection"
+        }
+      ],
+      "ka": 10,
+      "kb_tags": [
+        "KA10",
+        "Scrum",
+        "agile",
+        "implementation"
+      ],
+      "parallel_candidates": [
+        "scrum-master",
+        "method-consultant"
+      ],
+      "patterns": [
+        "implement scrum",
+        "adopt scrum",
+        "scrum roles",
+        "sprint planning",
+        "sprint retrospective",
+        "daily standup",
+        "scrum master",
+        "product owner",
+        "backlog refinement",
+        "sprint review",
+        "scrum ceremony",
+        "sprint goal"
+      ],
+      "priority": 85,
+      "semantic_aliases": [
+        "scrum implementation",
+        "scrum setup",
+        "agile framework setup",
+        "scrum team setup"
+      ],
+      "skills": {
+        "primary": "methodology-consulting"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.3,
+        "semantic": 0.45
+      }
+    },
+    "secure_design": {
+      "agents": [
+        "security-engineer"
+      ],
+      "context_weights": {
+        "architecture_constraints": 0.3,
+        "security_principles": 0.35,
+        "threat_modeling": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "architecture-designer",
+          "confidence_boost": 0.15,
+          "skill": "architecture-design"
+        }
+      ],
+      "hooks": [
+        "security-injection"
+      ],
+      "kb_tags": [
+        "KA13",
+        "security",
+        "architecture",
+        "design"
+      ],
+      "parallel_candidates": [
+        "security-architect",
+        "architecture-designer"
+      ],
+      "patterns": [
+        "secure design",
+        "security architecture",
+        "defense in depth",
+        "least privilege",
+        "zero trust architecture",
+        "security pattern"
+      ],
+      "priority": 88,
+      "semantic_aliases": [
+        "security architecture",
+        "secure architecture",
+        "threat-aware design",
+        "secure by design"
+      ],
+      "skills": {
+        "primary": "security-engineering",
+        "secondary": [
+          "architecture-design"
+        ]
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.45
+      }
+    },
+    "security_engineering": {
+      "agents": [
+        "security-engineer"
+      ],
+      "context_weights": {
+        "attack_surface": 0.25,
+        "compliance_drivers": 0.2,
+        "security_requirements": 0.25,
+        "threat_landscape": 0.3
+      },
+      "fallback_chain": [
+        {
+          "agent": "security-engineer",
+          "confidence_boost": 0.15,
+          "skill": "secure-design"
+        },
+        {
+          "agent": "security-engineer",
+          "confidence_boost": 0.1,
+          "skill": "security-testing"
+        }
+      ],
+      "hooks": [
+        "security-injection"
+      ],
+      "ka": 13,
+      "kb_tags": [
+        "KA13",
+        "security",
+        "vulnerability",
+        "compliance"
+      ],
+      "parallel_candidates": [
+        "security-engineer",
+        "appsec-engineer",
+        "cloud-security-specialist"
+      ],
+      "patterns": [
+        "security",
+        "vulnerability",
+        "penetration testing",
+        "owasp",
+        "sql injection",
+        "xss",
+        "csrf",
+        "xxe",
+        "authentication",
+        "authorization",
+        "encryption",
+        "supply chain security",
+        "sbom",
+        "software bill of materials",
+        "software transparency",
+        "zero trust",
+        "threat model",
+        "stride",
+        "pasta",
+        "sast",
+        "dast",
+        "secure coding",
+        "mtls",
+        "mutual tls",
+        "cwe",
+        "cve",
+        "cvss",
+        "cloud security",
+        "aws security",
+        "microservice security",
+        "nist ssdf",
+        "iso 27001",
+        "soc 2",
+        "gdpr",
+        "hipaa",
+        "pci dss",
+        "solarwinds",
+        "log4j"
+      ],
+      "priority": 95,
+      "semantic_aliases": [
+        "cybersecurity",
+        "information security",
+        "application security",
+        "cloud security",
+        "infrastructure security"
+      ],
+      "skills": {
+        "primary": "security-engineering"
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.15,
+        "pattern": 0.25,
+        "semantic": 0.4
+      }
+    },
+    "security_testing": {
+      "agents": [
+        "security-engineer"
+      ],
+      "context_weights": {
+        "coverage_goals": 0.3,
+        "findings_documentation": 0.35,
+        "test_methodology": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "security-engineer",
+          "confidence_boost": 0.2,
+          "skill": "security-engineering"
+        }
+      ],
+      "kb_tags": [
+        "KA13",
+        "security",
+        "testing",
+        "SAST",
+        "DAST"
+      ],
+      "parallel_candidates": [
+        "security-engineer",
+        "pentester"
+      ],
+      "patterns": [
+        "security testing",
+        "sast",
+        "dast",
+        "penetration test",
+        "vulnerability scan",
+        "owasp zap",
+        "burp suite",
+        "semgrep",
+        "sonarqube",
+        "security review"
+      ],
+      "priority": 85,
+      "semantic_aliases": [
+        "security scanning",
+        "pen testing",
+        "vulnerability testing",
+        "SAST/DAST"
+      ],
+      "skills": {
+        "primary": "security-engineering"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.5
+      }
+    },
+    "site_reliability": {
+      "agents": [
+        "devops-engineer"
+      ],
+      "context_weights": {
+        "error_budget": 0.35,
+        "incident_history": 0.3,
+        "reliability_goals": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "devops-engineer",
+          "confidence_boost": 0.15,
+          "skill": "observability"
+        },
+        {
+          "agent": "process-engineer",
+          "confidence_boost": 0.1,
+          "skill": "process-engineering"
+        }
+      ],
+      "kb_tags": [
+        "KA9",
+        "SRE",
+        "reliability",
+        "incidents"
+      ],
+      "parallel_candidates": [
+        "sre-engineer",
+        "devops-engineer"
+      ],
+      "patterns": [
+        "site reliability",
+        "sre",
+        "slo",
+        "error budget",
+        "mttr",
+        "mtbf",
+        "availability",
+        "incident response",
+        "postmortem",
+        "blameless postmortem",
+        "toil reduction"
+      ],
+      "priority": 82,
+      "semantic_aliases": [
+        "SRE practices",
+        "reliability engineering",
+        "incident management",
+        "error budget management"
+      ],
+      "skills": {
+        "primary": "site-reliability",
+        "secondary": [
+          "devops-engineering",
+          "process-engineering"
+        ]
+      },
+      "weights": {
+        "context": 0.25,
+        "kb_relevance": 0.1,
+        "pattern": 0.2,
+        "semantic": 0.45
+      }
+    },
+    "software_design": {
+      "agents": [
+        "design-specialist"
+      ],
+      "context_weights": {
+        "class_design": 0.25,
+        "design_principles": 0.2,
+        "interface_contracts": 0.25,
+        "module_boundaries": 0.3
+      },
+      "fallback_chain": [
+        {
+          "agent": "design-specialist",
+          "confidence_boost": 0.15,
+          "skill": "design-patterns"
+        },
+        {
+          "agent": "design-specialist",
+          "confidence_boost": 0.1,
+          "skill": "refactoring"
+        }
+      ],
+      "ka": 3,
+      "kb_tags": [
+        "KA3",
+        "design",
+        "SOLID",
+        "clean-code"
+      ],
+      "parallel_candidates": [
+        "design-specialist",
+        "db-design-specialist"
+      ],
+      "patterns": [
+        "detailed design",
+        "class design",
+        "module design",
+        "database schema",
+        "sequence diagram",
+        "state diagram",
+        "interface design",
+        "clean code",
+        "solid principles",
+        "refactor",
+        "clean architecture"
+      ],
+      "priority": 92,
+      "semantic_aliases": [
+        "detailed design",
+        "component design",
+        "object design",
+        "interface specification",
+        "module specification"
+      ],
+      "skills": {
+        "primary": "software-design",
+        "secondary": [
+          "refactoring",
+          "design-patterns"
+        ]
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.15,
+        "pattern": 0.25,
+        "semantic": 0.4
+      }
+    },
+    "sql_development": {
+      "agents": [
+        "data-engineer"
+      ],
+      "context_weights": {
+        "optimization_needs": 0.3,
+        "query_complexity": 0.35,
+        "transaction_requirements": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "data-engineer",
+          "confidence_boost": 0.15,
+          "skill": "query-optimization"
+        }
+      ],
+      "ka": 4,
+      "kb_tags": [
+        "KA4",
+        "SQL",
+        "database",
+        "queries"
+      ],
+      "parallel_candidates": [
+        "data-engineer",
+        "sql-specialist"
+      ],
+      "patterns": [
+        "SQL query",
+        "write SQL",
+        "SELECT statement",
+        "JOIN query",
+        "subquery",
+        "stored procedure",
+        "trigger",
+        "index",
+        "view"
+      ],
+      "priority": 82,
+      "semantic_aliases": [
+        "SQL coding",
+        "database queries",
+        "query writing",
+        "stored procedures"
+      ],
+      "skills": {
+        "primary": "data-engineering"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.3,
+        "semantic": 0.45
+      }
+    },
+    "sql_injection_prevention": {
+      "agents": [
+        "security-engineer"
+      ],
+      "context_weights": {
+        "compliance_impact": 0.25,
+        "mitigation_approach": 0.35,
+        "vulnerability_severity": 0.4
+      },
+      "fallback_chain": [
+        {
+          "agent": "security-engineer",
+          "confidence_boost": 0.2,
+          "skill": "security-testing"
+        }
+      ],
+      "ka": 13,
+      "kb_tags": [
+        "KA13",
+        "security",
+        "SQL-injection",
+        "validation"
+      ],
+      "patterns": [
+        "SQL injection",
+        "parameterized query",
+        "prepared statement",
+        "input sanitization",
+        "sqli"
+      ],
+      "priority": 92,
+      "semantic_aliases": [
+        "SQLi",
+        "database security",
+        "injection prevention"
+      ],
+      "skills": {
+        "primary": "security-engineering"
+      },
+      "weights": {
+        "context": 0.1,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.55
+      }
+    },
+    "static_analysis": {
+      "agents": [
+        "quality-assurance"
+      ],
+      "context_weights": {
+        "code_complexity": 0.3,
+        "linting_rules": 0.35,
+        "violation_severity": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "quality-assurance",
+          "confidence_boost": 0.15,
+          "skill": "quality-assurance"
+        }
+      ],
+      "ka": 11,
+      "kb_tags": [
+        "KA11",
+        "static-analysis",
+        "linting",
+        "SonarQube"
+      ],
+      "patterns": [
+        "static analysis",
+        "linting",
+        "sonarqube",
+        "eslint",
+        "pylint",
+        "golangci-lint",
+        "clippy",
+        "checkstyle",
+        "code analysis",
+        "automated code review"
+      ],
+      "priority": 82,
+      "semantic_aliases": [
+        "linting",
+        "code analysis",
+        "static code analysis",
+        "code quality analysis"
+      ],
+      "skills": {
+        "primary": "static-analysis"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.5
+      }
+    },
+    "systems_engineering": {
+      "agents": [
+        "systems-engineer"
+      ],
+      "context_weights": {
+        "embedded_requirements": 0.35,
+        "hw_sw_integration": 0.35,
+        "real_time_constraints": 0.3
+      },
+      "fallback_chain": [
+        {
+          "agent": "architecture-designer",
+          "confidence_boost": 0.15,
+          "skill": "architecture-design"
+        }
+      ],
+      "ka": 14,
+      "kb_tags": [
+        "KA14",
+        "systems",
+        "embedded",
+        "real-time"
+      ],
+      "parallel_candidates": [
+        "systems-engineer",
+        "embedded-specialist"
+      ],
+      "patterns": [
+        "systems engineering",
+        "hardware software integration",
+        "real-time systems",
+        "embedded systems",
+        "firmware"
+      ],
+      "priority": 88,
+      "semantic_aliases": [
+        "embedded systems",
+        "real-time computing",
+        "hardware integration",
+        "firmware development"
+      ],
+      "skills": {
+        "primary": "systems-engineering"
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.15,
+        "pattern": 0.25,
+        "semantic": 0.4
+      }
+    },
+    "test_driven_development": {
+      "agents": [
+        "code-generator",
+        "test-writer"
+      ],
+      "context_weights": {
+        "red_green_cycle": 0.4,
+        "refactoring_phase": 0.3,
+        "test_quality": 0.3
+      },
+      "fallback_chain": [
+        {
+          "agent": "test-writer",
+          "confidence_boost": 0.15,
+          "skill": "test-implementation"
+        },
+        {
+          "agent": "design-specialist",
+          "confidence_boost": 0.1,
+          "skill": "refactoring"
+        }
+      ],
+      "ka": 5,
+      "kb_tags": [
+        "KA5",
+        "TDD",
+        "testing",
+        "agile"
+      ],
+      "parallel_candidates": [
+        "code-generator",
+        "test-writer"
+      ],
+      "patterns": [
+        "tdd",
+        "test first",
+        "red green refactor",
+        "test-driven"
+      ],
+      "priority": 85,
+      "semantic_aliases": [
+        "test-first development",
+        "TDD cycle",
+        "red-green-refactor"
+      ],
+      "skills": {
+        "primary": "tdd"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.5
+      }
+    },
+    "test_implementation": {
+      "agents": [
+        "test-writer"
+      ],
+      "context_weights": {
+        "coverage_targets": 0.25,
+        "maintenance_considerations": 0.15,
+        "test_data_needs": 0.25,
+        "test_frameworks": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "test-strategist",
+          "confidence_boost": 0.2,
+          "skill": "testing-strategies"
+        },
+        {
+          "agent": "test-writer",
+          "confidence_boost": 0.1,
+          "skill": "test-techniques"
+        }
+      ],
+      "ka": 5,
+      "kb_tags": [
+        "KA5",
+        "testing",
+        "automation",
+        "unit-test"
+      ],
+      "parallel_candidates": [
+        "test-writer",
+        "automation-specialist"
+      ],
+      "patterns": [
+        "write tests",
+        "unit tests",
+        "integration tests",
+        "e2e tests",
+        "test automation"
+      ],
+      "priority": 88,
+      "semantic_aliases": [
+        "test creation",
+        "automated tests",
+        "test coding",
+        "unit testing"
+      ],
+      "skills": {
+        "primary": "test-implementation"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.3,
+        "semantic": 0.45
+      }
+    },
+    "test_planning": {
+      "agents": [
+        "test-strategist"
+      ],
+      "context_weights": {
+        "coverage_goals": 0.25,
+        "resource_constraints": 0.15,
+        "risk_based_testing": 0.25,
+        "test_strategy": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "quality-assurance",
+          "confidence_boost": 0.15,
+          "skill": "quality-assurance"
+        }
+      ],
+      "hooks": [
+        "testing-context"
+      ],
+      "ka": 5,
+      "kb_tags": [
+        "KA5",
+        "testing",
+        "strategy",
+        "planning"
+      ],
+      "parallel_candidates": [
+        "test-strategist",
+        "qa-strategist"
+      ],
+      "patterns": [
+        "test plan",
+        "testing strategy",
+        "test approach",
+        "test coverage"
+      ],
+      "priority": 90,
+      "semantic_aliases": [
+        "test strategy",
+        "testing approach",
+        "test planning",
+        "coverage planning"
+      ],
+      "skills": {
+        "primary": "testing-strategies"
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.15,
+        "pattern": 0.25,
+        "semantic": 0.4
+      }
+    },
+    "transaction_management": {
+      "agents": [
+        "data-engineer"
+      ],
+      "context_weights": {
+        "consistency_requirements": 0.35,
+        "deadlock_handling": 0.3,
+        "isolation_level": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "data-engineer",
+          "confidence_boost": 0.15,
+          "skill": "database-design"
+        }
+      ],
+      "kb_tags": [
+        "KA4",
+        "transactions",
+        "ACID",
+        "concurrency"
+      ],
+      "patterns": [
+        "ACID",
+        "transaction",
+        "isolation level",
+        "deadlock",
+        "locking",
+        "MVCC",
+        "rollback",
+        "commit"
+      ],
+      "priority": 80,
+      "semantic_aliases": [
+        "database transactions",
+        "transaction handling",
+        "concurrency control"
+      ],
+      "skills": {
+        "primary": "data-engineering"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.5
+      }
+    },
+    "verification_validation": {
+      "agents": [
+        "quality-assurance"
+      ],
+      "context_weights": {
+        "compliance_requirements": 0.25,
+        "validation_scope": 0.35,
+        "verification_criteria": 0.4
+      },
+      "fallback_chain": [
+        {
+          "agent": "requirements-analyst",
+          "confidence_boost": 0.15,
+          "skill": "requirements-validation"
+        }
+      ],
+      "ka": 11,
+      "kb_tags": [
+        "KA11",
+        "V&V",
+        "verification",
+        "validation"
+      ],
+      "patterns": [
+        "verification",
+        "validation",
+        "v&v",
+        "verify software",
+        "validate requirements"
+      ],
+      "priority": 82,
+      "semantic_aliases": [
+        "V&V",
+        "software verification",
+        "requirements validation",
+        "validation testing"
+      ],
+      "skills": {
+        "primary": "verification-and-validation"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.5
+      }
+    },
+    "vulnerability_assessment": {
+      "agents": [
+        "security-engineer"
+      ],
+      "context_weights": {
+        "remediation_priority": 0.25,
+        "risk_scoring": 0.35,
+        "vulnerability_sources": 0.4
+      },
+      "fallback_chain": [
+        {
+          "agent": "security-engineer",
+          "confidence_boost": 0.2,
+          "skill": "security-testing"
+        }
+      ],
+      "kb_tags": [
+        "KA13",
+        "vulnerability",
+        "CVE",
+        "risk"
+      ],
+      "parallel_candidates": [
+        "vulnerability-researcher",
+        "security-engineer"
+      ],
+      "patterns": [
+        "vulnerability assessment",
+        "vulnerability scan",
+        "pen test",
+        "exploit",
+        "cve",
+        "cvss scoring",
+        "risk prioritization",
+        "patch management"
+      ],
+      "priority": 85,
+      "semantic_aliases": [
+        "vulnerability analysis",
+        "security assessment",
+        "risk assessment",
+        "CVE analysis"
+      ],
+      "skills": {
+        "primary": "security-engineering"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.5
+      }
+    },
+    "web_performance": {
+      "agents": [
+        "construction-lead"
+      ],
+      "context_weights": {
+        "metrics_targets": 0.35,
+        "network_optimization": 0.3,
+        "rendering_optimization": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "construction-lead",
+          "confidence_boost": 0.15,
+          "skill": "frontend-development"
+        }
+      ],
+      "kb_tags": [
+        "KA4",
+        "performance",
+        "Core-Web-Vitals",
+        "optimization"
+      ],
+      "patterns": [
+        "web performance",
+        "page speed",
+        "lcp",
+        "cls",
+        "fid",
+        "core web vitals",
+        "lazy loading",
+        "code splitting",
+        "bundle size",
+        "webpack optimization",
+        "vite",
+        "caching",
+        "cdn"
+      ],
+      "priority": 80,
+      "semantic_aliases": [
+        "page performance",
+        "Core Web Vitals",
+        "loading optimization",
+        "rendering performance"
+      ],
+      "skills": {
+        "primary": "web-development"
+      },
+      "weights": {
+        "context": 0.2,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.45
+      }
+    },
+    "web_state_management": {
+      "agents": [
+        "construction-lead"
+      ],
+      "context_weights": {
+        "persistence_needs": 0.3,
+        "reactivity_pattern": 0.35,
+        "state_scope": 0.35
+      },
+      "fallback_chain": [
+        {
+          "agent": "construction-lead",
+          "confidence_boost": 0.2,
+          "skill": "frontend-development"
+        }
+      ],
+      "kb_tags": [
+        "KA4",
+        "state-management",
+        "Redux",
+        "React"
+      ],
+      "patterns": [
+        "state management",
+        "redux",
+        "mobx",
+        "zustand",
+        "context api",
+        "react state",
+        "vuex",
+        "pinia",
+        "global state",
+        "application state"
+      ],
+      "priority": 80,
+      "semantic_aliases": [
+        "application state",
+        "client state",
+        "UI state"
+      ],
+      "skills": {
+        "primary": "web-development"
+      },
+      "weights": {
+        "context": 0.15,
+        "kb_relevance": 0.1,
+        "pattern": 0.25,
+        "semantic": 0.5
+      }
+    }
+  },
+  "metadata": {
+    "ka_coverage": [
+      {
+        "intents": 3,
+        "ka": 1
+      },
+      {
+        "intents": 2,
+        "ka": 2
+      },
+      {
+        "intents": 3,
+        "ka": 3
+      },
+      {
+        "intents": 3,
+        "ka": 4
+      },
+      {
+        "intents": 9,
+        "ka": 5
+      },
+      {
+        "intents": 1,
+        "ka": 6
+      },
+      {
+        "intents": 1,
+        "ka": 7
+      },
+      {
+        "intents": 1,
+        "ka": 8
+      },
+      {
+        "intents": 8,
+        "ka": 9
+      },
+      {
+        "intents": 4,
+        "ka": 10
+      },
+      {
+        "intents": 5,
+        "ka": 11
+      },
+      {
+        "intents": 1,
+        "ka": 12
+      },
+      {
+        "intents": 4,
+        "ka": 13
+      },
+      {
+        "intents": 1,
+        "ka": 14
+      },
+      {
+        "intents": 7,
+        "ka": 15
+      },
+      {
+        "crosscutting": 5
+      }
+    ],
+    "routing_stats": {
+      "avg_intents_per_ka": 4.1,
+      "total_kb_tags": 245,
+      "total_patterns": 520,
+      "total_semantic_aliases": 380
+    },
+    "total_intents": 62
+  },
+  "routing": {
+    "context": {
+      "decay_factor": 0.85,
+      "weight_recency": true,
+      "window_size": 5
+    },
+    "hyperagent": {
+      "enabled": true,
+      "max_parallel_agents": 4,
+      "parallel_threshold": 0.85,
+      "result_aggregation": "weighted_vote"
+    },
+    "knowledge_base": {
+      "embedding_model": "text-embedding-3-small",
+      "index_path": "knowledge/ka-index.json",
+      "keyword_index_path": "knowledge/keyword-index.json",
+      "max_kb_results": 5,
+      "relevance_threshold": 0.6
+    },
+    "similarity_threshold": 0.72
+  },
+  "schema_version": "semantic-routing-v1",
+  "version": "2.0"
+}

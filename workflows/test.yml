@@ -1,0 +1,116 @@
+name: SWEBOK v4 Harness Tests
+
+# AUDIT-2026-06-01 (QA S blocker): CI workflow with double-run pattern
+# per docs/v1/TEST_STABILITY.md — first run is the warm-up (may flake),
+# second run is the authoritative measurement.
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    # Nightly run to catch flakiness regressions
+    - cron: '17 3 * * *'
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # OS portability matrix — addresses QA finding MISSING (no portability)
+        os: [ubuntu-latest, macos-latest]
+        python-version: ['3.10', '3.11', '3.12']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install jq (required by install-harness.sh)
+        run: |
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            sudo apt-get update && sudo apt-get install -y jq sqlite3
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            brew install jq sqlite3
+          fi
+
+      - name: Show env
+        run: |
+          python3 --version
+          jq --version
+          sqlite3 --version
+          echo "HARNESS_DIR=$GITHUB_WORKSPACE"
+
+      - name: Cold rebuild state DB
+        env:
+          HARNESS_DIR: ${{ github.workspace }}
+        run: |
+          python3 scripts/lib/state_engine.py rebuild
+          python3 scripts/lib/state_engine.py check_integrity
+
+      - name: Warm-up run (first run, may flake — ignore exit code)
+        env:
+          HARNESS_DIR: ${{ github.workspace }}
+        continue-on-error: true
+        run: bash tests/adversarial-test.sh
+
+      - name: Authoritative run (second run — must pass)
+        env:
+          HARNESS_DIR: ${{ github.workspace }}
+        run: bash tests/adversarial-test.sh
+
+      - name: STRIDE-lite attack payloads
+        env:
+          HARNESS_DIR: ${{ github.workspace }}
+        run: bash tests/attack-payloads-test.sh
+
+      - name: Audit-log HMAC chain integrity
+        env:
+          HARNESS_DIR: ${{ github.workspace }}
+        run: |
+          python3 -c "
+          import sys
+          sys.path.insert(0, '$GITHUB_WORKSPACE/scripts/lib')
+          import state_engine
+          for tbl in ('adversarial_log', 'log_events', 'state_events', 'circuit_breaker_events'):
+              ok, broken_at = state_engine.verify_audit_chain(tbl)
+              if not ok:
+                  print(f'CHAIN BROKEN: {tbl} at row {broken_at}', file=sys.stderr)
+                  sys.exit(1)
+              print(f'OK: {tbl} chain intact')
+          "
+
+      - name: Concurrent atomicity smoke (1000-way)
+        env:
+          HARNESS_DIR: ${{ github.workspace }}
+        run: |
+          python3 scripts/lib/state_engine.py set phase_data '{"P6":{"heal_iterations":0}}'
+          time seq 1 1000 | xargs -P10 -I{} python3 scripts/lib/state_engine.py increment_heal_iterations > /dev/null
+          got=$(python3 scripts/lib/state_engine.py get phase_data.P6.heal_iterations)
+          if [[ "$got" != "1000" ]]; then
+            echo "ATOMICITY BROKEN: expected 1000, got $got"
+            exit 1
+          fi
+          echo "OK: 1000/1000 atomic"
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install ruff
+        run: pip install ruff
+      - name: Lint Python
+        run: ruff check scripts/lib/ tests/ || true   # advisory, not gating
+      - name: Shellcheck
+        run: |
+          sudo apt-get update && sudo apt-get install -y shellcheck
+          shellcheck hooks/pre-tool-use/*.sh hooks/post-tool-use/*.sh install-harness.sh || true

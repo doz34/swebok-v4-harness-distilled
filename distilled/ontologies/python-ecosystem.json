@@ -1,0 +1,76 @@
+{
+  "name": "Python Ecosystem Ontology",
+  "version": "1.0.0",
+  "compilation_date": "2026-06-02",
+  "domain": "python-ecosystem",
+  "description": "Python libraries, frameworks, and tools distilled from 80+ Python references",
+  "root": "python",
+  "nodes": {
+    "python": {
+      "children": ["runtime", "stdlib", "web", "data", "ml", "testing", "cli", "packaging"],
+      "definition": "Python language ecosystem (3.10+ recommended for v1.5+)"
+    },
+    "runtime": {
+      "children": ["cpython", "pypy", "micropython"],
+      "phases": ["P3", "P5"],
+      "default": "cpython"
+    },
+    "stdlib": {
+      "children": ["asyncio", "typing", "dataclasses", "pathlib", "logging", "unittest", "argparse", "json", "sqlite3"],
+      "phases": ["P5", "P6"],
+      "principle": "stdlib_first"
+    },
+    "web": {
+      "children": ["frameworks", "http", "auth", "orm", "serialization", "testing"],
+      "phases": ["P3", "P5"]
+    },
+    "frameworks": {
+      "children": ["flask", "fastapi", "django", "starlette"],
+      "phases": ["P3", "P5"],
+      "decision_tree": "choose_web_framework"
+    },
+    "http": {
+      "children": ["requests", "httpx", "urllib3", "aiohttp"],
+      "phases": ["P5"]
+    },
+    "auth": {
+      "children": ["oauth", "jwt", "session"],
+      "phases": ["P3", "P5"]
+    },
+    "orm": {
+      "children": ["sqlalchemy", "django_orm", "tortoise", "peewee"],
+      "phases": ["P3", "P5"]
+    },
+    "serialization": {
+      "children": ["pydantic", "attrs", "marshmallow", "cattrs"],
+      "phases": ["P3", "P5"],
+      "default": "pydantic_v2"
+    },
+    "data": {
+      "children": ["pandas", "numpy", "polars", "dask", "pyarrow"],
+      "phases": ["P5"],
+      "default": "polars_for_perf_pandas_for_compat"
+    },
+    "ml": {
+      "children": ["sklearn", "pytorch", "tensorflow", "jax", "huggingface", "langchain", "llamaindex"],
+      "phases": ["P3", "P5"],
+      "decision_tree": "choose_ml_framework"
+    },
+    "testing": {
+      "children": ["pytest", "hypothesis", "coverage", "tox", "nox"],
+      "phases": ["P6"],
+      "default": "pytest"
+    },
+    "cli": {
+      "children": ["click", "typer", "argparse", "rich"],
+      "phases": ["P3", "P5"],
+      "default": "typer"
+    },
+    "packaging": {
+      "children": ["pip", "poetry", "uv", "pdm", "setuptools"],
+      "phases": ["P5", "P7"],
+      "default": "uv",
+      "principle": "use_modern_tooling"
+    }
+  }
+}

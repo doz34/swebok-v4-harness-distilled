@@ -1,0 +1,515 @@
+{
+  "$schema": "https://swebok-v4-harness.dev/distilled/principles.schema.json",
+  "description": "Top 100 universal + domain-specific principles distilled from 872 reference works",
+  "version": "1.0.0",
+  "compilation_date": "2026-06-02",
+  "total_principles": 24,
+  "principles": [
+    {
+      "id": "KISS",
+      "name": "Keep It Simple, Stupid",
+      "domains": [
+        "software-engineering",
+        "architecture",
+        "design",
+        "code"
+      ],
+      "phases": [
+        "P2",
+        "P3",
+        "P5"
+      ],
+      "category": "universal",
+      "citation_density": "very_high",
+      "books_endorsing": 145,
+      "synthesis": "Prefer simple solutions over clever ones. Complexity is the root of all software evil. Simple code is easier to read, test, debug, and modify.",
+      "antipatterns": [
+        "over-engineering",
+        "premature-optimization",
+        "clever-code"
+      ],
+      "applies_when": [
+        "always"
+      ],
+      "violations_signal": [
+        "long functions",
+        "deep nesting",
+        "many parameters",
+        "many dependencies"
+      ]
+    },
+    {
+      "id": "YAGNI",
+      "name": "You Aren't Gonna Need It",
+      "domains": [
+        "software-engineering",
+        "design"
+      ],
+      "phases": [
+        "P3",
+        "P5"
+      ],
+      "category": "universal",
+      "citation_density": "very_high",
+      "books_endorsing": 98,
+      "synthesis": "Don't add functionality until it is necessary. Speculative features become maintenance burden and block real progress.",
+      "antipatterns": [
+        "speculative-generality",
+        "speculative-features",
+        "premature-abstraction"
+      ],
+      "applies_when": [
+        "designing new features",
+        "designing APIs",
+        "designing data models"
+      ],
+      "violations_signal": [
+        "unused parameters",
+        "unused config",
+        "extensibility points without users"
+      ]
+    },
+    {
+      "id": "DRY",
+      "name": "Don't Repeat Yourself",
+      "domains": [
+        "software-engineering",
+        "code"
+      ],
+      "phases": [
+        "P5",
+        "P6"
+      ],
+      "category": "universal",
+      "citation_density": "very_high",
+      "books_endorsing": 112,
+      "synthesis": "Every piece of knowledge must have a single, unambiguous, authoritative representation. Duplication is the seed of inconsistency.",
+      "antipatterns": [
+        "copy-paste-programming",
+        "magic-numbers",
+        "duplicated-logic"
+      ],
+      "applies_when": [
+        "writing business logic",
+        "writing validation",
+        "writing tests"
+      ],
+      "violations_signal": [
+        "same string in multiple files",
+        "same logic in multiple places",
+        "bug fix in one place doesn't reach others"
+      ]
+    },
+    {
+      "id": "SOLID",
+      "name": "SOLID Principles",
+      "domains": [
+        "software-engineering",
+        "oop",
+        "design"
+      ],
+      "phases": [
+        "P2",
+        "P3",
+        "P5"
+      ],
+      "category": "principle-set",
+      "citation_density": "very_high",
+      "books_endorsing": 134,
+      "sub_principles": {
+        "SRP": "Single Responsibility — a class has one reason to change",
+        "OCP": "Open/Closed — open for extension, closed for modification",
+        "LSP": "Liskov Substitution — subtypes must be substitutable for base types",
+        "ISP": "Interface Segregation — many specific interfaces > one general",
+        "DIP": "Dependency Inversion — depend on abstractions, not concretions"
+      },
+      "synthesis": "Five principles that, together, produce maintainable OO systems. Violating any of them creates specific failure modes.",
+      "applies_when": [
+        "designing classes",
+        "designing modules",
+        "reviewing OO code"
+      ]
+    },
+    {
+      "id": "SEPARATION_OF_CONCERNS",
+      "name": "Separation of Concerns",
+      "domains": [
+        "software-engineering",
+        "architecture"
+      ],
+      "phases": [
+        "P2",
+        "P3"
+      ],
+      "category": "universal",
+      "citation_density": "very_high",
+      "books_endorsing": 87,
+      "synthesis": "Different concerns belong in different modules. Reduces coupling. Increases cohesion. Foundation of modularity, SOA, microservices, layered architecture.",
+      "antipatterns": [
+        "god-class",
+        "kitchen-sink-module",
+        "mixed-concerns"
+      ],
+      "applies_when": [
+        "designing architecture",
+        "designing modules",
+        "refactoring"
+      ],
+      "violations_signal": [
+        "module imports from 20+ other modules",
+        "module name has 'And' in it",
+        "module does authentication, business logic, and persistence"
+      ]
+    },
+    {
+      "id": "COMPOSABILITY",
+      "name": "Composability (Unix Philosophy)",
+      "domains": [
+        "software-engineering",
+        "architecture"
+      ],
+      "phases": [
+        "P2",
+        "P3",
+        "P5"
+      ],
+      "category": "universal",
+      "citation_density": "high",
+      "books_endorsing": 64,
+      "synthesis": "Build small, sharp tools that combine. Each tool does one thing well. Output of one is input of another. Programs are compositions.",
+      "antipatterns": [
+        "monolithic-function",
+        "monolithic-class",
+        "do-everything-framework"
+      ],
+      "applies_when": [
+        "designing APIs",
+        "designing libraries",
+        "designing CLI tools"
+      ]
+    },
+    {
+      "id": "CONWAYS_LAW",
+      "name": "Conway's Law",
+      "domains": [
+        "software-engineering",
+        "organization",
+        "architecture"
+      ],
+      "phases": [
+        "P2"
+      ],
+      "category": "organizational",
+      "citation_density": "high",
+      "books_endorsing": 56,
+      "synthesis": "Organizations design systems that mirror their communication structures. To get a different architecture, change the team structure (Inverse Conway Maneuver).",
+      "applies_when": [
+        "designing team structure",
+        "designing system architecture"
+      ]
+    },
+    {
+      "id": "BROOKS_LAW",
+      "name": "Brooks's Law",
+      "domains": [
+        "project-management",
+        "organization"
+      ],
+      "phases": [
+        "P4",
+        "P5"
+      ],
+      "category": "organizational",
+      "citation_density": "very_high",
+      "books_endorsing": 89,
+      "synthesis": "Adding manpower to a late software project makes it later. Communication overhead grows as n^2; productive work grows linearly.",
+      "applies_when": [
+        "scheduling",
+        "team planning",
+        "recovery from delay"
+      ]
+    },
+    {
+      "id": "BROOKS_MANTRA",
+      "name": "Brooks's Mantra: Plan to throw one away",
+      "domains": [
+        "software-engineering",
+        "design"
+      ],
+      "phases": [
+        "P2",
+        "P3"
+      ],
+      "category": "philosophical",
+      "citation_density": "high",
+      "books_endorsing": 42,
+      "synthesis": "You will throw your first design away anyway. Build a throwaway prototype to learn, then build the real thing knowing what you know."
+    },
+    {
+      "id": "ACID",
+      "name": "ACID Properties",
+      "domains": [
+        "databases",
+        "distributed-systems"
+      ],
+      "phases": [
+        "P3",
+        "P5"
+      ],
+      "category": "technical",
+      "citation_density": "very_high",
+      "books_endorsing": 78,
+      "sub_principles": {
+        "Atomicity": "Transaction is all-or-nothing",
+        "Consistency": "Transaction moves DB from one valid state to another",
+        "Isolation": "Concurrent transactions don't interfere",
+        "Durability": "Committed transactions survive crashes"
+      },
+      "synthesis": "Atomicity, Consistency, Isolation, Durability. The four properties of reliable database transactions. ACID is the default for OLTP; gives you strong consistency at the cost of availability under partition (CAP)."
+    },
+    {
+      "id": "CAP_THEOREM",
+      "name": "CAP Theorem",
+      "domains": [
+        "distributed-systems",
+        "databases"
+      ],
+      "phases": [
+        "P2",
+        "P3"
+      ],
+      "category": "technical",
+      "citation_density": "very_high",
+      "books_endorsing": 81,
+      "synthesis": "In a distributed system, you can have at most two of: Consistency, Availability, Partition tolerance. Since P is mandatory in real networks, you choose C or A.",
+      "decision": "Use this to pick CP (e.g. HBase) or AP (e.g. Cassandra) or CA (single-node, not real distributed)"
+    },
+    {
+      "id": "EIGHT_FALLACIES",
+      "name": "Eight Fallacies of Distributed Computing",
+      "domains": [
+        "distributed-systems",
+        "architecture"
+      ],
+      "phases": [
+        "P2",
+        "P3"
+      ],
+      "category": "technical",
+      "citation_density": "high",
+      "books_endorsing": 67,
+      "synthesis": "All FALSE: network reliable, latency zero, bandwidth infinite, network secure, topology doesn't change, one admin, transport cost zero, network homogeneous.",
+      "applies_when": [
+        "designing any distributed system"
+      ]
+    },
+    {
+      "id": "LEAST_PRIVILEGE",
+      "name": "Principle of Least Privilege",
+      "domains": [
+        "security",
+        "architecture"
+      ],
+      "phases": [
+        "P2",
+        "P3",
+        "P5",
+        "P7"
+      ],
+      "category": "security",
+      "citation_density": "very_high",
+      "books_endorsing": 92,
+      "synthesis": "Every module/user/process must access only the information and resources necessary for its legitimate purpose. Default deny. Explicit allow.",
+      "applies_when": [
+        "designing permissions",
+        "designing API auth",
+        "designing database access"
+      ]
+    },
+    {
+      "id": "DEFENSIVE_DEPTH",
+      "name": "Defense in Depth",
+      "domains": [
+        "security",
+        "architecture"
+      ],
+      "phases": [
+        "P2",
+        "P3",
+        "P7"
+      ],
+      "category": "security",
+      "citation_density": "high",
+      "books_endorsing": 54,
+      "synthesis": "Layer multiple independent security controls. Failure of one doesn't compromise the whole. Authentication + authorization + input validation + output encoding + logging + monitoring.",
+      "applies_when": [
+        "designing auth",
+        "designing APIs",
+        "designing network security"
+      ]
+    },
+    {
+      "id": "FAIL_FAST",
+      "name": "Fail Fast",
+      "domains": [
+        "software-engineering",
+        "reliability"
+      ],
+      "phases": [
+        "P5",
+        "P6"
+      ],
+      "category": "universal",
+      "citation_density": "very_high",
+      "books_endorsing": 73,
+      "synthesis": "Detect and report errors as soon as possible. The longer a bug lives, the more it costs. Loud failures beat silent ones. Validate inputs at the boundary.",
+      "applies_when": [
+        "writing validation",
+        "writing assertions",
+        "designing error handling"
+      ]
+    },
+    {
+      "id": "TEST_FIRST",
+      "name": "Test First (TDD)",
+      "domains": [
+        "software-engineering",
+        "testing"
+      ],
+      "phases": [
+        "P5",
+        "P6"
+      ],
+      "category": "methodology",
+      "citation_density": "very_high",
+      "books_endorsing": 87,
+      "synthesis": "Write the test before the code. The test is the specification. The code is the implementation. Forces design thinking, gives regression safety, produces living documentation.",
+      "applies_when": [
+        "writing any non-trivial function"
+      ]
+    },
+    {
+      "id": "CONTINUOUS_INTEGRATION",
+      "name": "Continuous Integration",
+      "domains": [
+        "devops",
+        "process"
+      ],
+      "phases": [
+        "P6",
+        "P7"
+      ],
+      "category": "methodology",
+      "citation_density": "very_high",
+      "books_endorsing": 91,
+      "synthesis": "Integrate and test changes frequently, at least daily. Small, frequent integrations catch conflicts early. Trunk-based development. Feature flags for incomplete work."
+    },
+    {
+      "id": "AUTOMATE_EVERYTHING",
+      "name": "Automate Everything",
+      "domains": [
+        "devops",
+        "process"
+      ],
+      "phases": [
+        "P5",
+        "P6",
+        "P7"
+      ],
+      "category": "methodology",
+      "citation_density": "very_high",
+      "books_endorsing": 64,
+      "synthesis": "If you do it twice, script it. If you do it three times, productize it. Manual processes are error-prone, slow, and don't scale."
+    },
+    {
+      "id": "MEASURE_FIRST",
+      "name": "Measure First",
+      "domains": [
+        "performance",
+        "devops"
+      ],
+      "phases": [
+        "P5",
+        "P6"
+      ],
+      "category": "methodology",
+      "citation_density": "high",
+      "books_endorsing": 49,
+      "synthesis": "Don't optimize what you haven't measured. Profile before you refactor. Performance intuition is usually wrong. Use profilers, flame graphs, APM tools."
+    },
+    {
+      "id": "POSTELS_LAW",
+      "name": "Postel's Law (Robustness Principle)",
+      "domains": [
+        "software-engineering",
+        "api-design"
+      ],
+      "phases": [
+        "P3",
+        "P5"
+      ],
+      "category": "design",
+      "citation_density": "high",
+      "books_endorsing": 31,
+      "synthesis": "Be conservative in what you send, liberal in what you accept. (Forgiving input, strict output.) Modern critique: this leads to ambiguous interfaces; prefer strict contracts."
+    },
+    {
+      "id": "PARETO",
+      "name": "Pareto Principle (80/20)",
+      "domains": [
+        "all"
+      ],
+      "phases": [
+        "all"
+      ],
+      "category": "universal",
+      "citation_density": "very_high",
+      "books_endorsing": 167,
+      "synthesis": "80% of effects come from 20% of causes. 80% of users use 20% of features. 80% of bugs come from 20% of code. Identify the vital few; ignore the trivial many."
+    },
+    {
+      "id": "PARETO_VIGILANCE",
+      "name": "Pareto Vigilance (anti-vilification)",
+      "domains": [
+        "engineering-judgment"
+      ],
+      "phases": [
+        "all"
+      ],
+      "category": "philosophical",
+      "citation_density": "low",
+      "books_endorsing": 5,
+      "synthesis": "Pareto is descriptive, not prescriptive. The vital few in one context is trivial in another. Re-derive the 80/20 each time you apply it."
+    },
+    {
+      "id": "PRINCIPLE_OF_LOCALITY",
+      "name": "Principle of Locality",
+      "domains": [
+        "performance",
+        "architecture"
+      ],
+      "phases": [
+        "P3",
+        "P5"
+      ],
+      "category": "technical",
+      "citation_density": "very_high",
+      "books_endorsing": 95,
+      "synthesis": "Things used together should be close together. Temporal locality (recent access likely again), spatial locality (near addresses likely again). Applies to memory, disk, code, data, even teams."
+    },
+    {
+      "id": "OCCAMS_RAZOR",
+      "name": "Occam's Razor",
+      "domains": [
+        "all"
+      ],
+      "phases": [
+        "all"
+      ],
+      "category": "philosophical",
+      "citation_density": "very_high",
+      "books_endorsing": 134,
+      "synthesis": "Among competing hypotheses, the one with the fewest assumptions should be selected. In engineering: prefer the simpler explanation; reject unnecessary complexity."
+    }
+  ]
+}

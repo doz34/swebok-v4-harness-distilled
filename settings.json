@@ -1,0 +1,62 @@
+{
+  "permissions": {
+    "allow": [
+      "bash scripts/swebok-bootstrap.sh",
+      "bash scripts/swebok-query.py",
+      "bash scripts/adversarial-gate.sh",
+      "bash scripts/validate-gates.sh",
+      "bash scripts/validate-qa-gates.sh",
+      "bash scripts/act-observe-verify.sh",
+      "bash scripts/self-heal.sh",
+      "bash scripts/browser-use-orchestrator.sh",
+      "bash scripts/multiagent-launcher.sh",
+      "bash scripts/skill-invoker.sh",
+      "python3 scripts/swebok-query.py",
+      "python3 scripts/generate-kg.py",
+      "python3 scripts/intent-detector.py",
+      "python3 scripts/generate-ka-index.py",
+      "python3 scripts/generate-keyword-index.py",
+      "python3 scripts/search-knowledge-base.py"
+    ],
+    "deny": []
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": ["bash /home/doz/swebok-v4-harness/hooks/pre-tool-use/phase-guard.sh"]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": ["bash /home/doz/swebok-v4-harness/hooks/pre-tool-use/bash-guard.sh"]
+      },
+      {
+        "matcher": "Skill|Task|Agent|WebFetch|WebSearch",
+        "hooks": ["bash /home/doz/swebok-v4-harness/hooks/pre-tool-use/phase-guard.sh"]
+      },
+      {
+        "matcher": "mcp__.*|Glob|Grep|LS|TodoWrite|NotebookRead|ExitPlanMode",
+        "hooks": ["bash /home/doz/swebok-v4-harness/hooks/pre-tool-use/phase-guard.sh"]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit",
+        "hooks": ["bash /home/doz/swebok-v4-harness/hooks/post-tool-use/auto-verify.sh"]
+      },
+      {
+        "matcher": "Skill|Task|Agent|WebFetch|WebSearch",
+        "hooks": ["bash /home/doz/swebok-v4-harness/hooks/post-tool-use/auto-verify.sh"]
+      },
+      {
+        "matcher": "Read",
+        "hooks": ["bash /home/doz/swebok-v4-harness/hooks/post-tool-use/auto-verify.sh"]
+      }
+    ]
+  },
+  "mounts": {},
+  "goals": {},
+  "env": {
+    "HARNESS_DIR": "/home/doz/swebok-v4-harness"
+  }
+}

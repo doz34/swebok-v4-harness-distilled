@@ -1,0 +1,232 @@
+{
+  "compilation_date": "2026-06-02",
+  "name": "Choose a Database",
+  "version": "1.0.0",
+  "domain": "data-engineering",
+  "decision_tree": {
+    "id": "choose_database",
+    "root": "start",
+    "description": "Choose the right database for your use case",
+    "citation_density": "very_high",
+    "books_endorsing": 87,
+    "nodes": {
+      "start": {
+        "question": "What is the primary data shape?",
+        "options": [
+          {
+            "label": "Tabular / relational",
+            "next": "tabular"
+          },
+          {
+            "label": "Documents / JSON",
+            "next": "document"
+          },
+          {
+            "label": "Time series / metrics",
+            "next": "time_series"
+          },
+          {
+            "label": "Graph / relationships",
+            "next": "graph"
+          },
+          {
+            "label": "Vectors / embeddings",
+            "next": "vector"
+          },
+          {
+            "label": "Cache / simple KV",
+            "next": "key_value"
+          },
+          {
+            "label": "Full-text search",
+            "next": "search"
+          }
+        ]
+      },
+      "tabular": {
+        "question": "Scale and consistency requirements?",
+        "options": [
+          {
+            "label": "Single instance / small team / ACID critical",
+            "answer": {
+              "pick": "PostgreSQL",
+              "rationale": "Postgres is the default for 90% of OLTP workloads. ACID, mature, extensible. The Swiss army knife of databases."
+            }
+          },
+          {
+            "label": "Single-machine, embedded",
+            "answer": {
+              "pick": "SQLite",
+              "rationale": "Zero-config, serverless, perfect for embedded, mobile, edge. Don't dismiss it for 'real' apps — many production systems use SQLite."
+            }
+          },
+          {
+            "label": "Distributed, eventual consistency OK",
+            "answer": {
+              "pick": "CockroachDB or YugabyteDB",
+              "rationale": "Distributed SQL with Postgres compatibility. Use only if you have proven you outgrow a single Postgres."
+            }
+          },
+          {
+            "label": "OLAP / analytical / wide rows",
+            "next": "olap"
+          }
+        ]
+      },
+      "olap": {
+        "question": "What's your query pattern?",
+        "options": [
+          {
+            "label": "Aggregations over billions of rows",
+            "answer": {
+              "pick": "ClickHouse",
+              "rationale": "Fastest columnar store for analytical queries. Excellent compression, SQL-compatible."
+            }
+          },
+          {
+            "label": "Star schema, BI dashboards",
+            "answer": {
+              "pick": "Snowflake or BigQuery",
+              "rationale": "Managed MPP. Pay per query. Good for ad-hoc analytics."
+            }
+          },
+          {
+            "label": "Data lake, schema-on-read",
+            "answer": {
+              "pick": "Apache Iceberg on S3 + Spark/Trino",
+              "rationale": "Open table format. Avoids vendor lock-in. Good for petabyte scale."
+            }
+          }
+        ]
+      },
+      "document": {
+        "question": "Why document, not relational?",
+        "options": [
+          {
+            "label": "Genuinely schema-fluid data, varied shapes",
+            "answer": {
+              "pick": "PostgreSQL with JSONB",
+              "rationale": "You almost never need a 'document' database. JSONB in Postgres gives you schema flexibility with ACID, indexes, joins, and a single tool to learn."
+            }
+          },
+          {
+            "label": "True document store with replication",
+            "answer": {
+              "pick": "MongoDB",
+              "rationale": "If you really need a document store. Be aware of operational complexity, memory usage, and the cost of joins."
+            }
+          }
+        ]
+      },
+      "time_series": {
+        "question": "Volume and retention?",
+        "options": [
+          {
+            "label": "High volume, long retention, complex queries",
+            "answer": {
+              "pick": "TimescaleDB (Postgres extension)",
+              "rationale": "SQL + time-series. Hypertable for scale. Compresses old data. Easier than a separate TSDB."
+            }
+          },
+          {
+            "label": "Metrics / monitoring",
+            "answer": {
+              "pick": "Prometheus + Thanos/Cortex for long-term",
+              "rationale": "Pull-based, PromQL, alerting. Industry standard for infra metrics."
+            }
+          },
+          {
+            "label": "IoT, very high cardinality",
+            "answer": {
+              "pick": "InfluxDB or QuestDB",
+              "rationale": "Purpose-built TSDBs. InfluxDB has better tooling; QuestDB is faster for SQL-like queries."
+            }
+          }
+        ]
+      },
+      "graph": {
+        "question": "What kind of graph?",
+        "options": [
+          {
+            "label": "Property graph, traversals, recommendations",
+            "answer": {
+              "pick": "Neo4j",
+              "rationale": "Cypher query language. Mature. The default for property graphs."
+            }
+          },
+          {
+            "label": "RDF / semantic web / linked data",
+            "answer": {
+              "pick": "Apache Jena or Stardog",
+              "rationale": "RDF/SPARQL stack. Use only if you need standards compliance."
+            }
+          }
+        ]
+      },
+      "vector": {
+        "question": "Vector DB requirements?",
+        "options": [
+          {
+            "label": "Managed, no ops",
+            "answer": {
+              "pick": "Pinecone or Weaviate Cloud",
+              "rationale": "Easy. Pay per query. Best for teams without dedicated platform engineers."
+            }
+          },
+          {
+            "label": "Self-hosted, open source",
+            "answer": {
+              "pick": "Qdrant or Milvus",
+              "rationale": "Qdrant is simpler; Milvus is more feature-rich. Both support filtering, hybrid search."
+            }
+          },
+          {
+            "label": "Just want it to work, small scale",
+            "answer": {
+              "pick": "Chroma or pgvector (Postgres extension)",
+              "rationale": "Chroma for prototyping. pgvector for production if you already have Postgres."
+            }
+          }
+        ]
+      },
+      "key_value": {
+        "question": "What's the access pattern?",
+        "options": [
+          {
+            "label": "Cache, ephemeral",
+            "answer": {
+              "pick": "Redis",
+              "rationale": "Industry standard. Rich data structures. Pub/sub. Lua scripts. Caching, sessions, leaderboards."
+            }
+          },
+          {
+            "label": "Durable KV, simple",
+            "answer": {
+              "pick": "etcd or DynamoDB",
+              "rationale": "etcd for config / leader election (Kubernetes). DynamoDB for managed AWS-native."
+            }
+          }
+        ]
+      },
+      "search": {
+        "question": "Scale and features?",
+        "options": [
+          {
+            "label": "Modern, easy, fast to start",
+            "answer": {
+              "pick": "Meilisearch or Typesense",
+              "rationale": "Both are easier than Elasticsearch. Great default for most search needs."
+            }
+          },
+          {
+            "label": "Complex queries, large scale, mature",
+            "answer": {
+              "pick": "Elasticsearch or OpenSearch",
+              "rationale": "The 800-lb gorilla. Powerful but operationally complex. Use only when you need its specific features."
+            }
+          }
+        ]
+      }
+    }
+  }
+}

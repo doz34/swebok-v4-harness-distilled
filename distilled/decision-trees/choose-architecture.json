@@ -1,0 +1,95 @@
+{
+  "compilation_date": "2026-06-02",
+  "name": "Choose an Architecture",
+  "version": "1.0.0",
+  "domain": "architecture",
+  "decision_tree": {
+    "id": "choose_architecture",
+    "root": "start",
+    "description": "Choose the right architectural style for your system",
+    "citation_density": "very_high",
+    "books_endorsing": 134,
+    "principle": "rule_of_three_first_time_may_be_wrong",
+    "nodes": {
+      "start": {
+        "question": "What's the team size and operational maturity?",
+        "options": [
+          {
+            "label": "1-5 engineers, single product, < 1 year horizon",
+            "answer": {
+              "pick": "Modular Monolith",
+              "rationale": "The default for new systems. One deployable unit, but clear internal module boundaries. Premature microservices is one of the most expensive mistakes."
+            }
+          },
+          {
+            "label": "5-20 engineers, growing product, multiple teams",
+            "answer": {
+              "pick": "Modular Monolith with future extraction in mind",
+              "rationale": "Same as above, but be more aggressive about module boundaries. Plan for extraction but don't do it yet."
+            }
+          },
+          {
+            "label": "20+ engineers, multiple products, scaling concerns",
+            "next": "scale"
+          },
+          {
+            "label": "Distributed by necessity (mobile, edge, IoT)",
+            "next": "distributed"
+          }
+        ]
+      },
+      "scale": {
+        "question": "What scaling pattern?",
+        "options": [
+          {
+            "label": "Read-heavy, eventual consistency OK",
+            "answer": {
+              "pick": "CQRS + Event Sourcing (selectively)",
+              "rationale": "Separate read/write models. Event-sourced aggregates. Replay events for new read models. Powerful but operationally complex — apply selectively, not globally."
+            }
+          },
+          {
+            "label": "Write-heavy, strong consistency",
+            "answer": {
+              "pick": "Sharded RDBMS",
+              "rationale": "Citus, Vitess, or CockroachDB. Shard by tenant or entity. Stay relational as long as possible."
+            }
+          },
+          {
+            "label": "Real-time, event-driven",
+            "answer": {
+              "pick": "Event-Driven Architecture (Kafka-centric)",
+              "rationale": "Producers publish events. Consumers react. Use Kafka for durable log. Async by default. Test event schemas."
+            }
+          }
+        ]
+      },
+      "distributed": {
+        "question": "What kind of distribution?",
+        "options": [
+          {
+            "label": "Edge / offline-first / mobile",
+            "answer": {
+              "pick": "Local-first + sync (CRDTs, RxDB, ElectricSQL)",
+              "rationale": "Local storage as source of truth. Background sync. Conflict-free replicated data types. Hard but worth it for offline UX."
+            }
+          },
+          {
+            "label": "Multi-region, low latency",
+            "answer": {
+              "pick": "Active-active with conflict resolution",
+              "rationale": "Each region serves writes. Conflicts resolved by CRDT, vector clock, or last-write-wins. Expensive. Use only when necessary."
+            }
+          },
+          {
+            "label": "Pure scale (millions of requests/sec)",
+            "answer": {
+              "pick": "Microservices + Service Mesh",
+              "rationale": "Small, focused services. Istio/Linkerd for cross-cutting. Each team owns a service. Requires platform team."
+            }
+          }
+        ]
+      }
+    }
+  }
+}

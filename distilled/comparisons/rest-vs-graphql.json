@@ -1,0 +1,78 @@
+{
+  "compilation_date": "2026-06-02",
+  "name": "REST vs GraphQL vs gRPC",
+  "version": "1.0.0",
+  "domain": "api-design",
+  "description": "When to use REST, GraphQL, or gRPC",
+  "citation_density": "very_high",
+  "books_endorsing": 78,
+  "comparison": {
+    "rows": [
+      {
+        "dimension": "Use case",
+        "REST": "Public APIs, CRUD over HTTP, cache-friendly",
+        "GraphQL": "Frontends with varied data needs, mobile + web, aggregations",
+        "gRPC": "Service-to-service, low-latency, polyglot, streaming"
+      },
+      {
+        "dimension": "Transport",
+        "REST": "HTTP/1.1 or HTTP/2, JSON or XML",
+        "GraphQL": "HTTP/1.1 or HTTP/2, JSON",
+        "gRPC": "HTTP/2 only, Protobuf binary"
+      },
+      {
+        "dimension": "Schema",
+        "REST": "Implicit (often), OpenAPI optional",
+        "GraphQL": "Required, SDL is the contract",
+        "gRPC": "Required, Protobuf is the contract"
+      },
+      {
+        "dimension": "Tooling",
+        "REST": "Mature, ubiquitous, every language",
+        "GraphQL": "Good, but immature vs REST in some areas",
+        "gRPC": "Excellent for typed languages, weaker for dynamic"
+      },
+      {
+        "dimension": "Caching",
+        "REST": "Built-in (HTTP caching)",
+        "GraphQL": "Requires effort (persisted queries, response cache)",
+        "gRPC": "No built-in, custom caching required"
+      },
+      {
+        "dimension": "Performance",
+        "REST": "Good for typical, suffers over-fetching",
+        "GraphQL": "Single round-trip, can over-engineer",
+        "gRPC": "Fastest, binary, streaming, HTTP/2 multiplexing"
+      },
+      {
+        "dimension": "Browser support",
+        "REST": "Universal",
+        "GraphQL": "Native (HTTP), needs client library for ergonomics",
+        "gRPC": "Requires grpc-web proxy for browsers"
+      },
+      {
+        "dimension": "Versioning",
+        "REST": "URI or header versioning, well-understood",
+        "GraphQL": "Schema evolution, deprecate fields",
+        "gRPC": "Protobuf compatibility rules"
+      },
+      {
+        "dimension": "Learning curve",
+        "REST": "Low (everyone knows HTTP)",
+        "GraphQL": "Medium (queries, mutations, schema design)",
+        "gRPC": "Medium (proto syntax, code-gen)"
+      },
+      {
+        "dimension": "Best for",
+        "REST": "External APIs, simple CRUD, public web",
+        "GraphQL": "Multiple frontends, complex data graphs, mobile + web",
+        "gRPC": "Microservices, polyglot, low-latency, streaming"
+      }
+    ],
+    "recommendation": {
+      "default": "REST + JSON for 80% of APIs",
+      "use_graphql_when": "You have multiple frontends (web + mobile + IoT) querying the same backend with different data shapes, and over-fetching is causing real performance issues",
+      "use_grpc_when": "Internal microservices, polyglot (Go + Java + Python), need streaming or low-latency, schema is stable"
+    }
+  }
+}

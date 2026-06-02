@@ -1,0 +1,50 @@
+{
+  "name": "Security Ontology",
+  "version": "1.0.0",
+  "compilation_date": "2026-06-02",
+  "domain": "security",
+  "description": "Application security: threats, controls, frameworks distilled from 30+ references",
+  "root": "security",
+  "nodes": {
+    "security": {
+      "children": ["threats", "controls", "frameworks", "operations"],
+      "definition": "Application and system security"
+    },
+    "threats": {
+      "children": ["stride", "owasp_top_10", "cwe_top_25"],
+      "phases": ["P1", "P2", "P3"]
+    },
+    "stride": {
+      "children": ["spoofing", "tampering", "repudiation", "information_disclosure", "denial_of_service", "elevation_of_privilege"],
+      "phases": ["P2", "P3"]
+    },
+    "owasp_top_10": {
+      "children": ["broken_access_control", "cryptographic_failures", "injection", "insecure_design", "security_misconfiguration", "vulnerable_components", "authentication_failures", "software_data_integrity_failures", "logging_monitoring_failures", "ssrf"],
+      "phases": ["P3", "P5"]
+    },
+    "controls": {
+      "children": ["authentication", "authorization", "input_validation", "output_encoding", "cryptography", "logging", "monitoring", "rate_limiting"],
+      "phases": ["P3", "P5", "P7"]
+    },
+    "authentication": {
+      "children": ["password", "mfa", "sso", "oauth", "oidc", "saml", "webauthn"],
+      "phases": ["P3", "P5"]
+    },
+    "authorization": {
+      "children": ["rbac", "abac", "pbac", "rebac", "capability_based"],
+      "phases": ["P3", "P5"]
+    },
+    "cryptography": {
+      "children": ["symmetric", "asymmetric", "hashing", "signing", "kdf", "tls", "hsm"],
+      "phases": ["P3", "P5"]
+    },
+    "frameworks": {
+      "children": ["nist_csf", "iso_27001", "owasp_asvs", "mitre_attack"],
+      "phases": ["P1", "P2"]
+    },
+    "operations": {
+      "children": ["vulnerability_management", "incident_response", "forensics", "threat_modeling", "red_team", "bug_bounty"],
+      "phases": ["P7", "P8"]
+    }
+  }
+}

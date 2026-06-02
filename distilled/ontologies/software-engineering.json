@@ -1,0 +1,86 @@
+{
+  "name": "Software Engineering Ontology",
+  "version": "1.0.0",
+  "compilation_date": "2026-06-02",
+  "domain": "software-engineering",
+  "description": "Taxonomy of software engineering concepts distilled from 60+ canonical works",
+  "root": "software_engineering",
+  "nodes": {
+    "software_engineering": {
+      "children": ["fundamentals", "process", "design", "construction", "operation", "management"],
+      "definition": "Systematic application of engineering approaches to software development"
+    },
+    "fundamentals": {
+      "children": ["algorithms", "data_structures", "complexity_theory", "formal_methods", "type_systems"],
+      "phases": ["P1", "P2", "P3"],
+      "books": ["CLRS", "SICP", "Concrete Mathematics"]
+    },
+    "process": {
+      "children": ["waterfall", "iterative", "agile", "devops", "lean", "spiral"],
+      "phases": ["P1", "P4", "P5", "P6", "P7", "P8"],
+      "books": ["Software Engineering at Google", "Modern Software Engineering", "Clean Agile"]
+    },
+    "design": {
+      "children": ["architectural_patterns", "design_patterns", "anti_patterns", "domain_driven_design", "principles"],
+      "phases": ["P2", "P3"],
+      "books": ["Head First Design Patterns", "GoF", "Clean Architecture", "DDD"]
+    },
+    "construction": {
+      "children": ["languages", "paradigms", "tooling", "testing", "version_control"],
+      "phases": ["P5", "P6"],
+      "books": ["Code Complete", "Pragmatic Programmer", "Clean Code"]
+    },
+    "operation": {
+      "children": ["deployment", "monitoring", "observability", "incident_response", "sre"],
+      "phases": ["P7", "P8"],
+      "books": ["Site Reliability Engineering", "Observability Engineering", "The Phoenix Project"]
+    },
+    "management": {
+      "children": ["estimation", "scheduling", "risk", "team", "communication"],
+      "phases": ["P4"],
+      "books": ["Mythical Man-Month", "Death March", "Waltzing with Bears"]
+    },
+    "architectural_patterns": {
+      "children": ["layered", "hexagonal", "microservices", "event_driven", "cqrs", "microkernel", "space_based"],
+      "phases": ["P2", "P3"],
+      "definition": "Recurring solutions to architectural problems at the system level"
+    },
+    "design_patterns": {
+      "children": ["creational", "structural", "behavioral", "concurrency"],
+      "phases": ["P3", "P5"],
+      "definition": "Gang of Four and related patterns: reusable OOP solutions"
+    },
+    "creational": {
+      "children": ["singleton", "factory", "abstract_factory", "builder", "prototype"],
+      "phases": ["P3", "P5"]
+    },
+    "structural": {
+      "children": ["adapter", "bridge", "composite", "decorator", "facade", "proxy"],
+      "phases": ["P3", "P5"]
+    },
+    "behavioral": {
+      "children": ["observer", "strategy", "command", "state", "mediator", "memento", "visitor", "chain_of_responsibility", "template_method", "iterator"],
+      "phases": ["P3", "P5"]
+    },
+    "domain_driven_design": {
+      "children": ["bounded_context", "aggregate", "entity", "value_object", "domain_event", "repository", "service"],
+      "phases": ["P2", "P3"],
+      "books": ["DDD by Eric Evans", "Implementing DDD by Vaughn Vernon"]
+    },
+    "testing": {
+      "children": ["unit", "integration", "e2e", "performance", "security", "mutation", "property_based", "contract"],
+      "phases": ["P6"],
+      "principle": "test_pyramid",
+      "books": ["xUnit Test Patterns", "Growing Object-Oriented Software", "Specification by Example"]
+    },
+    "deployment": {
+      "children": ["blue_green", "canary", "rolling", "feature_flags", "gitops", "immutable_infrastructure"],
+      "phases": ["P7"]
+    },
+    "observability": {
+      "children": ["metrics", "logs", "traces", "events"],
+      "phases": ["P7", "P8"],
+      "principle": "three_pillars"
+    }
+  }
+}

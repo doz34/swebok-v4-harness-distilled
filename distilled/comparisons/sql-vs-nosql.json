@@ -1,0 +1,68 @@
+{
+  "compilation_date": "2026-06-02",
+  "name": "SQL vs NoSQL",
+  "version": "1.0.0",
+  "domain": "data-engineering",
+  "description": "When to use SQL (Postgres) vs NoSQL (MongoDB) vs Key-Value (Redis) vs Wide-Column (Cassandra)",
+  "citation_density": "very_high",
+  "books_endorsing": 87,
+  "comparison": {
+    "rows": [
+      {
+        "dimension": "Data shape",
+        "SQL": "Structured, tabular, normalized",
+        "Document": "Semi-structured, JSON, fluid schema",
+        "Key-Value": "Simple, opaque blobs",
+        "Wide-Column": "Tabular but sparse, time-ordered"
+      },
+      {
+        "dimension": "Consistency",
+        "SQL": "ACID by default, strong consistency",
+        "Document": "Configurable, often eventually consistent",
+        "Key-Value": "Configurable (Redis is single-node ACID)",
+        "Wide-Column": "Eventually consistent by default (Cassandra)"
+      },
+      {
+        "dimension": "Query power",
+        "SQL": "Rich (joins, aggregations, window functions, CTEs)",
+        "Document": "Limited (no joins, no transactions across docs)",
+        "Key-Value": "Get/put/delete only",
+        "Wide-Column": "CQL similar to SQL but limited joins"
+      },
+      {
+        "dimension": "Indexing",
+        "SQL": "B-tree, hash, GIN, BRIN, expression indexes",
+        "Document": "B-tree on any field, geospatial, text",
+        "Key-Value": "Primary key only (Redis has secondary indexes via modules)",
+        "Wide-Column": "Partition key + clustering key + secondary indexes"
+      },
+      {
+        "dimension": "Schema",
+        "SQL": "Strict, schema migrations are formal",
+        "Document": "Flexible, schema validation optional",
+        "Key-Value": "None, you serialize/deserialize yourself",
+        "Wide-Column": "Schema-light, CQL types"
+      },
+      {
+        "dimension": "Operational complexity",
+        "SQL": "Medium (Postgres is well-understood, single node → replication → sharding)",
+        "Document": "Medium-High (sharding, replication, hot keys)",
+        "Key-Value": "Low (single node, trivial replication)",
+        "Wide-Column": "High (partitioning, repair, consistency tuning)"
+      },
+      {
+        "dimension": "Best for",
+        "SQL": "OLTP, business apps, complex queries, transactional integrity",
+        "Document": "Catalogs, content management, event sourcing, varied shapes",
+        "Key-Value": "Cache, sessions, leaderboards, queues, pub/sub",
+        "Wide-Column": "Time series, IoT, metrics, write-heavy with time-ordering"
+      }
+    ],
+    "recommendation": {
+      "default": "PostgreSQL for 90% of OLTP workloads. JSONB when you need document-like flexibility. Don't reach for a NoSQL until you've outgrown what Postgres can do.",
+      "use_document_when": "Data is genuinely schema-fluid AND you don't need cross-document transactions. Even then, consider Postgres JSONB first.",
+      "use_key_value_when": "Access pattern is simple get/put, or you need extreme throughput (Redis, memcached), or you need pub/sub.",
+      "use_wide_column_when": "You have billions of rows, time-ordered data, write-heavy workload with simple read patterns."
+    }
+  }
+}

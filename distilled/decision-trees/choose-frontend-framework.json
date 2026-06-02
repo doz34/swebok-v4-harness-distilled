@@ -1,0 +1,94 @@
+{
+  "compilation_date": "2026-06-02",
+  "name": "Choose a Frontend Framework",
+  "version": "1.0.0",
+  "domain": "web-frontend",
+  "decision_tree": {
+    "id": "choose_frontend_framework",
+    "root": "start",
+    "description": "Pick the right frontend framework for your project",
+    "citation_density": "very_high",
+    "books_endorsing": 78,
+    "nodes": {
+      "start": {
+        "question": "What's the project's nature?",
+        "options": [
+          {
+            "label": "Static content / docs / blog",
+            "answer": {
+              "pick": "Astro (or just HTML)",
+              "rationale": "Ship zero JS by default. Hydrate only what's interactive. Best for content-heavy sites."
+            }
+          },
+          {
+            "label": "Interactive app, small to medium",
+            "next": "interactive"
+          },
+          {
+            "label": "Large enterprise app, complex state",
+            "next": "enterprise"
+          },
+          {
+            "label": "Marketing / landing page",
+            "answer": {
+              "pick": "Astro or Next.js (SSG)",
+              "rationale": "Server-rendered, fast TTFB, SEO-friendly. Don't over-engineer."
+            }
+          }
+        ]
+      },
+      "interactive": {
+        "question": "What kind of interactivity?",
+        "options": [
+          {
+            "label": "Heavily interactive, complex state, real-time updates",
+            "answer": {
+              "pick": "React (with Next.js for full-stack)",
+              "rationale": "The ecosystem default. Largest hiring pool, most libraries, best tooling. Use Next.js for SSR/RSC/SSG."
+            }
+          },
+          {
+            "label": "Progressive enhancement, sprinkle of JS",
+            "answer": {
+              "pick": "HTMX + Alpine.js (or Stimulus)",
+              "rationale": "Server-rendered HTML with targeted JS enhancements. Lighter, more cacheable, more 'boring' (in a good way). Alternative: Unpoly or Hotwire."
+            }
+          },
+          {
+            "label": "Lightweight, fast, no SPA overhead",
+            "answer": {
+              "pick": "Svelte (with SvelteKit) or Solid",
+              "rationale": "Compile-time frameworks. Less runtime overhead. Svelte has best DX, Solid has React-like mental model with better perf."
+            }
+          },
+          {
+            "label": "Familiar Angular team / large codebase",
+            "answer": {
+              "pick": "Angular",
+              "rationale": "Opinionated, batteries-included, TypeScript-native. Good for large teams that need structure. Heavyweight for small projects."
+            }
+          }
+        ]
+      },
+      "enterprise": {
+        "question": "Team and tooling?",
+        "options": [
+          {
+            "label": "Large team, established patterns, Java/.NET background",
+            "answer": {
+              "pick": "Angular",
+              "rationale": "Convention over configuration. DI built-in. Long-term support. Good for stable, long-lived enterprise apps."
+            }
+          },
+          {
+            "label": "Hire-able pool, flexibility, modern",
+            "answer": {
+              "pick": "React (with Next.js or Remix)",
+              "rationale": "The de facto industry standard. Server components for performance. Largest ecosystem. Use TypeScript."
+            }
+          }
+        ]
+      }
+    }
+  }
+}

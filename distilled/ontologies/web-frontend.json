@@ -1,0 +1,78 @@
+{
+  "name": "Web Frontend Ontology",
+  "version": "1.0.0",
+  "compilation_date": "2026-06-02",
+  "domain": "web-frontend",
+  "description": "Web frontend ecosystem: HTML/CSS/JS frameworks distilled from 60+ references",
+  "root": "web_frontend",
+  "nodes": {
+    "web_frontend": {
+      "children": ["html", "css", "javascript", "frameworks", "build_tools", "testing"],
+      "definition": "Client-side web technologies"
+    },
+    "html": {
+      "children": ["semantic_html", "forms", "accessibility"],
+      "phases": ["P3", "P5"],
+      "principle": "semantic_first"
+    },
+    "css": {
+      "children": ["layout", "responsive", "preprocessor", "utility_first", "components"],
+      "phases": ["P3", "P5"]
+    },
+    "layout": {
+      "children": ["flexbox", "grid", "positioning"],
+      "phases": ["P3", "P5"],
+      "default": "grid_for_2d_flexbox_for_1d"
+    },
+    "responsive": {
+      "children": ["media_queries", "container_queries", "fluid_typography"],
+      "phases": ["P3", "P5"]
+    },
+    "utility_first": {
+      "children": ["tailwind", "unocss", "windicss"],
+      "phases": ["P3", "P5"],
+      "default": "tailwind"
+    },
+    "components": {
+      "children": ["shadcn", "radix", "headless_ui", "material_ui", "chakra"],
+      "phases": ["P3", "P5"]
+    },
+    "javascript": {
+      "children": ["vanilla", "typescript", "modules", "bundlers", "package_managers"],
+      "phases": ["P3", "P5"]
+    },
+    "typescript": {
+      "phases": ["P3", "P5"],
+      "principle": "use_typescript_for_any_project_over_50k_loc"
+    },
+    "bundlers": {
+      "children": ["vite", "webpack", "rollup", "esbuild", "turbopack", "rspack"],
+      "phases": ["P3", "P5"],
+      "default": "vite"
+    },
+    "package_managers": {
+      "children": ["npm", "yarn", "pnpm", "bun"],
+      "phases": ["P3", "P5"],
+      "default": "pnpm"
+    },
+    "frameworks": {
+      "children": ["react", "vue", "angular", "svelte", "solid", "qwik", "astro", "next", "nuxt", "remix"],
+      "phases": ["P3", "P5"],
+      "decision_tree": "choose_frontend_framework"
+    },
+    "react": {
+      "children": ["hooks", "context", "suspense", "server_components"],
+      "phases": ["P3", "P5"],
+      "version": "19"
+    },
+    "testing": {
+      "children": ["unit", "component", "e2e", "visual"],
+      "phases": ["P6"]
+    },
+    "e2e": {
+      "children": ["playwright", "cypress", "puppeteer"],
+      "phases": ["P6"],
+      "default": "playwright"
+    }
+  }
+}

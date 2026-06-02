@@ -1,0 +1,87 @@
+{
+  "name": "Data Engineering Ontology",
+  "version": "1.0.0",
+  "compilation_date": "2026-06-02",
+  "domain": "data-engineering",
+  "description": "Data systems: databases, data formats, processing frameworks",
+  "root": "data_engineering",
+  "nodes": {
+    "data_engineering": {
+      "children": ["storage", "processing", "modeling", "consistency", "scaling"],
+      "definition": "How data is stored, processed, modeled, and served"
+    },
+    "storage": {
+      "children": ["rdbms", "document", "key_value", "columnar", "graph", "time_series", "search", "vector"],
+      "phases": ["P3", "P5"],
+      "decision_tree": "choose_database"
+    },
+    "rdbms": {
+      "children": ["postgres", "mysql", "sqlite", "oracle", "sqlserver"],
+      "phases": ["P3", "P5"],
+      "default": "postgres",
+      "principle": "default_to_postgres"
+    },
+    "document": {
+      "children": ["mongodb", "couchdb", "firestore"],
+      "phases": ["P3", "P5"],
+      "use_when": "schema is fluid, document-shaped data"
+    },
+    "key_value": {
+      "children": ["redis", "memcached", "dynamodb"],
+      "phases": ["P3", "P5"],
+      "use_when": "high-throughput cache, simple lookups"
+    },
+    "columnar": {
+      "children": ["cassandra", "hbase", "clickhouse", "druid"],
+      "phases": ["P3", "P5"],
+      "use_when": "wide rows, analytical queries, time series"
+    },
+    "graph": {
+      "children": ["neo4j", "arangodb", "tigergraph"],
+      "phases": ["P3", "P5"],
+      "use_when": "highly connected data, traversals, recommendations"
+    },
+    "time_series": {
+      "children": ["influxdb", "timescaledb", "prometheus", "questdb"],
+      "phases": ["P3", "P5"],
+      "use_when": "metrics, IoT, financial data"
+    },
+    "search": {
+      "children": ["elasticsearch", "opensearch", "meilisearch", "typesense"],
+      "phases": ["P3", "P5"],
+      "use_when": "full-text search, faceting, relevance"
+    },
+    "vector": {
+      "children": ["pinecone", "weaviate", "milvus", "qdrant", "chroma"],
+      "phases": ["P3", "P5"],
+      "use_when": "embeddings, semantic search, RAG"
+    },
+    "processing": {
+      "children": ["batch", "stream"],
+      "phases": ["P3", "P5"]
+    },
+    "batch": {
+      "children": ["spark", "hadoop", "dask", "ray"],
+      "phases": ["P3", "P5"]
+    },
+    "stream": {
+      "children": ["kafka", "pulsar", "rabbitmq", "nats"],
+      "phases": ["P3", "P5"],
+      "default": "kafka"
+    },
+    "modeling": {
+      "children": ["relational", "dimensional", "graph", "document"],
+      "phases": ["P3"],
+      "principle": "model_for_query_patterns"
+    },
+    "consistency": {
+      "children": ["acid", "base", "cap"],
+      "phases": ["P3"],
+      "principle": "know_your_consistency_model"
+    },
+    "scaling": {
+      "children": ["vertical", "horizontal", "sharding", "replication"],
+      "phases": ["P2", "P3"]
+    }
+  }
+}

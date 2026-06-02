@@ -1,0 +1,76 @@
+{
+  "compilation_date": "2026-06-02",
+  "name": "Monolith vs Modular Monolith vs Microservices",
+  "version": "1.0.0",
+  "domain": "architecture",
+  "description": "When to use monolith, modular monolith, or microservices — and how to migrate",
+  "citation_density": "very_high",
+  "books_endorsing": 91,
+  "comparison": {
+    "rows": [
+      {
+        "dimension": "Deployment",
+        "Monolith": "One deployable unit. Simple.",
+        "Modular Monolith": "One deployable unit, multiple internal modules. Simple deploy, clear boundaries.",
+        "Microservices": "Many deployable units. CI/CD complexity multiplies."
+      },
+      {
+        "dimension": "Team structure",
+        "Monolith": "One team (or multiple, but coupling)",
+        "Modular Monolith": "Multiple teams possible, each owning a module",
+        "Microservices": "One team per service (Conway's Law)"
+      },
+      {
+        "dimension": "Data",
+        "Monolith": "Single database, easy joins",
+        "Modular Monolith": "Single database, schemas per module",
+        "Microservices": "Database per service, no joins across services"
+      },
+      {
+        "dimension": "Local dev",
+        "Monolith": "Run one process, easy",
+        "Modular Monolith": "Run one process, easy",
+        "Microservices": "Docker Compose with 10+ services, hard"
+      },
+      {
+        "dimension": "Operational cost",
+        "Monolith": "Low (one server, one DB)",
+        "Modular Monolith": "Low-Medium",
+        "Microservices": "High (K8s, service mesh, observability stack)"
+      },
+      {
+        "dimension": "Failure mode",
+        "Monolith": "All or nothing. One bug, all down.",
+        "Modular Monolith": "Same, but blast radius is contained by module boundaries.",
+        "Microservices": "Partial degradation, but cascade failures if not careful."
+      },
+      {
+        "dimension": "When to use",
+        "Monolith": "Single team, <50 engineers, MVP, unknown future",
+        "Modular Monolith": "Multiple teams, clear bounded contexts, want microservices-lite",
+        "Microservices": "Multiple teams, scaling needs differ, regulatory isolation, >50 engineers"
+      }
+    ],
+    "recommendation": {
+      "default": "Modular Monolith. It's the sweet spot for most teams. Easy to develop, clear boundaries, can extract services later if needed.",
+      "use_monolith_when": "You have one team, the system is small (<100k LOC), or you're at MVP stage. Don't pay for complexity you don't need.",
+      "use_microservices_when": "You have >5 teams, clear bounded contexts, different scaling needs per service, regulatory requirements force isolation.",
+      "anti_pattern": "Distributed Monolith — microservices that must be deployed together, share a database, have circular dependencies. This is the worst of both worlds."
+    },
+    "migration_path": {
+      "monolith_to_modular": [
+        "1. Identify bounded contexts in the existing code",
+        "2. Extract them as internal modules (no deployment change)",
+        "3. Enforce module boundaries with tests and architecture fitness functions",
+        "4. Now you have a modular monolith"
+      ],
+      "modular_to_microservices": [
+        "1. Pick the module with the highest scaling needs or team independence",
+        "2. Extract its database (one schema → one database)",
+        "3. Extract its API (synchronous calls → HTTP or message queue)",
+        "4. Deploy independently",
+        "5. Repeat for other modules as needed"
+      ]
+    }
+  }
+}

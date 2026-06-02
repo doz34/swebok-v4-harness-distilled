@@ -1,0 +1,123 @@
+SWEBOK v4 HARNESS DOCUMENTATION
+================================
+Version: 1.5.1
+Date: 2026-06-02
+Status: PRODUCTION-READY (v1.5.1 = PROOF-CLOSE; v1.5.0 = PR-B; v1.0 release = internal 1.4.1)
+
+CHANGELOG:
+----------
+1.5.1 - PROOF-CLOSE: per-phase bash_scanner direct tests + P7/P8 phase-distinct rules (2026-06-02)
+      - ADDED P7 phase-distinct rule: block_remote_deploy=True.
+        BLOCKS bare `kubectl apply` (no --dry-run), `terraform apply`
+        (no -target=), `helm install` (no --dry-run), `aws s3 sync`
+        (no --dryrun). ALLOWS the same commands with explicit confirmation.
+        Rationale: production deploys require explicit dry-run or targeted flag.
+      - ADDED P8 phase-distinct rule: block_new_src_files=True.
+        BLOCKS `mkdir src/X`, `touch src/Y`, `cp ... src/`, etc.
+        ALLOWS modifications to existing files. Rationale: P8 is
+        bug-fix-only; new feature files belong in P5.
+      - ADDED Tests 101-106 (6 tests, ~30 LOC) to close the fresh-eyes
+        audit's 7 gaps. Resolves 6 of 7 gaps; the 7th (true council
+        with real nexus-* agents) requires the dispatcher.
+        * Test 101: P2 bash_scanner direct (was only transitive)
+        * Test 102: P6 bash_scanner BLOCKS non-test src access
+        * Test 103: P6 bash_scanner ALLOWS test-path access
+        * Test 104: P6 bash_scanner ALLOWS spec-path access
+        * Test 105: P7+P8 phase-distinct rules (3 assertions)
+        * Test 106: --council + --judge-only end-to-end re-invoke
+      - TEST COUNT: 92/92 PASS, 5/5 stable. (Note: test numbers go
+        1-106 with gaps; 92 is the FUNCTION count, not the highest
+        number. Each test function can have multiple assertions
+        -- 117 log_pass / log_fail calls in v1.5.1.)
+
+1.5.0 - PR-A + PR-B: G.1 docs + G.2 light wiring + G.3 council bridge (2026-06-02)
+      - TEST COUNT: 92/92 PASS, 5/5 stable. (Note: the published v1.5.0
+        release notes incorrectly stated "100/100 PASS" -- that number
+        was the highest test ID, not the function count. Corrected in
+        v1.5.1.)
+      - ADDED G.3 opt-in council bridge (commit 94394a3): --council mode on
+        adversarial-gate.sh that spawns 4 reviewer agents (nexus-ciso, qa-lead,
+        architect, devops-lead) through the dispatcher. Default remains
+        fixture-based for deterministic CI.
+      - ADDED G.1 docs (commit c0e456d): docs/v1/PHASE_SKILLS.md,
+        AUDIT_CYCLE.md, EVIDENCE_LEDGER.md, ADR-003-multiagent-bridge.md,
+        threat-model A6 row update.
+      - ADDED G.2 light wiring (commit c0e456d): state_engine.py
+        self_audit(council=False, since_days=30); state_engine_cli.py
+        self_audit subcommand; structured ANTI-ROT nudge in phase-guard.sh.
+      - ADDED multiagent-launcher.sh emit-envelope task (single owner of the
+        <MULTIAGENT_LAUNCH> envelope per CLAUDE.md Law 6.1).
+      - ADDED install-harness.sh: MULTIAGENT_BRIDGE_ENABLED=0 in env block
+        (default off) + opt-in mention in next-steps echo.
+      - ADDED docs/v1/OPERATIONS.md §12 "Opt-in council bridge" runbook.
+      - ADDED CLAUDE.md Law 6.1 (council bridge dispatcher contract +
+        aggregation rule).
+      - FIXED set -e → set -euo pipefail in multiagent-launcher.sh.
+      - FIXED log_dsl STDOUT → STDERR (was polluting envelope).
+      - FIXED P10/P11 phase_num truncation (KA-10+KA-11 not KA-1+KA-11).
+      - FIXED FROM_P/TO_P injection surface (now validates ^P[0-9]+$).
+      - FIXED 2>/dev/null | grep || true silent error swallow (now captures
+        stderr, propagates exit, rejects empty/malformed envelope).
+      - ADDED Tests 97-100: council envelope shape, env-var WARN, input
+        validation, P10+ phase_num preservation.
+      - TEST COUNT: 94/94 → 100/100 PASS, 5/5 stable. 8/8 STRIDE-lite.
+
+1.4.1 - Audit round 2 fixes (2026-06-01)
+      - FIXED AOV anti-loop: now reads aov_iterations from SQLite (was reading
+        the deprecated .swebok_state YAML which never exists, so the anti-loop
+        was permanently disabled)
+      - FIXED FAIL-SECURE: phase-guard.sh and bash-guard.sh now exit 1 on
+        malformed/empty JSON instead of silently allowing the action
+      - FIXED export_state(): NameError because yaml was used without import
+        (rewrote to use json; no external dep)
+      - REFACTORED 9 scripts that still referenced the deprecated .swebok_state
+        YAML to read from .swebok_state.db via state_engine.py
+      - ADDED P5 destructive command block (rm -rf, DROP TABLE blocked in P5)
+      - ADDED schema version check: refuses to read a DB from a newer schema
+      - ADDED ANTI-ROT enforcement: increment_tool_calls + should_run_continuity
+        (auto-incremented by hooks; dispatcher reads should_run_continuity)
+      - REPLACED adversarial_log JSON blob with proper append-only table
+        (queryable via state_engine.py query_adversarial)
+      - STRIPPED line-count claims from docs (drift was inevitable)
+      - REMOVED .swebok_state.lock (dead code; SQLite WAL handles concurrency)
+      - ARCHIVED research/ (5.1 MB, 36 files, zero consumers)
+
+1.4.0 - Zero Defect Pass (2026-06-01)
+      - FIXED state_engine.py:117-120 (add BEGIN EXCLUSIVE for simple top-level set)
+      - FIXED bash_scanner.py:50-55 (add block_paths for P9 /src/ /lib/)
+      - FIXED bash_scanner.py:186-193 (add P9 path blocking enforcement)
+      - FIXED act-observe-verify.sh:122-125 (valid XML with <MCP_CALLS> root)
+      - FIXED CLAUDE.md:28 (16/16 PASS), LAW 6 (multiagent return path)
+      - FIXED ARCHITECTURE.md:134 (1.4.0), removed state_utils.sh/dsl_parser.sh refs
+      - FIXED DSL.md:86 (1.4.0), DSL_SPEC.md:83-99 (removed dead refs)
+      - ADDED dsl_engine.py strict validation (DSL_FORMAT_ERROR for missing critical fields)
+      - ADDED tests 11-16 (P3/P5/P9 coverage, DSL strict, RAG validation)
+      - REMOVED dead import yaml in state_engine.py:337
+      - UPDATED tests/adversarial-test.sh to 16/16 PASS (consolidated validate-rag.py)
+
+1.3.0 - YAML Purge + P9 + MCP/Multiagent Bridge (2026-06-01)
+      - ELIMINATED dual state: .swebok_state YAML removed
+      - MODIFIED bootstrap.sh to create SQLite ONLY
+      - MODIFIED hooks to use STATE_DB instead of STATE_FILE
+      - ADDED export_state() function for human debugging
+      - ADDED P9 (Retirement) phase support
+      - ADDED MCP BRIDGE law (LAW 5) in CLAUDE.md
+      - ADDED MULTIAGENT BRIDGE law (LAW 6) in CLAUDE.md
+      - ADDED <MULTIAGENT_LAUNCH.../> XML output in adversarial-gate.sh
+      - FIXED P5 mkdir regex to block /tmp/src
+
+1.2.0 - Radical simplification (SMALLER DELTA) (2026-06-01)
+      - DELETED dsl_parser.sh (dead code)
+      - DELETED obsolete root-level ARCHITECTURE*.md files
+      - DELETED obsolete root-level ADVERSARIAL*.md files
+      - Total lib reduction: 9129 → 843 (-91%)
+      - docs/v1/ is ONLY authoritative source
+
+1.1.0 - Simplified architecture (2026-06-01)
+      - Replaced YAML+flock with SQLite WAL
+      - Handles mono AND multi-session natively
+      - Removed stale-lock recovery hack
+      - State engine: 418 → ~200
+
+1.0.0 - Initial consolidated documentation (earlier)
+      - Created unified docs/v1/ structure

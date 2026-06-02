@@ -1,0 +1,168 @@
+{
+  "$schema": "https://swebok-v4-harness.dev/distilled/citations.schema.json",
+  "version": "1.0.0",
+  "compilation_date": "2026-06-02",
+  "description": "Source attribution: which distilled knowledge is grounded in which books. Anonymized — no specific titles or authors, only the structural category.",
+  "domains": {
+    "software-engineering": {
+      "book_count": 34,
+      "endorses_principles": ["KISS", "YAGNI", "DRY", "SOLID", "SEPARATION_OF_CONCERNS", "COMPOSABILITY", "CONWAYS_LAW", "BROOKS_LAW"],
+      "key_concepts": [
+        "Software engineering is engineering, not art",
+        "Feedback loops drive improvement",
+        "Working software over comprehensive documentation",
+        "Responding to change over following a plan",
+        "Iterative delivery, not big-bang",
+        "Test-driven development for reliability",
+        "Continuous integration for confidence",
+        "Refactoring is a continuous discipline",
+        "Design is not a phase, it's continuous",
+        "Architecture must serve the system, not the architect"
+      ]
+    },
+    "python-ecosystem": {
+      "book_count": 138,
+      "endorses_principles": ["stdlib_first", "duck_typing", "explicit_better_than_implicit", "composition_over_inheritance"],
+      "key_concepts": [
+        "Python's stdlib is the first place to look",
+        "Duck typing enables flexible abstractions",
+        "Virtual environments isolate dependencies",
+        "Type hints are documentation + tooling",
+        "Pydantic for runtime validation",
+        "Pytest for testing",
+        "asyncio for concurrent I/O",
+        "Comprehensions over map/filter",
+        "Context managers for resource handling",
+        "Don't repeat the loop counter pattern"
+      ]
+    },
+    "web-frontend": {
+      "book_count": 95,
+      "endorses_principles": ["progressive_enhancement", "semantic_first", "responsive_design", "separation_of_concerns"],
+      "key_concepts": [
+        "HTML for structure, CSS for presentation, JS for behavior",
+        "Progressive enhancement over graceful degradation",
+        "Mobile-first responsive design",
+        "Accessibility is not optional",
+        "Performance is a feature",
+        "Component-based architecture",
+        "State management complexity grows with app size",
+        "TypeScript catches bugs early",
+        "Bundle size matters",
+        "Semantic HTML is the foundation"
+      ]
+    },
+    "data-engineering": {
+      "book_count": 40,
+      "endorses_principles": ["ACID", "CAP_THEOREM", "EIGHT_FALLACIES", "use_right_tool_for_job"],
+      "key_concepts": [
+        "Choose database by query pattern, not fashion",
+        "Schemas are contracts, evolve them carefully",
+        "Migrations are code, version them",
+        "Backups are not backups until you restore",
+        "Replication is not backup",
+        "Indexing is a tradeoff, not a free win",
+        "Connection pooling is mandatory at scale",
+        "Sharding is the last resort, not the first",
+        "Cache invalidation is one of the hard problems",
+        "Eventual consistency is a design choice, not a failure"
+      ]
+    },
+    "machine-learning-ai": {
+      "book_count": 81,
+      "endorses_principles": ["data_first", "iterate_quickly", "measure_rigorously", "production_is_different_from_research"],
+      "key_concepts": [
+        "Data quality matters more than model complexity",
+        "Iterate quickly on prototypes before production",
+        "Measure rigorously, don't trust intuition",
+        "Production ML is mostly data engineering",
+        "Models drift, monitoring is required",
+        "Reproducibility is non-negotiable",
+        "Bias in, bias out",
+        "Test sets must be representative",
+        "Distill large models for production",
+        "Prompt engineering is a real skill"
+      ]
+    },
+    "cybersecurity": {
+      "book_count": 33,
+      "endorses_principles": ["defense_in_depth", "least_privilege", "fail_secure", "validate_at_boundary"],
+      "key_concepts": [
+        "Trust nothing, verify everything",
+        "Defense in depth, no single point of failure",
+        "Principle of least privilege",
+        "Fail secure, never fail open",
+        "Validate input at every boundary",
+        "Output encoding to prevent XSS",
+        "Parameterized queries to prevent SQLi",
+        "Hash passwords with modern algorithms",
+        "MFA everywhere, especially for admin",
+        "Security is a process, not a feature"
+      ]
+    },
+    "database": {
+      "book_count": 30,
+      "endorses_principles": ["normalize_first", "index_wisely", "migrations_are_code"],
+      "key_concepts": [
+        "Normalize then denormalize for performance",
+        "Index for query patterns, not table shape",
+        "Foreign keys enforce integrity, use them",
+        "Money in cents, never floats",
+        "Soft delete vs hard delete, choose consciously",
+        "Audit log is separate from business data",
+        "Timestamps always, with timezone",
+        "Migrations forward AND backward",
+        "Connection pooling is mandatory",
+        "Test with realistic data volumes"
+      ]
+    },
+    "architecture": {
+      "book_count": 12,
+      "endorses_principles": ["modular_monolith_first", "bounded_contexts", "explicit_contracts", "observability_first"],
+      "key_concepts": [
+        "Modular monolith before microservices",
+        "Bounded contexts define service boundaries",
+        "Explicit contracts between components",
+        "Observability is a design concern",
+        "Failure modes are part of the architecture",
+        "Conway's Law shapes the system",
+        "Architectural decisions are reversible at first, less so later",
+        "Document decisions as ADRs",
+        "Fitness functions test architecture",
+        "Architecture is the things that are hard to change"
+      ]
+    },
+    "devops": {
+      "book_count": 20,
+      "endorses_principles": ["automate_everything", "measure_first", "ci_cd", "immutable_infrastructure"],
+      "key_concepts": [
+        "Automate everything repeatable",
+        "Measure before optimizing",
+        "CI/CD is the default, not the goal",
+        "Immutable infrastructure is safer",
+        "Canary deployments reduce risk",
+        "Observability is non-negotiable",
+        "On-call should not be painful",
+        "Postmortems are blameless",
+        "Runbooks are part of the code",
+        "Security in the pipeline, not at the end"
+      ]
+    },
+    "project-management": {
+      "book_count": 15,
+      "endorses_principles": ["iterative_delivery", "honest_estimation", "small_batches"],
+      "key_concepts": [
+        "Iterate, don't big-bang",
+        "Estimate ranges, not points",
+        "Small batches are faster than big batches",
+        "Done means deployed, not coded",
+        "Stakeholders want working software",
+        "Bugs are cheaper to fix earlier",
+        "Refactoring is a continuous cost",
+        "Technical debt has interest",
+        "Blameless culture finds root causes",
+        "Sustainable pace beats heroics"
+      ]
+    }
+  }
+}

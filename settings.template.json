@@ -1,0 +1,40 @@
+{
+  "//": "Template — placeholders {{HARNESS_DIR}} replaced by install-harness.sh during install.",
+  "//notes": "Do NOT commit the rendered settings.json (real paths). Only this template ships in git.",
+  "permissions": {
+    "allow": [
+      "bash scripts/swebok-bootstrap.sh",
+      "bash scripts/adversarial-gate.sh",
+      "bash scripts/validate-gates.sh",
+      "bash scripts/validate-qa-gates.sh",
+      "bash scripts/act-observe-verify.sh",
+      "bash scripts/self-heal.sh",
+      "bash scripts/multiagent-launcher.sh",
+      "bash scripts/skill-invoker.sh",
+      "python3 scripts/swebok-query.py",
+      "python3 scripts/intent-detector.py"
+    ],
+    "deny": []
+  },
+  "hooks": {
+    "PreToolUse": [
+      {"matcher": "Write|Edit|MultiEdit|NotebookEdit",
+       "hooks": ["bash {{HARNESS_DIR}}/hooks/pre-tool-use/phase-guard.sh"]},
+      {"matcher": "Bash",
+       "hooks": ["bash {{HARNESS_DIR}}/hooks/pre-tool-use/bash-guard.sh"]},
+      {"matcher": "Skill|Task|Agent|WebFetch|WebSearch",
+       "hooks": ["bash {{HARNESS_DIR}}/hooks/pre-tool-use/phase-guard.sh"]},
+      {"matcher": "mcp__.*|Glob|Grep|LS|TodoWrite|NotebookRead|ExitPlanMode",
+       "hooks": ["bash {{HARNESS_DIR}}/hooks/pre-tool-use/phase-guard.sh"]}
+    ],
+    "PostToolUse": [
+      {"matcher": "Write|Edit|MultiEdit|NotebookEdit",
+       "hooks": ["bash {{HARNESS_DIR}}/hooks/post-tool-use/auto-verify.sh"]},
+      {"matcher": "Skill|Task|Agent|WebFetch|WebSearch",
+       "hooks": ["bash {{HARNESS_DIR}}/hooks/post-tool-use/auto-verify.sh"]},
+      {"matcher": "Read",
+       "hooks": ["bash {{HARNESS_DIR}}/hooks/post-tool-use/auto-verify.sh"]}
+    ]
+  },
+  "env": {"HARNESS_DIR": "{{HARNESS_DIR}}"}
+}
