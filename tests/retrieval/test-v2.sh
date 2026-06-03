@@ -361,25 +361,32 @@ print(intent['mode'])
 
 # === Test 15: Latency check — L0 < 10ms ===
 test_l0_latency() {
-    log_test "Test 15: L0 lookup completes in <10ms (compiled = fast path)"
+    log_test "Test 15: L0 lookup completes in <10ms (compiled = fast path, v1.5.9 math bug fix)"
     local out
     out=$(python3 -c "
 import sys, time
 sys.path.insert(0, '$HARNESS_DIR/scripts')
 from compiled_knowledge import CompiledKnowledge
 ck = CompiledKnowledge()
+# Warm-up to avoid measuring the one-time import cost
+for _ in range(10):
+    ck.get_principle('KISS')
 t0 = time.time()
-for _ in range(100):
+N = 1000
+for _ in range(N):
     ck.get_principle('KISS')
 t1 = time.time()
-print(f'{(t1-t0)*10:.2f}')
+# v1.5.9: divide by N (ms/call), not multiply by 10 (which was the QA-flagged
+# arithmetic bug). The old code printed `(t1-t0)*10` for an unknown reason;
+# the threshold was effectively 100ms/call, not 10ms/call.
+print(f'{(t1-t0)*1000/N:.4f}')
 ")
     local avg_ms
     avg_ms=$(echo "$out" | head -1)
     if awk "BEGIN { exit !($avg_ms < 10) }" 2>/dev/null; then
-        log_pass "L0 average: ${avg_ms}ms (target: <10ms)"
+        log_pass "L0 average: ${avg_ms}ms/call (target: <10ms)"
     else
-        log_fail "L0 too slow: ${avg_ms}ms"
+        log_fail "L0 too slow: ${avg_ms}ms/call (target: <10ms)"
     fi
 }
 
@@ -429,24 +436,27 @@ test_index_size() {
 
 # === Test 19: End-to-end query pipeline works ===
 test_e2e_query() {
-    log_test "Test 19: End-to-end query.py runs successfully"
+    log_test "Test 19: End-to-end query.py runs successfully (v1.5.9 strengthened)"
     local out
-    out=$(python3 "$HARNESS_DIR/scripts/query.py" --dossier "API versioning" 2>&1 | head -5)
-    if echo "$out" | grep -q "Working Dossier"; then
-        log_pass "query.py dossier output works"
+    out=$(python3 "$HARNESS_DIR/scripts/query.py" --dossier "API versioning" 2>&1)
+    # v1.5.9: assert multiple structural properties, not just one grep
+    has_dossier=$(echo "$out" | grep -c "Working Dossier" || true)
+    has_chunk=$(echo "$out" | grep -cE "^\[1\]|\[2\]|\[3\]" || true)
+    has_summary=$(echo "$out" | grep -c "Summary" || true)
+    if [[ "$has_dossier" -ge 1 && "$has_chunk" -ge 1 && "$has_summary" -ge 1 ]]; then
+        log_pass "query.py dossier has summary + chunks (dossier=$has_dossier, chunks=$has_chunk, summary=$has_summary)"
     else
-        log_fail "query.py output: $out"
+        log_fail "query.py dossier incomplete: dossier=$has_dossier, chunks=$has_chunk, summary=$has_summary"
     fi
 }
 
 # === Test 20: V2 fix of V1's coverage gap ===
 test_v2_coverage_improvement() {
-    log_test "Test 20: V2 finds content V1 cannot (demonstration of fix)"
-    # V1 (compiled) returns 0 results for a specific question
-    # V2 (retrieval) should find content via BM25
-    local v1_count v2_count
-    v1_count=$(python3 "$HARNESS_DIR/scripts/compiled_knowledge.py" "URI versioning" 2>&1 | grep -c "URI versioning" || echo 0)
-    v2_count=$(python3 -c "
+    log_test "Test 20: V2 finds content V1 cannot (demonstration of fix, v1.5.9 strengthened)"
+    local v1_count v2_count v2_top_score
+    v1_count=$(python3 "$HARNESS_DIR/scripts/compiled_knowledge.py" "URI versioning" 2>&1 | grep -c "URI versioning" || true)
+    v1_count=${v1_count:-0}
+    read v2_count v2_top_score < <(python3 -c "
 import sys, json
 sys.path.insert(0, '$HARNESS_DIR/scripts')
 from retrieval.bm25 import BM25Index
@@ -454,12 +464,14 @@ from retrieval.chunker import Chunk
 chunks = [Chunk(**json.loads(l)) for l in open('$CHUNKS_FILE') if l.strip()]
 idx = BM25Index()
 idx.build(chunks)
-print(len(idx.search('URI versioning', top_k=3)))
+res = idx.search('URI versioning', top_k=3)
+print(f'{len(res)} {res[0].score if res else 0}')
 ")
-    if [[ "$v2_count" -gt 0 ]]; then
-        log_pass "V2 finds $v2_count results (V1: $v1_count) — multi-view retrieval covers what compiled doesn't"
+    # v1.5.9: require v2 returns >= 1 hit AND top hit has score > 0
+    if [[ "$v2_count" -ge 1 ]] && awk "BEGIN { exit !(${v2_top_score:-0} > 0) }"; then
+        log_pass "V2 returns $v2_count results, top score $v2_top_score (V1: $v1_count)"
     else
-        log_fail "V2 still empty: $v2_count"
+        log_fail "V2 coverage gap fix not demonstrated: v1=$v1_count, v2=$v2_count, score=$v2_top_score"
     fi
 }
 

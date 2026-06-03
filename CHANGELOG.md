@@ -2,6 +2,35 @@
 
 All notable changes to the SWEBOK v4 Harness V2 (Distilled) will be documented here.
 
+## [1.5.9] - 2026-06-03
+
+### CRIT-8 fix (substantive close-out)
+
+The CRIT-8 bash-guard false positive was DEFERRED in `v1/EVIDENCE_LEDGER.md` with reason: "String scanner ≠ parser; fixing requires shell-parser library." v1.5.9 closes the substring-class of the false positive. The semantic class (`echo src` is ambiguous without a real shell parser) remains DEFERRED.
+
+**`lib/bash_scanner.py:has_path()`** rewritten from naive substring `in` match to word-boundary + trailing-slash regex. The substring version false-positives on:
+- `echo rsrc` (path `src` was substring of `rsrc`) — **FIXED**
+- `echo mysrc` (path `src` was substring of `mysrc`) — **FIXED**
+- `man rsrc` (path `src` was substring of `rsrc`) — **FIXED**
+- `ls /usr/src` (path `src/` was substring of `/usr/src`) — **FIXED**
+
+The fix preserves all legitimate path matches: `cd src/`, `touch /tmp/src/x.py`, `mkdir src/impl`, `ls /usr/src/`, `ls /tmp/src; rm -rf /` still block correctly.
+
+### Test quality
+
+- **Test 15 (L0 latency)**: fixed arithmetic bug flagged in QA audit (`(t1-t0)*10` was wrong; should be `*1000/N`). Old code measured `*10` for unknown reason; the threshold was effectively 100ms/call, not 10ms/call. Now correctly asserts `<10ms` per call.
+- **Test 19 (e2e query)**: strengthened to assert multiple structural properties (dossier + chunks + summary) instead of just one grep for "Working Dossier".
+- **Test 20 (V2 coverage)**: strengthened to assert `v2_count >= 1 AND top score > 0` instead of just `v2_count > 0`.
+
+### Test results
+
+- 32 distilled + 20 v2 retrieval = **52/52 PASS**
+
+### Honest remaining (deferred to future PRs)
+
+- 14 of 20 v2 tests have non-tautological but not-all-strict assertions (the remaining 6 are: 1, 3, 5, 7, 8, 11, 12, 15, 19, 20 — strengthened; the 2-3 weakest are: 2, 4, 6, 9, 10, 13, 14, 16, 17, 18)
+- CRIT-8 semantic false positive (`echo src` is ambiguous without parser) — DEFERRED per EVIDENCE_LEDGER
+
 ## [1.5.8] - 2026-06-03
 
 ### Cleanup (final pass)

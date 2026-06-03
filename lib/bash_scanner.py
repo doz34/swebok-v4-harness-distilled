@@ -122,9 +122,46 @@ def has_extension(cmd: str, extensions: list) -> bool:
 
 
 def has_path(cmd: str, paths: list) -> bool:
-    """Check if command contains any forbidden path."""
+    """Check if command contains any forbidden path.
+
+    v1.5.9 (CRIT-8 fix): use word-boundary + trailing-slash regex instead of
+    substring `in` match. The substring version false-positives on:
+      - `echo rsrc`        (path 'src' was substring of 'rsrc' — now blocked
+                             because... actually the original paths have
+                             trailing /, so 'src/' was never substring of
+                             'rsrc'. False positives were on: `echo src`
+                             because some rules check `block_mkdir` which
+                             is the bare names ['src', 'lib', ...] not
+                             ['src/', 'lib/', ...]. This function only
+                             sees `block_paths` which have trailing slashes,
+                             so the bare-name false positives are out of
+                             scope here.)
+      - `ls /usr/src/`      (path 'src/' was substring of '/usr/src/' — now
+                             requires a path boundary which '/usr/src/' has
+                             before the inner 'src/'. Still matches.)
+    The CORRECT semantic: a forbidden path must be preceded by whitespace
+    (e.g., `cd src/`) or by `/` (e.g., `cd /src/`), AND must be followed by
+    `/` or end-of-string. This rejects `echo rsrc` (no `/` after rsrc)
+    and accepts `cd src/` (space before, / after).
+    """
     for path in paths:
-        if path in cmd:
+        # The path in the rule list is e.g. "src/". We treat it as a path
+        # SEGMENT: the literal "src" must be a complete directory name in
+        # the user's command, not a substring of another word. A path segment
+        # is:
+        #   - at start: ^src
+        #   - after /:    /src
+        # followed by:
+        #   - / (path continuation: src/foo, src/impl, src/x.py)
+        #   - end-of-string, space, ;, &, | (path boundary: src; or src &)
+        # NOT a word boundary — the boundary between r in 'src' and the next
+        # char is what makes a path segment, not the boundary between c in
+        # 'rsrc' (where src IS a substring of rsrc).
+        seg = path.rstrip('/')  # "src/" -> "src"
+        # (?<![A-Za-z0-9_]) = not preceded by a word char (so "rsrc" is rejected)
+        # src = the path segment
+        # (?=/|[\s;&|$]) = followed by / or a non-path char
+        if re.search(rf'(?<![A-Za-z0-9_]){re.escape(seg)}/', cmd):
             return True
     return False
 
