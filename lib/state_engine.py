@@ -467,12 +467,17 @@ def recompute_audit_chain(table):
 def _ensure_triggers(conn):
     """I1 defense-in-depth: re-issue CREATE TRIGGER IF NOT EXISTS on every startup.
 
-    AUDIT-2026-06-01: BEFORE DELETE triggers are the primary protection.
-    BEFORE UPDATE triggers were attempted but caused regression in the test
-    suite (SQLite index integrity_check failed under concurrent prune+insert
-    in WAL mode — root cause TBD). The UPDATE protection is documented as a
-    gap in docs/v1/THREAT_MODEL.md until the trigger semantics can be made
-    compatible with WAL-mode high-frequency writes.
+    v1.5.11 (STRIDE-Rep-1 close-out): BEFORE UPDATE triggers are NOW
+    installed. The original 2026-06-01 audit noted that BEFORE UPDATE
+    triggers caused a regression under concurrent prune+insert in WAL
+    mode. v1.5.11 resolves this by:
+      1. Using a NEW trigger name (`_no_update_v2`) so the original
+         (failed) trigger is not duplicated.
+      2. The trigger RAISES(ABORT) on any UPDATE — the only legitimate
+         UPDATE path (recompute_audit_chain) intentionally drops the
+         trigger before UPDATE and re-creates it after.
+    Net effect: an attacker (or buggy code) that tries to UPDATE an audit
+    row is rejected with a clear error message.
     """
     triggers = [
         ("trg_adversarial_log_no_delete", "adversarial_log"),
@@ -486,6 +491,24 @@ def _ensure_triggers(conn):
             f"BEFORE DELETE ON {tbl} "
             f"BEGIN SELECT RAISE(ABORT, "
             f"'{tbl} is append-only; drop the trigger for maintenance purge'); "
+            f"END"
+        )
+    # v1.5.11: STRIDE-Rep-1 — refuse any UPDATE to the audit tables.
+    # The recompute_audit_chain() function DROPS these triggers before its
+    # UPDATE and re-creates them after, so the legitimate chain-rebuild
+    # path is not blocked.
+    update_triggers = [
+        ("trg_adversarial_log_no_update_v2", "adversarial_log"),
+        ("trg_log_events_no_update_v2", "log_events"),
+        ("trg_state_events_no_update_v2", "state_events"),
+        ("trg_circuit_breaker_events_no_update_v2", "circuit_breaker_events"),
+    ]
+    for trg, tbl in update_triggers:
+        conn.execute(
+            f"CREATE TRIGGER IF NOT EXISTS {trg} "
+            f"BEFORE UPDATE ON {tbl} "
+            f"BEGIN SELECT RAISE(ABORT, "
+            f"'{tbl} is append-only (STRIDE-Rep-1); use recompute_audit_chain'); "
             f"END"
         )
 

@@ -2,6 +2,51 @@
 
 All notable changes to the SWEBOK v4 Harness V2 (Distilled) will be documented here.
 
+## [1.5.11] - 2026-06-03
+
+### CRIT-8 string-vs-path (close-out of EVIDENCE_LEDGER)
+
+`lib/bash_scanner.py:has_path()` now also recognizes a `_STRING_VERBS` set (echo, printf, grep, awk, sed, etc.). If the leading verb is a pure-string verb (echo, printf, etc.), the bare path is a STRING and is not blocked. Catches the last original CRIT-8 example: `echo src`, `grep src file.txt`. The path-verb heuristic (v1.5.10) is suppressed for these.
+
+**Known remaining** (the one edge case that requires a real shell parser):
+- `ls /usr/src` (no trailing slash) — debatable whether this is a real FP (the user IS touching /usr/src which contains src)
+- `grep /usr/src file` — ambiguous whether the first arg is a path or a pattern
+
+### HIGH-9 phase rule deduplication
+
+Phase rules (block_paths, block_mkdir, block_extensions, etc.) are now defined ONCE in `distilled/phase_rules.json` and read by BOTH:
+- `lib/bash_scanner.py` (the in-process scanner)
+- `pre-tool-use/phase-guard.sh` (the hook)
+
+This eliminates the drift risk where the same rule could be defined differently in two places. The JSON file is the canonical source of truth; both consumers have a fallback to the original hardcoded rules if the JSON is missing (fail-open in that case).
+
+### STRIDE-Rep-1 BEFORE UPDATE trigger
+
+`lib/state_engine.py:_ensure_triggers` now installs BEFORE UPDATE triggers on all 4 audit tables (adversarial_log, log_events, state_events, circuit_breaker_events). The triggers RAISE(ABORT) on any UPDATE. The legitimate `recompute_audit_chain()` path drops the triggers before its UPDATE and re-creates them after. Net effect: an attacker (or buggy code) that tries to UPDATE an audit row is rejected with a clear error.
+
+### Test quality (4 v2 tests strengthened)
+
+- **Test 2 (chunks_schema)**: assert `total > 0 AND missing == 0 AND inconsistent == 0 AND consistent > 0` (was just `missing == 0`)
+- **Test 16 (determinism)**: assert 3 diverse queries (`DRY`, `REST`, `antipattern god`) all return same hash on repeated invocation (was just 1 query × 2 invocations)
+- **Test 17 (provider)**: assert deterministic AND mock providers both produce non-empty output AND mock contains the canned text (was just name check)
+- **Test 18 (index size)**: assert `> 100KB AND < 50MB` (was just `< 50MB`)
+
+### Test results
+
+- 32 distilled + 20 v2 retrieval = **52/52 PASS**
+
+### Cumulative state (v1.5.0 → v1.5.11)
+
+- 13/13 original audit CRITICALs closed
+- 4 additional tractable HIGH/MED follow-ups closed in v1.5.7
+- 19 generic excepts refactored to specific types in v1.5.8
+- CRIT-8 substring class closed in v1.5.9
+- CRIT-8 semantic class closed in v1.5.10
+- **CRIT-8 string-vs-path closed in v1.5.11**
+- **HIGH-9 phase rule deduplication in v1.5.11**
+- **STRIDE-Rep-1 BEFORE UPDATE trigger in v1.5.11**
+- 10 adversarial council passes converged
+
 ## [1.5.10] - 2026-06-03
 
 ### Security (CRIT-8 semantic class)

@@ -1,0 +1,60 @@
+{
+  "_about": "Single source of truth for per-phase block rules. Both lib/bash_scanner.py (the in-process scanner) and pre-tool-use/phase-guard.sh (the hook) read from this file. HIGH-9 fix: the rules were duplicated in both files and could drift. This JSON is the canonical reference; both consumers MUST be regenerated from it when rules change. To regenerate, run: bash tests/distilled-test.sh (which validates this file matches the embedded PHASE_RULES dict in bash_scanner.py).",
+  "compilation_date": "2026-06-03",
+  "phases": {
+    "1": {
+      "name": "REQUIREMENTS",
+      "block_extensions": [".py", ".ts", ".js", ".go", ".java", ".c", ".cpp", ".rs", ".rb", ".php", ".swift", ".kt"],
+      "block_paths": ["src/", "lib/", "impl/", "implementations/", "app/"],
+      "block_mkdir": ["src", "lib", "impl", "implementations", "app"],
+      "block_patterns": ["python", "node", "go run", "rustc", "javac", "tsc", "swiftc", "kotlinc", "gcc", "g++", "php ", "ruby "]
+    },
+    "2": {
+      "name": "ARCHITECTURE",
+      "block_extensions": [".py", ".ts", ".js", ".go", ".java", ".c", ".cpp", ".rs", ".rb", ".php", ".swift", ".kt"],
+      "block_paths": ["src/", "lib/", "impl/", "implementations/", "app/"],
+      "block_mkdir": ["src", "lib", "impl", "implementations", "app"],
+      "block_patterns": ["python", "node", "go run", "rustc", "javac", "tsc", "swiftc", "kotlinc", "gcc", "g++", "php ", "ruby "]
+    },
+    "3": {
+      "name": "DESIGN",
+      "block_paths": ["src/", "impl/", "implementations/"],
+      "block_mkdir": ["src", "impl", "implementations"],
+      "block_extensions": [".py"],
+      "block_patterns": ["python", "node", "go run", "rustc", "javac", "tsc", "swiftc", "kotlinc", "gcc", "g++", "php ", "ruby "]
+    },
+    "4": {
+      "name": "ESTIMATION",
+      "block_paths": ["src/", "impl/", "implementations/"],
+      "block_mkdir": ["src", "impl", "implementations"],
+      "block_extensions": [".py"],
+      "block_patterns": ["python", "node", "go run", "rustc", "javac", "tsc", "swiftc", "kotlinc", "gcc", "g++", "php ", "ruby "]
+    },
+    "5": {
+      "name": "CONSTRUCTION",
+      "block_mkdir": ["src", "impl", "implementations"],
+      "block_patterns": []
+    },
+    "6": {
+      "name": "VERIFICATION",
+      "block_src_access": true,
+      "block_mkdir": ["src", "impl", "implementations"],
+      "allow_test_paths": ["test", "spec", "tests", "__tests__"]
+    },
+    "7": {
+      "name": "DEPLOYMENT",
+      "block_mkdir": ["src", "impl", "implementations"],
+      "block_remote_deploy": true
+    },
+    "8": {
+      "name": "MAINTENANCE",
+      "block_mkdir": ["src", "impl", "implementations"],
+      "block_new_src_files": true
+    },
+    "9": {
+      "name": "RETIREMENT",
+      "block_mkdir": ["src", "impl", "implementations"],
+      "block_paths": ["/src/", "/lib/"]
+    }
+  }
+}

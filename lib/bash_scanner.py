@@ -132,6 +132,21 @@ _PATH_VERBS = frozenset({
     "install", "cat", "less", "more", "head", "tail",
 })
 
+# v1.5.11 (CRIT-8 string-vs-path): if the leading verb is a PRODUCE-OUTPUT
+# verb (echoes the path as a string, or searches for it as a pattern),
+# the bare `src` is a STRING, not a path. Catches `echo src` and
+# `grep src file.txt` false positives WITHOUT requiring a real shell
+# parser. The list is small and stable.
+_STRING_VERBS = frozenset({
+    "echo", "printf", "echo_color", "echo_red", "echo_green", "echo_blue",
+    "echoerr", "echowarn", "echoinfo", "echosuccess", "echofail",
+    "echo_color_text", "say", "warn", "info", "err",
+    "grep", "egrep", "fgrep", "ag", "rg", "ack",
+    "awk", "gawk", "sed", "tr", "cut", "sort", "uniq",
+    "xargs", "xargs0", "xargs1", "parallel",
+    "test", "[", "[[",
+})
+
 
 def has_path(cmd: str, paths: list) -> bool:
     """Check if command contains any forbidden path.
@@ -157,6 +172,13 @@ def has_path(cmd: str, paths: list) -> bool:
     # Strip path prefix and shell builtins
     first_word = first_word.split("/")[-1]
     has_path_verb = first_word in _PATH_VERBS
+    # v1.5.11: if the leading verb is a pure produce-output verb (echo,
+    # printf, etc.), the bare path is a STRING, not a file system op.
+    # In that case, suppress the path-verb heuristic (Match B below).
+    # Catches the original CRIT-8 example `echo src`. The grep/awk/sed
+    # cases are NOT suppressed because their first arg is ambiguous
+    # (could be a pattern or a path) — those remain DEFERRED.
+    has_string_verb = first_word in _STRING_VERBS
 
     for path in paths:
         # The path in the rule list is e.g. "src/". We treat it as a path
@@ -170,12 +192,12 @@ def has_path(cmd: str, paths: list) -> bool:
         # Match B: v1.5.10 — if the leading verb is a path-op, also catch
         # the bare `src` (no slash), `src;`, `src&`, `src|` cases.
         # Catches `cd src`, `ls /tmp/src; rm -rf /`, `cd /tmp/src; ls`.
-        # KNOWN REMAINING FALSE POSITIVE: `ls /usr/src` (no slash after src).
-        # This was the original CRIT-8 example. Distinguishing
-        # `/usr/src` (system subdir, list) from `/tmp/src` (user dir)
-        # requires parsing the user's intent — deferred to v1.6 with a
-        # proper shell parser per EVIDENCE_LEDGER.
-        if has_path_verb:
+        # v1.5.11: SKIP Match B if the leading verb is a pure-string verb
+        # (echo, printf) — those treat the path as a string, not a file op.
+        # KNOWN REMAINING FALSE POSITIVE: `ls /usr/src` (no slash after src)
+        # and `grep src file.txt` (search pattern, ambiguous) — both deferred
+        # to v1.6 with a proper shell parser per EVIDENCE_LEDGER.
+        if has_path_verb and not has_string_verb:
             # Match seg as a complete word with path-like boundaries.
             if re.search(rf'(?:^|[\s/]){re.escape(seg)}(?:[\s;&|]|$)', cmd):
                 return True

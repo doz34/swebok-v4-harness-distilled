@@ -41,24 +41,40 @@ test_chunker() {
 
 # === Test 2: Chunks have all required fields ===
 test_chunks_schema() {
-    log_test "Test 2: Every chunk has all required fields"
-    local missing
-    missing=$(python3 -c "
+    log_test "Test 2: Every chunk has all required fields AND consistent text metrics (v1.5.11 strengthened)"
+    local out
+    out=$(python3 -c "
 import json
-n = 0
+total = 0
+missing = 0
+text_zero_but_words_nonzero = 0
+n_chunks = 0
 with open('$CHUNKS_FILE') as f:
     for line in f:
         d = json.loads(line)
+        total += 1
         for k in ('id', 'file', 'book', 'chapter', 'section_path', 'start_line', 'end_line', 'text', 'chunk_type', 'char_count', 'word_count', 'token_estimate'):
             if k not in d:
-                n += 1
+                missing += 1
                 break
-print(n)
+        # Consistency check: text and char_count and word_count should agree
+        if d.get('text', '').strip() and d.get('char_count', 0) > 0 and d.get('word_count', 0) > 0:
+            n_chunks += 1
+        # Reverse inconsistency: text empty but word_count > 0
+        if not d.get('text', '').strip() and d.get('word_count', 0) > 0:
+            text_zero_but_words_nonzero += 1
+print(f'TOTAL={total} MISSING={missing} CONSISTENT={n_chunks} INCONSISTENT={text_zero_but_words_nonzero}')
 ")
-    if [[ "$missing" -eq 0 ]]; then
-        log_pass "all chunks have required fields"
+    # Use awk for portable extraction (BSD grep on macOS doesn't have -oP)
+    local total missing consistent inconsistent
+    total=$(echo "$out" | awk -F'[= ]' '{for(i=1;i<=NF;i++) if($i~/^TOTAL$/) {print $(i+1); exit}}')
+    missing=$(echo "$out" | awk -F'[= ]' '{for(i=1;i<=NF;i++) if($i~/^MISSING$/) {print $(i+1); exit}}')
+    consistent=$(echo "$out" | awk -F'[= ]' '{for(i=1;i<=NF;i++) if($i~/^CONSISTENT$/) {print $(i+1); exit}}')
+    inconsistent=$(echo "$out" | awk -F'[= ]' '{for(i=1;i<=NF;i++) if($i~/^INCONSISTENT$/) {print $(i+1); exit}}')
+    if [[ "$total" -gt 0 && "$missing" -eq 0 && "$inconsistent" -eq 0 && "$consistent" -gt 0 ]]; then
+        log_pass "all $total chunks: fields present + $consistent consistent text/metrics"
     else
-        log_fail "$missing chunks missing required fields"
+        log_fail "schema weak: $out"
     fi
 }
 
@@ -411,45 +427,67 @@ print(f'{(t1-t0)*1000/N:.4f}')
 
 # === Test 16: Determinism — same query = same answer ===
 test_determinism() {
-    log_test "Test 16: Same query returns same answer (V2 is deterministic)"
-    local out1 out2
-    out1=$(python3 "$HARNESS_DIR/scripts/compiled_knowledge.py" --principle DRY 2>&1 | md5sum)
-    out2=$(python3 "$HARNESS_DIR/scripts/compiled_knowledge.py" --principle DRY 2>&1 | md5sum)
-    if [[ "$out1" == "$out2" ]]; then
-        log_pass "deterministic (same hash on repeated invocation)"
+    log_test "Test 16: Same query returns same answer across 3 diverse queries (v1.5.11 strengthened)"
+    local all_match
+    all_match="OK"
+    local q
+    for q in "DRY" "REST" "antipattern god"; do
+        local h1 h2
+        h1=$(python3 "$HARNESS_DIR/scripts/compiled_knowledge.py" "$q" 2>&1 | md5sum | awk '{print $1}')
+        h2=$(python3 "$HARNESS_DIR/scripts/compiled_knowledge.py" "$q" 2>&1 | md5sum | awk '{print $1}')
+        if [[ "$h1" != "$h2" ]]; then
+            all_match="FAIL: query '$q' non-deterministic ($h1 != $h2)"
+            break
+        fi
+    done
+    if [[ "$all_match" == "OK" ]]; then
+        log_pass "deterministic across 3 diverse queries (DRY, REST, antipattern god)"
     else
-        log_fail "non-deterministic: $out1 != $out2"
+        log_fail "$all_match"
     fi
 }
 
 # === Test 17: Provider interface works ===
 test_provider_interface() {
-    log_test "Test 17: Provider abstraction works (deterministic + mock)"
+    log_test "Test 17: Provider abstraction works (deterministic + mock produce real output) (v1.5.11 strengthened)"
     local out
     out=$(python3 -c "
 import sys
 sys.path.insert(0, '$HARNESS_DIR/scripts')
 from retrieval.providers import create
 d = create('deterministic')
-m = create('mock', canned='mock answer')
-print(f'{d.name} {m.name} {m.complete(\"x\")}')
+m = create('mock', canned='mock answer for test')
+d_out = d.complete('hello world')
+m_out = m.complete('hello world')
+# Assert: d.name and m.name are correct, both complete() return non-empty output
+print(f'DNAME={d.name} MNAME={m.name} DOUT_LEN={len(d_out)} MOUT_LEN={len(m_out)} MOUT_HAS_MOCK={\"mock answer\" in m_out}')
 ")
-    if [[ "$out" == *"deterministic mock mock answer"* ]]; then
-        log_pass "providers work: $out"
+    local dname mname dout mout
+    dname=$(echo "$out" | sed -n 's/.*DNAME=\([^ ]*\).*/\1/p')
+    mname=$(echo "$out" | sed -n 's/.*MNAME=\([^ ]*\).*/\1/p')
+    dout=$(echo "$out" | sed -n 's/.*DOUT_LEN=\([0-9]*\).*/\1/p')
+    mout=$(echo "$out" | sed -n 's/.*MOUT_LEN=\([0-9]*\).*/\1/p')
+    mhas=$(echo "$out" | sed -n 's/.*MOUT_HAS_MOCK=\([A-Za-z]*\).*/\1/p')
+    if [[ "$dname" == "deterministic" && "$mname" == "mock" && "$dout" -gt 0 && "$mout" -gt 0 && "$mhas" == "True" ]]; then
+        log_pass "providers: d=$dname($dout chars), m=$mname($mout chars, has 'mock answer')"
     else
-        log_fail "providers: $out"
+        log_fail "providers weak: $out"
     fi
 }
 
 # === Test 18: Index size is reasonable ===
 test_index_size() {
-    log_test "Test 18: Index file is < 50MB (for distilled corpus)"
+    log_test "Test 18: Index file is bounded (> 0KB and < 50MB) (v1.5.11 strengthened)"
     local size_kb
     size_kb=$(du -sk "$INDEX_FILE" 2>/dev/null | cut -f1)
-    if [[ $size_kb -lt 51200 ]]; then
-        log_pass "index size: ${size_kb}KB (< 50MB)"
+    # v1.5.11: require BOTH lower and upper bound. A 0KB file would be
+    # a regression (no real index); > 50MB would be a regression (over-sized).
+    if [[ $size_kb -gt 100 && $size_kb -lt 51200 ]]; then
+        log_pass "index size: ${size_kb}KB (100KB < size < 50MB)"
+    elif [[ $size_kb -le 100 ]]; then
+        log_fail "index too small: ${size_kb}KB (< 100KB suggests empty)"
     else
-        log_fail "index too large: ${size_kb}KB"
+        log_fail "index too large: ${size_kb}KB (>= 50MB)"
     fi
 }
 
