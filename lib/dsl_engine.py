@@ -39,12 +39,18 @@ def parse_gate(normalized: str) -> str:
 
 
 def parse_fix_req(normalized: str) -> str:
-    """Extract FIX_REQ value - get value between FIX_REQ: and next ;; or end."""
+    """Extract FIX_REQ value - get value between FIX_REQ: and next ;; or end.
+
+    Returns the cleaned value, or "" if absent or empty.
+    v1.5.7: unified regex `[^;;]+` (1+ chars) across parse and validate.
+    Previously validate() used `[^;;]*` which silently accepted empty values;
+    a malicious DSL `FIX_REQ:;;LOC:foo` would pass validate and emit an
+    empty FIX_REQ field. Now both paths require a non-empty value.
+    """
     if not normalized:
         return ""
 
-    # Match FIX_REQ: followed by anything up to next ;;
-    # Use re.DOTALL so . matches newlines too
+    # Match FIX_REQ: followed by 1+ chars up to next ;;
     match = re.search(r'FIX_REQ:([^;;]+)', normalized, re.IGNORECASE | re.DOTALL)
     if match:
         return match.group(1).strip()
@@ -88,12 +94,14 @@ def validate(normalized: str) -> bool:
         if gate_value not in ('PASS', 'DENY'):
             return False
 
-    # Validate FIX_REQ is not empty when present
-    fix_req_match = re.search(r'FIX_REQ:([^;;]*)', normalized, re.IGNORECASE)
-    if fix_req_match:
-        fix_value = fix_req_match.group(1).strip()
-        if fix_value == '':
-            return False
+    # Validate FIX_REQ is not empty when present.
+    # v1.5.7: regex unified with parse_fix_req (both use `[^;;]+` — 1+ chars).
+    # An empty value is impossible because `[^;;]+` requires 1+ chars; the
+    # match itself is the presence test. We do NOT need a separate empty-
+    # value check (which used to live in the `if fix_value == '': return False`
+    # block before v1.5.7).
+    if not re.search(r'FIX_REQ:([^;;]+)', normalized, re.IGNORECASE):
+        return False
 
     # Validate REASON is not empty when present
     reason_match = re.search(r'REASON:([^;;]*)', normalized, re.IGNORECASE)

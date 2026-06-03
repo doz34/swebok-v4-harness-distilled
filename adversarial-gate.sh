@@ -162,9 +162,9 @@ if [[ "$JUDGE_ONLY" == true ]]; then
     fi
 
     # Extract key fields
-    RED_VULN=$(echo "$RED_PARSED" | grep "^VULN:" | cut -d: -f2- | tr -d ' ')
-    RED_TYPE=$(echo "$RED_PARSED" | grep "^TYPE:" | cut -d: -f2- | tr -d ' ')
-    BLUE_STATUS=$(echo "$BLUE_PARSED" | grep "^STATUS:" | cut -d: -f2- | tr -d ' ')
+    RED_VULN=$(echo "$RED_PARSED" | grep -i "^VULN:" | cut -d: -f2- | tr -d ' ')
+    RED_TYPE=$(echo "$RED_PARSED" | grep -i "^TYPE:" | cut -d: -f2- | tr -d ' ')
+    BLUE_STATUS=$(echo "$BLUE_PARSED" | grep -i "^STATUS:" | cut -d: -f2- | tr -d ' ')
 
     # Judge decision
     if [[ "$RED_VULN" == "CRIT" || "$RED_VULN" == "HIGH" ]]; then
@@ -322,9 +322,9 @@ fi
 echo "[ADVERSARIAL] Red parsed: $RED_PARSED"
 echo "[ADVERSARIAL] Blue parsed: $BLUE_PARSED"
 
-RED_VULN=$(echo "$RED_PARSED" | grep "^VULN:" | cut -d: -f2- | tr -d ' ')
-RED_TYPE=$(echo "$RED_PARSED" | grep "^TYPE:" | cut -d: -f2- | tr -d ' ')
-BLUE_STATUS=$(echo "$BLUE_PARSED" | grep "^STATUS:" | cut -d: -f2- | tr -d ' ')
+RED_VULN=$(echo "$RED_PARSED" | grep -i "^VULN:" | cut -d: -f2- | tr -d ' ')
+RED_TYPE=$(echo "$RED_PARSED" | grep -i "^TYPE:" | cut -d: -f2- | tr -d ' ')
+BLUE_STATUS=$(echo "$BLUE_PARSED" | grep -i "^STATUS:" | cut -d: -f2- | tr -d ' ')
 
 # === STEP 4: JUDGE DECISION ===
 echo ""

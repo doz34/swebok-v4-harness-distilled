@@ -179,44 +179,45 @@ def decode_shell_quotes(cmd: str) -> str:
 
     decoded = cmd
 
+    # v1.5.7: cap the total number of substitutions processed. Without this,
+    # an adversarial command like `eval eval eval eval ...` would quadratic-
+    # blow up (each pass appends to `decoded`, the next pass re-scans the
+    # grown string, repeated n times). Hard cap at 8 substitution rounds;
+    # after that, return what we have.
+    _MAX_SUBSTITUTION_ROUNDS = 8
+
     # Unwrap bash/sh/zsh/ksh/dash -c "INNER" and append INNER to scan stream.
-    for m in list(_WRAPPER_RE.finditer(decoded)):
-        inner = m.group(1) if m.group(1) is not None else m.group(2)
-        if inner:
-            decoded = decoded + ' ; ' + inner
-
-    # Unwrap eval "INNER" and append INNER to scan stream.
-    for m in list(_EVAL_RE.finditer(decoded)):
-        inner = m.group(1) if m.group(1) is not None else m.group(2)
-        if inner:
-            decoded = decoded + ' ; ' + inner
-
-    # F-BYPASS-002: backtick command substitution `cmd` → expose cmd to scanner.
-    for m in re.finditer(r'`([^`]+)`', decoded):
-        decoded = decoded + ' ; ' + m.group(1)
-
-    # F-BYPASS-001 extended: $(...) command substitution.
-    # Match balanced parens up to one level (most real attacks are single).
-    for m in re.finditer(r'\$\(([^()]*)\)', decoded):
-        decoded = decoded + ' ; ' + m.group(1)
-
-    # F-BYPASS-004: source/. (dot) loads — append the target so path-based
-    # rules can see it. Pattern: `source FILE` or `. FILE`.
-    for m in re.finditer(r'(?:^|[\s;&|])(?:source|\.)\s+([^\s;&|]+)', decoded):
-        decoded = decoded + ' ; ' + m.group(1)
-
-    # F-BYPASS-005: BASH_ENV=foo → expose foo as a sourced path token.
-    # AUDIT-2026-06-01 ITER8 (CISO A→S blocker): BASH_ENV pointing to any
-    # path that isn't on a small system allowlist is itself an attack
-    # vector (pre-exec injection). Block at the decoder level — append a
-    # sentinel `BLOCKED_BASH_ENV_NONSYSTEM` token if the target is outside
-    # the system allowlist; the main scanner picks this up below.
-    _BASH_ENV_ALLOWLIST = ("/etc/profile", "/etc/bashrc", "/etc/bash.bashrc")
-    for m in re.finditer(r'\bBASH_ENV=([^\s;&|]+)', decoded):
-        target = m.group(1)
-        decoded = decoded + ' ; ' + target
-        if not any(target.startswith(allow) for allow in _BASH_ENV_ALLOWLIST):
-            decoded = decoded + ' ; BLOCKED_BASH_ENV_NONSYSTEM'
+    for _round in range(_MAX_SUBSTITUTION_ROUNDS):
+        prev = decoded
+        for m in list(_WRAPPER_RE.finditer(decoded)):
+            inner = m.group(1) if m.group(1) is not None else m.group(2)
+            if inner:
+                decoded = decoded + ' ; ' + inner
+        for m in list(_EVAL_RE.finditer(decoded)):
+            inner = m.group(1) if m.group(1) is not None else m.group(2)
+            if inner:
+                decoded = decoded + ' ; ' + inner
+        for m in re.finditer(r'`([^`]+)`', decoded):
+            decoded = decoded + ' ; ' + m.group(1)
+        for m in re.finditer(r'\$\(([^()]*)\)', decoded):
+            decoded = decoded + ' ; ' + m.group(1)
+        for m in re.finditer(r'(?:^|[\s;&|])(?:source|\.)\s+([^\s;&|]+)', decoded):
+            decoded = decoded + ' ; ' + m.group(1)
+        # BASH_ENV handling (not iterative, just one pass)
+        if _round == 0:
+            _BASH_ENV_ALLOWLIST = ("/etc/profile", "/etc/bashrc", "/etc/bash.bashrc")
+            for m in re.finditer(r'\bBASH_ENV=([^\s;&|]+)', decoded):
+                target = m.group(1)
+                decoded = decoded + ' ; ' + target
+                if not any(target.startswith(allow) for allow in _BASH_ENV_ALLOWLIST):
+                    decoded = decoded + ' ; BLOCKED_BASH_ENV_NONSYSTEM'
+        # No new substitutions → done
+        if decoded == prev:
+            break
+    # After iteration, if we hit the cap and the string is still growing,
+    # append a sentinel so the main scanner flags the over-long input.
+    else:
+        decoded = decoded + ' ; BLOCKED_SUBSTITUTION_LIMIT_EXCEEDED'
 
     # AUDIT-2026-06-01 FIX (HIGH-CISO base64): catch the canonical
     # `echo <base64> | base64 -d | sh` and `bash -c "$(echo <b64> | base64 -d)"`
@@ -446,6 +447,11 @@ def scan_command(phase: str, command_string: str) -> str:
     # BASH_ENV sentinel from decode_shell_quotes pre-pass (ITER8)
     if 'BLOCKED_BASH_ENV_NONSYSTEM' in cmd:
         return "BLOCKED:BASH_ENV_INJECTION"
+    # v1.5.7: substitution-limit sentinel from decode_shell_quotes (defense
+    # against `eval eval eval ...` quadratic blowup). The cap is the
+    # security; the sentinel is the diagnostic.
+    if 'BLOCKED_SUBSTITUTION_LIMIT_EXCEEDED' in cmd:
+        return "BLOCKED:SUBSTITUTION_LIMIT"
     # F-BYPASS-006 extensions:
     if re.search(r'\brm\s+--\s+', cmd):
         # rm -- end-of-options trick; treat as destructive regardless
