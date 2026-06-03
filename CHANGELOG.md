@@ -2,6 +2,20 @@
 
 All notable changes to the SWEBOK v4 Harness V2 (Distilled) will be documented here.
 
+## [1.5.6] - 2026-06-03
+
+### Security (4 CRITICAL CISO fixes, final close-out)
+
+1. **$APP_URL / $SCENARIO_FILE prompt injection** (`multiagent-launcher.sh`): added `_validate_safe_value()` that runs at script start. Refuses to run if env values are not `http(s)://...` or absolute paths, or if they contain shell metachars. Defense against an attacker who controls env vars injecting instructions into a subagent prompt.
+2. **bash_scanner base64 validation** (`lib/bash_scanner.py:241`): switched from `validate=False` to `validate=True`. Junk byte sequences no longer pollute the scan stream via base64 false positives.
+3. **emit-prompts PHASE_NUM validation** (`multiagent-launcher.sh`): added `^[0-9]+$` regex check on `$3` (PHASE_NUM) before JSONL interpolation. Defense in depth — emit-envelope validates upstream, but a direct invocation can no longer splice a malicious value.
+4. **HARNESS_DIR env override trust** (`lib/state_engine.py`): added `_verify_harness_dir()` that uses `Path.samefile()` to refuse to load when HARNESS_DIR points to a different `state_engine.py` than the one running. Exits with code 6 (`HARNESS_DIR_INVALID`) on mismatch. Defense against trojaned state engine.
+
+### Test results
+
+- 32 distilled + 20 v2 retrieval = **52/52 PASS**
+- 13/13 original CRITICAL findings closed (verified by 5th-pass adversarial council)
+
 ## [1.5.5] - 2026-06-03
 
 ### Security (4 CRITICAL fixes, closing the audit backlog)

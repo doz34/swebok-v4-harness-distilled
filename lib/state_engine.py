@@ -52,6 +52,34 @@ _THIS_FILE = Path(__file__).resolve()
 HARNESS_DIR = Path(os.environ.get("HARNESS_DIR", str(_THIS_FILE.parent.parent.parent)))
 
 
+def _verify_harness_dir() -> Path:
+    """v1.5.6: trust-boundary check on HARNESS_DIR.
+
+    Defense-in-depth against an attacker who sets HARNESS_DIR to a malicious
+    path containing a trojaned state_engine.py. We refuse to load from any
+    path that does not contain the file we expect to be running.
+
+    Specifically: HARNESS_DIR must contain a CLAUDE.md and a lib/state_engine.py
+    whose __file__ matches _THIS_FILE. If the env var was set to a directory
+    that contains a DIFFERENT state_engine.py, refuse to run.
+    """
+    h = HARNESS_DIR
+    expected = _THIS_FILE
+    actual = (h / "lib" / "state_engine.py").resolve()
+    if not expected.samefile(actual):
+        _log.critical(
+            "HARNESS_DIR points to %s but we are running from %s. Refusing to "
+            "load — the env var has been tampered with. Set HARNESS_DIR to "
+            "the directory containing this file, or unset it.",
+            h, _THIS_FILE.parent.parent.parent,
+        )
+        sys.exit(6)  # HARNESS_DIR_INVALID
+    return h
+
+
+HARNESS_DIR = _verify_harness_dir()
+
+
 def _resolve_state_db():
     # 1. Explicit env override
     override = os.environ.get("SWEBOK_STATE_DB")

@@ -238,12 +238,19 @@ def decode_shell_quotes(cmd: str) -> str:
             candidate = m.group(1)
             try:
                 pad = (4 - (len(candidate) % 4)) % 4
-                raw = _b64.b64decode(candidate + ('=' * pad), validate=False)
+                # v1.5.6: validate=True rejects non-canonical base64
+                # (length must be a multiple of 4, no chars outside the
+                # base64 alphabet). This stops a junk byte sequence from
+                # being decoded and appended to the scan stream, which
+                # previously polluted regex matching.
+                raw = _b64.b64decode(candidate + ('=' * pad), validate=True)
                 decoded_text = raw.decode('utf-8', errors='ignore')
                 if decoded_text and len(decoded_text) >= 2:
                     decoded = decoded + ' ; ' + decoded_text
-            except Exception:
-                pass
+            except (ValueError, UnicodeDecodeError):
+                # Invalid base64 (validate=True raises binascii.Error
+                # which is a ValueError subclass) — skip silently.
+                continue
 
     # Decode ANSI-C $'...' quoting. Keep the original $'...' token (so the
     # surrounding verb context is preserved) AND append the decoded form so

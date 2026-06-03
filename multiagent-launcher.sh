@@ -10,6 +10,30 @@ TASK_TYPE="$1"
 shift
 ARGS="$@"
 HARNESS_DIR="${HARNESS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+
+# v1.5.6: validate $APP_URL and $SCENARIO_FILE (and any other env-driven
+# prompt content) BEFORE they are interpolated into Agent tool calls. Without
+# this, an attacker who controls the env can inject arbitrary instructions
+# into a subagent's prompt. A safe URL is http(s)://host[:port][/path]. A
+# safe SCENARIO_FILE is an absolute path with no shell metachars.
+_validate_safe_value() {
+    local name="$1" value="${2:-}"
+    if [[ -z "$value" ]]; then return 0; fi
+    # v1.5.6: reject any shell metachar. Using a here-doc-like pattern
+    # avoids the backslash-escaping pitfalls of `[[ =~ ]]`. The pattern
+    # matches if ANY of these chars appear: ; & | ` $ < > ( ) { } [ ] * ? ! ' " (space)
+    if [[ "$value" == *[\;\&\|\`\$\\\<\>\(\)\{\}\[\]*\?\!\047\"[:space:]]* ]]; then
+        echo "[LAUNCHER] FATAL: $name contains shell metacharacters: $value" >&2
+        exit 1
+    fi
+    case "$value" in
+        http://*|https://*) return 0 ;;
+        /*)  return 0 ;;
+        *) echo "[LAUNCHER] FATAL: $name must be http(s)://... or absolute path, got: $value" >&2; exit 1 ;;
+    esac
+}
+_validate_safe_value "APP_URL" "${APP_URL:-}"
+_validate_safe_value "SCENARIO_FILE" "${SCENARIO_FILE:-}"
 # State of truth: .swebok_state.db. STATE_FILE kept only for diagnostic reads
 # of the deprecated YAML (do NOT add new code paths that use it).
 STATE_ENGINE="$HARNESS_DIR/scripts/lib/state_engine.py"
@@ -102,6 +126,14 @@ case "$TASK_TYPE" in
         # PHASE_NUM passed by emit-envelope (validated ^P[0-9]+$ upstream).
         # Default to single digit for direct invocations (back-compat).
         PHASE_NUM="${3:-${FROM_P#P}}"
+        # v1.5.6: validate PHASE_NUM against ^\d+$ before interpolation. Defense
+        # in depth — emit-envelope validates upstream, but a direct invocation
+        # `bash multiagent-launcher.sh emit-prompts P5 P6 "5; rm -rf /"`
+        # would otherwise splice the malicious value into the JSONL prompt body.
+        if ! [[ "$PHASE_NUM" =~ ^[0-9]+$ ]]; then
+            echo "[LAUNCHER] FATAL: PHASE_NUM='$PHASE_NUM' is not digits-only" >&2
+            exit 1
+        fi
         # Use python3 for JSON-safe escaping; no jq dependency.
         python3 - "$FROM_P" "$TO_P" "$PHASE_NUM" <<'PY_EOF'
 import json, sys
