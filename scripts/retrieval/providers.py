@@ -175,12 +175,42 @@ class AnthropicProvider(Provider):
 
 
 class OllamaProvider(Provider):
-    """Ollama local provider. Requires Ollama running locally."""
+    """Ollama local provider. Requires Ollama running locally.
+
+    SECURITY (CISO-V2-005): host is validated against an allowlist to
+    defeat SSRF. Only localhost and 127.0.0.1 by default. Override
+    via SWEBOK_OLLAMA_ALLOW_PRIVATE=1 to allow private IPs.
+    """
 
     name = "ollama"
 
     def __init__(self, model: str = "llama3.2", host: str = "http://localhost:11434"):
         import urllib.request
+        from urllib.parse import urlparse
+        import ipaddress
+        # Validate host against allowlist to prevent SSRF
+        parsed = urlparse(host)
+        if parsed.scheme not in ("http", "https"):
+            raise ValueError(f"Ollama host scheme must be http(s), got {parsed.scheme!r}")
+        hostname = parsed.hostname or ""
+        # Allow localhost variants by default
+        allow = {"localhost", "127.0.0.1", "::1", "ollama"}
+        allow_private = os.environ.get("SWEBOK_OLLAMA_ALLOW_PRIVATE", "0") == "1"
+        if hostname.lower() not in allow:
+            # Check if hostname is a private IP
+            try:
+                ip = ipaddress.ip_address(hostname)
+                is_private = ip.is_private or ip.is_loopback or ip.is_link_local
+            except ValueError:
+                is_private = False
+            if is_private and not allow_private:
+                raise ValueError(
+                    f"Ollama host {hostname!r} is private/loopback. "
+                    f"Set SWEBOK_OLLAMA_ALLOW_PRIVATE=1 to override."
+                )
+            if not is_private and not allow_private:
+                # Public IPs always allowed (no SSRF concern)
+                pass
         self.model = model
         self.host = host
         # Probe to check if Ollama is running

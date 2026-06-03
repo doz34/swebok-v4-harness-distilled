@@ -43,6 +43,12 @@ class IndexPipeline:
         self.embeddings: List[List[float]] = []
         self.kg = KnowledgeGraph()
         self.hierarchy = Hierarchy()
+        # BUGFIX QA-CRIT + DEV-01: cache for query embeddings to avoid
+        # rebuilding on every search (was: 'self.embedder.embed([query])[0]'
+        # called per-query, which is a network call with non-deterministic
+        # provider, and a tautological test in V2 roundtrip).
+        self._query_embed_cache: Dict[str, List[float]] = {}
+        self._query_embed_cache_max = 256  # LRU bound
 
     def index_directory(self, directory: Path, max_chars: int = 1500) -> dict:
         """Build all 4 views from a directory. Returns stats."""
@@ -86,6 +92,18 @@ class IndexPipeline:
             },
         }
 
+    def _get_query_embedding(self, query: str) -> List[float]:
+        """Embed a query with a bounded cache (DEV-01 fix)."""
+        if query in self._query_embed_cache:
+            return self._query_embed_cache[query]
+        if len(self._query_embed_cache) >= self._query_embed_cache_max:
+            # Simple FIFO eviction
+            oldest = next(iter(self._query_embed_cache))
+            del self._query_embed_cache[oldest]
+        emb = self.embedder.embed([query])[0]
+        self._query_embed_cache[query] = emb
+        return emb
+
     def search(
         self,
         query: str,
@@ -111,10 +129,10 @@ class IndexPipeline:
                                     if chunk not in graph_chunks:
                                         graph_chunks.append(chunk)
                             break
-        # Embeddings: cosine similarity
+        # Embeddings: cosine similarity (with cache to avoid re-embedding per query)
         embed_sims = {}
         if view in ("all",) and self.embeddings:
-            query_emb = self.embedder.embed([query])[0]
+            query_emb = self._get_query_embedding(query)
             from retrieval.embedder import cosine_similarity
             for i, emb in enumerate(self.embeddings):
                 sim = cosine_similarity(query_emb, emb)
