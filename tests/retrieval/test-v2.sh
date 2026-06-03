@@ -61,7 +61,7 @@ print(n)
 
 # === Test 3: BM25 index builds and searches ===
 test_bm25_search() {
-    log_test "Test 3: BM25 index builds and finds relevant chunks"
+    log_test "Test 3: BM25 search returns relevant chunks (v1.5.5 strengthened)"
     local out
     out=$(python3 -c "
 import sys, json
@@ -72,12 +72,21 @@ chunks = [Chunk(**json.loads(l)) for l in open('$CHUNKS_FILE') if l.strip()]
 idx = BM25Index()
 idx.build(chunks)
 results = idx.search('API design versioning', top_k=3)
-print('OK' if results else 'EMPTY')
+# v1.5.5: assert top result has BM25 score > 1.0 AND contains at least one
+# query term in the chunk text. Catches a no-op indexer (returns 1 result)
+# and a junk indexer (irrelevant hits).
+top = results[0] if results else None
+if top is None:
+    print('FAIL no results')
+else:
+    top_text = getattr(top.chunk, 'text', '') or ''
+    has_term = any(t in top_text.lower() for t in ('api', 'design', 'versioning'))
+    print('OK' if top.score > 1.0 and has_term else f'FAIL score={top.score:.2f} has_term={has_term}')
 ")
     if [[ "$out" == "OK" ]]; then
-        log_pass "BM25 search returns results"
+        log_pass "BM25 top result has score > 1.0 and contains query terms"
     else
-        log_fail "BM25 search returned: $out"
+        log_fail "BM25 search weak: $out"
     fi
 }
 
@@ -111,9 +120,9 @@ print(f'API={api_top:.2f} UNRELATED={unrelated_top:.2f}')
     fi
 }
 
-# === Test 5: Embedder produces deterministic vectors ===
+# === Test 5: Embedder is deterministic AND discriminates between texts ===
 test_embedder_determinism() {
-    log_test "Test 5: Embedder produces the same vector for the same text"
+    log_test "Test 5: Embedder is deterministic AND different texts give different vectors (v1.5.5 strengthened)"
     local out
     out=$(python3 -c "
 import sys
@@ -122,12 +131,17 @@ from retrieval.embedder import Embedder
 e = Embedder(provider='deterministic')
 v1 = e.embed(['hello world'])[0]
 v2 = e.embed(['hello world'])[0]
-print('MATCH' if v1 == v2 else 'DIFFER')
+v3 = e.embed(['completely different text'])[0]
+# A constant embedder that returns [0]*384 for everything would pass the old
+# determinism check. v1.5.5: also assert that DIFFERENT texts produce DIFFERENT
+# vectors. We require at least 1 differing dimension.
+diff_dims = sum(1 for a, b in zip(v1, v3) if a != b)
+print('OK' if v1 == v2 and diff_dims >= 1 else f'FAIL diff_dims={diff_dims}')
 ")
-    if [[ "$out" == "MATCH" ]]; then
-        log_pass "embedder is deterministic"
+    if [[ "$out" == "OK" ]]; then
+        log_pass "embedder deterministic AND discriminates (>= 1 diff dim)"
     else
-        log_fail "embedder not deterministic: $out"
+        log_fail "embedder weak: $out"
     fi
 }
 
@@ -181,7 +195,7 @@ print(len(kg.entities))
 
 # === Test 8: Graph community detection ===
 test_graph_community() {
-    log_test "Test 8: Graph finds connected community"
+    log_test "Test 8: Graph finds meaningful community around seed term (v1.5.5 strengthened)"
     local out
     out=$(python3 -c "
 import sys, json
@@ -192,12 +206,20 @@ chunks = [Chunk(**json.loads(l)) for l in open('$CHUNKS_FILE') if l.strip()]
 kg = KnowledgeGraph()
 kg.build(chunks)
 community = kg.find_community('API')
-print(len(community))
+# v1.5.5: require community to be substantial (>5 nodes, was >1) AND that
+# the seed term itself is in the community. A 2-node community is not
+# meaningful; a community of 5+ with the seed present is.
+n = len(community) if community else 0
+has_seed = any('api' in str(e).lower() for e in (community or []))
+print(f'N={n} HAS_SEED={has_seed}')
 ")
-    if [[ "$out" -gt 1 ]]; then
-        log_pass "community of 'API' has $out nodes"
+    local n has_seed
+    n=$(echo "$out" | sed -n 's/.*N=\([0-9]*\).*/\1/p')
+    has_seed=$(echo "$out" | sed -n 's/.*HAS_SEED=\(True\|False\).*/\1/p')
+    if [[ "$n" -gt 5 && "$has_seed" == "True" ]]; then
+        log_pass "community of 'API' has $n nodes, includes the seed"
     else
-        log_fail "community too small: $out"
+        log_fail "community too small or missing seed: $out"
     fi
 }
 

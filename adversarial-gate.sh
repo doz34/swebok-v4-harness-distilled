@@ -193,8 +193,28 @@ if [[ "$JUDGE_ONLY" == true ]]; then
 fi
 
 # === NORMAL MODE ===
+# v1.5.5: NORMAL MODE returns canned fixtures and is intended for development
+# and CI only. Production callers MUST use --council (4 real agents) or
+# --judge-only (pre-computed real DSL). Set HARNESS_TEST_FIXTURE=1 to opt
+# in to the canned fixture path; otherwise the gate refuses to run.
 if [[ -z "$FROM_P" || -z "$TO_P" ]]; then
     echo "Usage: adversarial-gate.sh <from_phase> <to_phase>"
+    exit 1
+fi
+if [[ "${HARNESS_TEST_FIXTURE:-0}" != "1" ]]; then
+    cat <<'MSG' >&2
+[FATAL] adversarial-gate.sh NORMAL MODE returns canned fixtures and is not
+a real adversarial review. It exists only for development smoke tests.
+
+For a real gate review, use one of:
+  bash adversarial-gate.sh <from> <to> --council   # spawn 4 nexus-* subagents
+  bash adversarial-gate.sh <from> <to> --judge-only --red "..." --blue "..."
+
+To opt in to the canned fixture path (development only):
+  HARNESS_TEST_FIXTURE=1 bash adversarial-gate.sh <from> <to>
+
+Refusing to run without one of the above.
+MSG
     exit 1
 fi
 

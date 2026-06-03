@@ -57,18 +57,29 @@ def _resolve_state_db():
     override = os.environ.get("SWEBOK_STATE_DB")
     if override:
         return Path(override).resolve()
-    # 2. Per-project: try git root of CWD
+    # 2. Per-project: try git root of CWD (v1.5.5: refuse world-writable cwd)
+    cwd = Path(os.getcwd()).resolve()
     try:
-        result = subprocess.run(
-            ["git", "rev-parse", "--show-toplevel"],
-            capture_output=True, text=True, timeout=2, cwd=os.getcwd(),
-        )
-        if result.returncode == 0 and result.stdout.strip():
-            git_root = Path(result.stdout.strip()).resolve()
-            # Only use git root if it is NOT the harness dir itself (avoids
-            # gating the harness's own development by its own state).
-            if git_root != HARNESS_DIR:
-                return git_root / ".swebok_state.db"
+        # os.stat in Python: st_mode has world-writable bit (S_IWOTH = 0o2).
+        # Refuse to walk into a project root that any local user could plant a
+        # malicious .swebok_state.db into.
+        cwd_stat = os.stat(cwd)
+        if cwd_stat.st_mode & 0o002:
+            _log.warning(
+                "state_engine: cwd %s is world-writable; refusing to use git "
+                "root for state DB. Falling back to HARNESS_DIR.", cwd
+            )
+        else:
+            result = subprocess.run(
+                ["git", "rev-parse", "--show-toplevel"],
+                capture_output=True, text=True, timeout=2, cwd=str(cwd),
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                git_root = Path(result.stdout.strip()).resolve()
+                # Only use git root if it is NOT the harness dir itself (avoids
+                # gating the harness's own development by its own state).
+                if git_root != HARNESS_DIR:
+                    return git_root / ".swebok_state.db"
     except (subprocess.SubprocessError, FileNotFoundError, OSError):
         pass
     # 3. Legacy fallback: single global state at harness root
@@ -1380,12 +1391,25 @@ def rebuild(keep_audit=True):
                 # ITER6: re-attach the chain on restored rows so verify_audit_chain
                 # reports them as intact (the chain was broken by prior writers
                 # using a different secret OR by row 1 having been pruned earlier).
+                # v1.5.5: a failed recompute on ANY table aborts the rebuild rather
+                # than silently shipping rows that look pre-chain.
+                recompute_failures = []
                 for tbl in ("adversarial_log", "log_events",
                             "state_events", "circuit_breaker_events"):
                     try:
                         recompute_audit_chain(tbl)
-                    except Exception as _e:
-                        _log.debug("state_engine: secondary error during cleanup", exc_info=_e)
+                    except Exception as e:
+                        recompute_failures.append((tbl, str(e)))
+                        _log.error("state_engine: recompute_audit_chain failed for %s: %r", tbl, e)
+                if recompute_failures:
+                    # Do NOT unlink the backup; the user must investigate.
+                    print(
+                        f"[REBUILD] STATE_ENGINE_INTEGRITY_FAIL: {len(recompute_failures)} "
+                        f"tables failed chain recompute: {recompute_failures}. "
+                        f"Backup retained at {src}. Refusing to ship broken chain.",
+                        file=sys.stderr,
+                    )
+                    sys.exit(5)
                 try:
                     src.unlink()
                 except Exception as _e:

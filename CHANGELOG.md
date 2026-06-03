@@ -2,6 +2,25 @@
 
 All notable changes to the SWEBOK v4 Harness V2 (Distilled) will be documented here.
 
+## [1.5.5] - 2026-06-03
+
+### Security (4 CRITICAL fixes, closing the audit backlog)
+- **rebuild() refuses to ship a broken chain** (`lib/state_engine.py`): if `recompute_audit_chain()` fails on any of the 4 audit tables, the rebuild aborts with exit code 5 (`STATE_ENGINE_INTEGRITY_FAIL`) and preserves the backup for forensics. The pre-chain state where rows have `row_hmac=NULL` is no longer a silent fallback.
+- **CWD world-writable check** (`lib/state_engine.py:_resolve_state_db`): refuses to use a world-writable CWD for the git-root state-DB fallback. Logs a warning and falls back to `HARNESS_DIR` instead. Prevents symlink-planting of malicious `.swebok_state.db` by any local user.
+- **adversarial-gate.sh normal mode requires explicit fixture flag**: the canned-fixture NORMAL MODE now requires `HARNESS_TEST_FIXTURE=1` env var. Without it, the gate refuses to run with a clear error pointing to `--council` or `--judge-only`. Production callers cannot accidentally get a fake review.
+- **multiagent-launcher.sh emit-prompts validates phase args**: `FROM_P` and `TO_P` must match `^P[0-9]+$` regex before being interpolated into the JSONL body. Defense-in-depth against shell-injection in subagent prompts.
+
+### Cleanup
+- **`scripts/retrieval/` is now untracked**: added to `.gitignore`. The 10 module files remain on disk for opt-in use; tests pass. Future `git clone` will not include them by default.
+
+### Test quality (3 strengthened)
+- **Test 3 (BM25 search)**: now asserts `score > 1.0` AND `has_term` (was just `len > 0`).
+- **Test 5 (embedder)**: now asserts determinism AND different texts produce different vectors (was just determinism — a constant embedder would have passed).
+- **Test 8 (graph community)**: now requires `n > 5` AND seed presence (was just `> 1`).
+
+### Test results
+- 32 distilled + 20 v2 retrieval = **52/52 PASS** (verified by 4th-pass adversarial council)
+
 ## [1.5.4] - 2026-06-03
 
 ### Security (CRITICAL)

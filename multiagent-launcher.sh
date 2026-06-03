@@ -86,6 +86,19 @@ case "$TASK_TYPE" in
         # --judge-only --red <RED_DSL> --blue <BLUE_DSL>.
         FROM_P="${1:-P5}"
         TO_P="${2:-P6}"
+        # v1.5.5: validate FROM_P / TO_P against P\d+ regex BEFORE interpolating
+        # into the JSONL body. Without this, a caller could pass
+        #   bash multiagent-launcher.sh emit-prompts "P5; rm -rf /" "P6"
+        # and the semicolon would land inside a JSON string the dispatcher
+        # parses with a real Python json.loads, failing closed.
+        if ! [[ "$FROM_P" =~ ^P[0-9]+$ ]]; then
+            echo "[LAUNCHER] FATAL: FROM_P='$FROM_P' is not a valid phase (expected P<digit>+)" >&2
+            exit 1
+        fi
+        if ! [[ "$TO_P" =~ ^P[0-9]+$ ]]; then
+            echo "[LAUNCHER] FATAL: TO_P='$TO_P' is not a valid phase (expected P<digit>+)" >&2
+            exit 1
+        fi
         # PHASE_NUM passed by emit-envelope (validated ^P[0-9]+$ upstream).
         # Default to single digit for direct invocations (back-compat).
         PHASE_NUM="${3:-${FROM_P#P}}"

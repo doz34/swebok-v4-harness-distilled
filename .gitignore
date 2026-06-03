@@ -34,3 +34,4 @@ coverage_report/
 *.swp
 *.swo
 *~
+scripts/retrieval/
