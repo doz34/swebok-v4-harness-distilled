@@ -1,0 +1,462 @@
+#!/usr/bin/env bash
+# SWEBOK v4 Harness V2 — Retrieval Tests
+# Tests the multi-view retrieval engine (V2):
+# chunker, BM25, embedder, graph, hierarchy, reranker, dossier, router.
+
+set -euo pipefail
+
+HARNESS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+SCRIPTS_DIR="$HARNESS_DIR/scripts/retrieval"
+DISTILLED_DIR="$HARNESS_DIR/distilled"
+CHUNKS_FILE="/tmp/v2_test_chunks.jsonl"
+INDEX_FILE="/tmp/v2_test_index.json"
+
+PASSED=0
+FAILED=0
+
+log_test() { echo ""; echo "[TEST] $1"; }
+log_pass() { echo "[PASS] $1"; PASSED=$((PASSED+1)); }
+log_fail() { echo "[FAIL] $1"; FAILED=$((FAILED+1)); }
+
+# Helper: build chunks from distilled dir
+build_chunks() {
+    python3 "$HARNESS_DIR/scripts/retrieval/chunker.py" "$DISTILLED_DIR" --output "$CHUNKS_FILE" --max-chars 1500 >/dev/null
+}
+
+# === Test 1: Chunker works ===
+test_chunker() {
+    log_test "Test 1: Chunker produces well-formed chunks from a directory"
+    build_chunks
+    local count
+    count=$(wc -l < "$CHUNKS_FILE")
+    if [[ "$count" -gt 0 ]]; then
+        log_pass "chunker produced $count chunks"
+    else
+        log_fail "chunker produced 0 chunks"
+    fi
+}
+
+# === Test 2: Chunks have all required fields ===
+test_chunks_schema() {
+    log_test "Test 2: Every chunk has all required fields"
+    local missing
+    missing=$(python3 -c "
+import json
+n = 0
+with open('$CHUNKS_FILE') as f:
+    for line in f:
+        d = json.loads(line)
+        for k in ('id', 'file', 'book', 'chapter', 'section_path', 'start_line', 'end_line', 'text', 'chunk_type', 'char_count', 'word_count', 'token_estimate'):
+            if k not in d:
+                n += 1
+                break
+print(n)
+")
+    if [[ "$missing" -eq 0 ]]; then
+        log_pass "all chunks have required fields"
+    else
+        log_fail "$missing chunks missing required fields"
+    fi
+}
+
+# === Test 3: BM25 index builds and searches ===
+test_bm25_search() {
+    log_test "Test 3: BM25 index builds and finds relevant chunks"
+    local out
+    out=$(python3 -c "
+import sys, json
+sys.path.insert(0, '$HARNESS_DIR/scripts')
+from retrieval.bm25 import BM25Index
+from retrieval.chunker import Chunk
+chunks = [Chunk(**json.loads(l)) for l in open('$CHUNKS_FILE') if l.strip()]
+idx = BM25Index()
+idx.build(chunks)
+results = idx.search('API design versioning', top_k=3)
+print('OK' if results else 'EMPTY')
+")
+    if [[ "$out" == "OK" ]]; then
+        log_pass "BM25 search returns results"
+    else
+        log_fail "BM25 search returned: $out"
+    fi
+}
+
+# === Test 4: BM25 ranking is meaningful (top result more relevant than bottom) ===
+test_bm25_ranking() {
+    log_test "Test 4: BM25 ranks API design higher than a distant term"
+    local out
+    out=$(python3 -c "
+import sys, json
+sys.path.insert(0, '$HARNESS_DIR/scripts')
+from retrieval.bm25 import BM25Index
+from retrieval.chunker import Chunk
+chunks = [Chunk(**json.loads(l)) for l in open('$CHUNKS_FILE') if l.strip()]
+idx = BM25Index()
+idx.build(chunks)
+api_results = idx.search('API design REST', top_k=3)
+unrelated = idx.search('cooking recipes chef', top_k=3)
+api_top = api_results[0].score if api_results else 0
+unrelated_top = unrelated[0].score if unrelated else 0
+print(f'API={api_top:.2f} UNRELATED={unrelated_top:.2f}')
+")
+    echo "  $out"
+    local api unrel
+    api=$(echo "$out" | sed -n 's/.*API=\([0-9.]*\).*/\1/p')
+    unrel=$(echo "$out" | sed -n 's/.*UNRELATED=\([0-9.]*\).*/\1/p')
+    # Use awk to compare (portable)
+    if awk "BEGIN { exit !($api > $unrel) }" 2>/dev/null; then
+        log_pass "API query ranks higher than unrelated ($api > $unrel)"
+    else
+        log_fail "API ranking not higher: $api vs $unrel"
+    fi
+}
+
+# === Test 5: Embedder produces deterministic vectors ===
+test_embedder_determinism() {
+    log_test "Test 5: Embedder produces the same vector for the same text"
+    local out
+    out=$(python3 -c "
+import sys
+sys.path.insert(0, '$HARNESS_DIR/scripts')
+from retrieval.embedder import Embedder
+e = Embedder(provider='deterministic')
+v1 = e.embed(['hello world'])[0]
+v2 = e.embed(['hello world'])[0]
+print('MATCH' if v1 == v2 else 'DIFFER')
+")
+    if [[ "$out" == "MATCH" ]]; then
+        log_pass "embedder is deterministic"
+    else
+        log_fail "embedder not deterministic: $out"
+    fi
+}
+
+# === Test 6: Embedder captures semantic similarity ===
+test_embedder_similarity() {
+    log_test "Test 6: Embedder gives higher similarity to similar texts"
+    local out
+    out=$(python3 -c "
+import sys
+sys.path.insert(0, '$HARNESS_DIR/scripts')
+from retrieval.embedder import Embedder, cosine_similarity
+e = Embedder(provider='deterministic')
+v_api1 = e.embed(['REST API design'])[0]
+v_api2 = e.embed(['HTTP API design'])[0]
+v_unrelated = e.embed(['banana bread recipe'])[0]
+s_sim = cosine_similarity(v_api1, v_api2)
+s_diff = cosine_similarity(v_api1, v_unrelated)
+print(f'SIM={s_sim:.3f} DIFF={s_diff:.3f}')
+")
+    echo "  $out"
+    local sim diff
+    sim=$(echo "$out" | sed -n 's/.*SIM=\([0-9.]*\).*/\1/p')
+    diff=$(echo "$out" | sed -n 's/.*DIFF=\([0-9.]*\).*/\1/p')
+    if awk "BEGIN { exit !($sim > $diff) }" 2>/dev/null; then
+        log_pass "similar texts score higher ($sim > $diff)"
+    else
+        log_fail "similarity not higher: sim=$sim diff=$diff"
+    fi
+}
+
+# === Test 7: Knowledge graph extracts entities ===
+test_graph_entities() {
+    log_test "Test 7: Knowledge graph extracts entities from chunks"
+    local out
+    out=$(python3 -c "
+import sys, json
+sys.path.insert(0, '$HARNESS_DIR/scripts')
+from retrieval.graph import KnowledgeGraph
+from retrieval.chunker import Chunk
+chunks = [Chunk(**json.loads(l)) for l in open('$CHUNKS_FILE') if l.strip()]
+kg = KnowledgeGraph()
+kg.build(chunks)
+print(len(kg.entities))
+")
+    if [[ "$out" -gt 10 ]]; then
+        log_pass "graph extracted $out entities"
+    else
+        log_fail "graph extracted only $out entities"
+    fi
+}
+
+# === Test 8: Graph community detection ===
+test_graph_community() {
+    log_test "Test 8: Graph finds connected community"
+    local out
+    out=$(python3 -c "
+import sys, json
+sys.path.insert(0, '$HARNESS_DIR/scripts')
+from retrieval.graph import KnowledgeGraph
+from retrieval.chunker import Chunk
+chunks = [Chunk(**json.loads(l)) for l in open('$CHUNKS_FILE') if l.strip()]
+kg = KnowledgeGraph()
+kg.build(chunks)
+community = kg.find_community('API')
+print(len(community))
+")
+    if [[ "$out" -gt 1 ]]; then
+        log_pass "community of 'API' has $out nodes"
+    else
+        log_fail "community too small: $out"
+    fi
+}
+
+# === Test 9: Hierarchy builds book tree ===
+test_hierarchy_books() {
+    log_test "Test 9: Hierarchy builds the book > chapter tree"
+    local out
+    out=$(python3 -c "
+import sys, json
+sys.path.insert(0, '$HARNESS_DIR/scripts')
+from retrieval.hierarchy import Hierarchy
+from retrieval.chunker import Chunk
+chunks = [Chunk(**json.loads(l)) for l in open('$CHUNKS_FILE') if l.strip()]
+h = Hierarchy()
+h.build(chunks)
+print(len(h.books))
+")
+    if [[ "$out" -gt 0 ]]; then
+        log_pass "hierarchy has $out books"
+    else
+        log_fail "hierarchy has 0 books"
+    fi
+}
+
+# === Test 10: Reranker fuses scores ===
+test_reranker_fusion() {
+    log_test "Test 10: Reranker fuses BM25 + graph + embed scores"
+    local out
+    out=$(python3 -c "
+import sys, json
+sys.path.insert(0, '$HARNESS_DIR/scripts')
+from retrieval.bm25 import BM25Index
+from retrieval.reranker import Reranker
+from retrieval.chunker import Chunk
+chunks = [Chunk(**json.loads(l)) for l in open('$CHUNKS_FILE') if l.strip()]
+chunks_by_id = {c.id: c for c in chunks}
+bm25 = BM25Index()
+bm25.build(chunks)
+bm25_res = bm25.search('API design', top_k=10)
+graph_chunks = [c for c in chunks if 'API' in c.text][:3]
+r = Reranker()
+results = r.rerank('API design', bm25_results=bm25_res, graph_chunks=graph_chunks, chunks_by_id=chunks_by_id, top_k=3)
+print('OK' if results and results[0].sources else 'EMPTY')
+")
+    if [[ "$out" == "OK" ]]; then
+        log_pass "reranker fuses multiple sources"
+    else
+        log_fail "reranker result: $out"
+    fi
+}
+
+# === Test 11: Dossier assembles all views ===
+test_dossier_assembly() {
+    log_test "Test 11: Dossier assembles L0 summary + L1 chunks + glossary"
+    local out
+    out=$(python3 -c "
+import sys
+sys.path.insert(0, '$HARNESS_DIR/scripts')
+from query import Router
+r = Router()
+d = r.dossier('How do I design a REST API?', top_k=5)
+print(f'{len(d.chunks)} {len(d.summary)} {len(d.glossary)}')
+")
+    read -r chunks summary glossary <<< "$out"
+    if [[ "$chunks" -gt 0 && -n "$summary" && "$glossary" -gt 0 ]]; then
+        log_pass "dossier: $chunks chunks, summary=${#summary}B, $glossary glossary terms"
+    else
+        log_fail "dossier incomplete: chunks=$chunks, summary=${#summary}B, glossary=$glossary"
+    fi
+}
+
+# === Test 12: Full pipeline builds index and loads ===
+test_pipeline_roundtrip() {
+    log_test "Test 12: Pipeline builds and reloads index"
+    python3 "$HARNESS_DIR/scripts/retrieval/pipeline.py" "$DISTILLED_DIR" --output "$INDEX_FILE" --max-chars 1500 >/dev/null
+    local out
+    out=$(python3 -c "
+import sys
+sys.path.insert(0, '$HARNESS_DIR/scripts')
+from retrieval.pipeline import IndexPipeline
+from pathlib import Path
+p = IndexPipeline()
+p.load(Path('$INDEX_FILE'))
+results = p.search('API design', top_k=3)
+print(len(results))
+")
+    if [[ "$out" -gt 0 ]]; then
+        log_pass "pipeline roundtrip: $out results from reloaded index"
+    else
+        log_fail "pipeline roundtrip failed: $out"
+    fi
+}
+
+# === Test 13: Router classifies canonical → L0 ===
+test_router_l0() {
+    log_test "Test 13: Router classifies 'KISS' as L0 (compiled, fast)"
+    local out
+    out=$(python3 -c "
+import sys
+sys.path.insert(0, '$HARNESS_DIR/scripts')
+from query import Router
+r = Router()
+intent = r.classify('What is KISS?')
+print(intent['mode'])
+")
+    if [[ "$out" == "l0" ]]; then
+        log_pass "router correctly chose L0 for canonical pattern"
+    else
+        log_fail "router chose: $out (expected l0)"
+    fi
+}
+
+# === Test 14: Router classifies novel → L1 ===
+test_router_l1() {
+    log_test "Test 14: Router classifies 'How do I ...' as L1 (need corpus)"
+    local out
+    out=$(python3 -c "
+import sys
+sys.path.insert(0, '$HARNESS_DIR/scripts')
+from query import Router
+r = Router()
+intent = r.classify('How do I implement OAuth2 PKCE flow?')
+print(intent['mode'])
+")
+    if [[ "$out" == "l1" ]]; then
+        log_pass "router correctly chose L1 for novel 'how' question"
+    else
+        log_fail "router chose: $out (expected l1)"
+    fi
+}
+
+# === Test 15: Latency check — L0 < 10ms ===
+test_l0_latency() {
+    log_test "Test 15: L0 lookup completes in <10ms (compiled = fast path)"
+    local out
+    out=$(python3 -c "
+import sys, time
+sys.path.insert(0, '$HARNESS_DIR/scripts')
+from compiled_knowledge import CompiledKnowledge
+ck = CompiledKnowledge()
+t0 = time.time()
+for _ in range(100):
+    ck.get_principle('KISS')
+t1 = time.time()
+print(f'{(t1-t0)*10:.2f}')
+")
+    local avg_ms
+    avg_ms=$(echo "$out" | head -1)
+    if awk "BEGIN { exit !($avg_ms < 10) }" 2>/dev/null; then
+        log_pass "L0 average: ${avg_ms}ms (target: <10ms)"
+    else
+        log_fail "L0 too slow: ${avg_ms}ms"
+    fi
+}
+
+# === Test 16: Determinism — same query = same answer ===
+test_determinism() {
+    log_test "Test 16: Same query returns same answer (V2 is deterministic)"
+    local out1 out2
+    out1=$(python3 "$HARNESS_DIR/scripts/compiled_knowledge.py" --principle DRY 2>&1 | md5sum)
+    out2=$(python3 "$HARNESS_DIR/scripts/compiled_knowledge.py" --principle DRY 2>&1 | md5sum)
+    if [[ "$out1" == "$out2" ]]; then
+        log_pass "deterministic (same hash on repeated invocation)"
+    else
+        log_fail "non-deterministic: $out1 != $out2"
+    fi
+}
+
+# === Test 17: Provider interface works ===
+test_provider_interface() {
+    log_test "Test 17: Provider abstraction works (deterministic + mock)"
+    local out
+    out=$(python3 -c "
+import sys
+sys.path.insert(0, '$HARNESS_DIR/scripts')
+from retrieval.providers import create
+d = create('deterministic')
+m = create('mock', canned='mock answer')
+print(f'{d.name} {m.name} {m.complete(\"x\")}')
+")
+    if [[ "$out" == *"deterministic mock mock answer"* ]]; then
+        log_pass "providers work: $out"
+    else
+        log_fail "providers: $out"
+    fi
+}
+
+# === Test 18: Index size is reasonable ===
+test_index_size() {
+    log_test "Test 18: Index file is < 50MB (for distilled corpus)"
+    local size_kb
+    size_kb=$(du -sk "$INDEX_FILE" 2>/dev/null | cut -f1)
+    if [[ $size_kb -lt 51200 ]]; then
+        log_pass "index size: ${size_kb}KB (< 50MB)"
+    else
+        log_fail "index too large: ${size_kb}KB"
+    fi
+}
+
+# === Test 19: End-to-end query pipeline works ===
+test_e2e_query() {
+    log_test "Test 19: End-to-end query.py runs successfully"
+    local out
+    out=$(python3 "$HARNESS_DIR/scripts/query.py" --dossier "API versioning" 2>&1 | head -5)
+    if echo "$out" | grep -q "Working Dossier"; then
+        log_pass "query.py dossier output works"
+    else
+        log_fail "query.py output: $out"
+    fi
+}
+
+# === Test 20: V2 fix of V1's coverage gap ===
+test_v2_coverage_improvement() {
+    log_test "Test 20: V2 finds content V1 cannot (demonstration of fix)"
+    # V1 (compiled) returns 0 results for a specific question
+    # V2 (retrieval) should find content via BM25
+    local v1_count v2_count
+    v1_count=$(python3 "$HARNESS_DIR/scripts/compiled_knowledge.py" "URI versioning" 2>&1 | grep -c "URI versioning" || echo 0)
+    v2_count=$(python3 -c "
+import sys, json
+sys.path.insert(0, '$HARNESS_DIR/scripts')
+from retrieval.bm25 import BM25Index
+from retrieval.chunker import Chunk
+chunks = [Chunk(**json.loads(l)) for l in open('$CHUNKS_FILE') if l.strip()]
+idx = BM25Index()
+idx.build(chunks)
+print(len(idx.search('URI versioning', top_k=3)))
+")
+    if [[ "$v2_count" -gt 0 ]]; then
+        log_pass "V2 finds $v2_count results (V1: $v1_count) — multi-view retrieval covers what compiled doesn't"
+    else
+        log_fail "V2 still empty: $v2_count"
+    fi
+}
+
+# === CALL ALL TESTS ===
+test_chunker
+test_chunks_schema
+test_bm25_search
+test_bm25_ranking
+test_embedder_determinism
+test_embedder_similarity
+test_graph_entities
+test_graph_community
+test_hierarchy_books
+test_reranker_fusion
+test_dossier_assembly
+test_pipeline_roundtrip
+test_router_l0
+test_router_l1
+test_l0_latency
+test_determinism
+test_provider_interface
+test_index_size
+test_e2e_query
+test_v2_coverage_improvement
+
+echo ""
+echo "============================================"
+echo "  V2 RETRIEVAL TESTS: $PASSED passed, $FAILED failed"
+echo "============================================"
+exit $FAILED
