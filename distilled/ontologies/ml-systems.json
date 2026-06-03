@@ -1,0 +1,113 @@
+{
+  "name": "ML Systems Ontology",
+  "version": "1.0.0",
+  "compilation_date": "2026-06-03",
+  "domain": "ml-systems",
+  "description": "Machine learning systems: lifecycle, training/serving, evaluation, ops. Distilled from ML engineering references.",
+  "root": "ml_systems",
+  "nodes": {
+    "ml_systems": {
+      "children": ["problem_framing", "data", "features", "training", "evaluation", "serving", "monitoring", "governance"],
+      "definition": "End-to-end engineering of machine learning systems: from problem framing to monitored production model",
+      "phases": ["P1", "P2", "P3", "P5", "P6", "P7"]
+    },
+    "problem_framing": {
+      "children": ["classification", "regression", "ranking", "generation", "clustering", "anomaly_detection"],
+      "phases": ["P1", "P2"],
+      "principle": "frame_as_ml_only_if_heuristic_fails"
+    },
+    "classification": {
+      "children": ["binary", "multiclass", "multilabel", "imbalanced"],
+      "phases": ["P1", "P2"],
+      "default_metric": "auc_pr_for_imbalanced"
+    },
+    "generation": {
+      "phases": ["P1", "P2", "P5"],
+      "principle": "rag_over_finetune_when_knowledge_is_authoritative"
+    },
+    "data": {
+      "children": ["collection", "labeling", "splits", "augmentation", "leakage"],
+      "phases": ["P1", "P2", "P3"]
+    },
+    "labeling": {
+      "children": ["manual", "weak_supervision", "synthetic", "programmatic"],
+      "phases": ["P2", "P3"],
+      "principle": "label_quality_beats_label_quantity"
+    },
+    "splits": {
+      "children": ["random", "temporal", "group", "stratified"],
+      "phases": ["P3", "P5"],
+      "default": "temporal_for_events"
+    },
+    "leakage": {
+      "phases": ["P3", "P5", "P6"],
+      "principle": "no_future_in_features_no_target_in_features"
+    },
+    "features": {
+      "children": ["feature_engineering", "feature_store", "embeddings"],
+      "phases": ["P2", "P3", "P5"]
+    },
+    "feature_store": {
+      "phases": ["P3", "P5"],
+      "use_when": "multiple models share features, online + offline parity needed"
+    },
+    "embeddings": {
+      "children": ["dense", "sparse", "contextual", "multimodal"],
+      "phases": ["P3", "P5"],
+      "vector_db": "see data-engineering.ontology.vector"
+    },
+    "training": {
+      "children": ["supervised", "unsupervised", "reinforcement", "self_supervised", "transfer"],
+      "phases": ["P3", "P5"]
+    },
+    "transfer": {
+      "phases": ["P3", "P5"],
+      "principle": "finetune_dont_train_from_scratch_unless_unique_data"
+    },
+    "evaluation": {
+      "children": ["offline_metrics", "online_metrics", "human_eval", "slice_analysis"],
+      "phases": ["P5", "P6", "P7"]
+    },
+    "offline_metrics": {
+      "children": ["accuracy", "precision_recall", "calibration", "fairness"],
+      "phases": ["P5", "P6"],
+      "principle": "metric_must_match_business_objective"
+    },
+    "slice_analysis": {
+      "phases": ["P5", "P6", "P7"],
+      "principle": "evaluate_per_slice_not_just_aggregate"
+    },
+    "serving": {
+      "children": ["batch", "online_sync", "online_async", "streaming", "edge"],
+      "phases": ["P5", "P6"]
+    },
+    "online_sync": {
+      "phases": ["P5", "P6"],
+      "default_latency_budget_ms": 100
+    },
+    "monitoring": {
+      "children": ["data_drift", "concept_drift", "performance", "fairness", "cost"],
+      "phases": ["P6", "P7"]
+    },
+    "data_drift": {
+      "phases": ["P6", "P7"],
+      "principle": "monitor_input_distribution_not_just_output"
+    },
+    "performance": {
+      "phases": ["P6", "P7"],
+      "principle": "shadow_new_model_before_full_promotion"
+    },
+    "governance": {
+      "children": ["model_registry", "lineage", "reproducibility", "rollback", "audit"],
+      "phases": ["P5", "P7", "P8"]
+    },
+    "model_registry": {
+      "phases": ["P5", "P7"],
+      "use_when": "more than 3 models in production"
+    },
+    "rollback": {
+      "phases": ["P7", "P8"],
+      "principle": "every_promotion_must_have_known_good_predecessor"
+    }
+  }
+}

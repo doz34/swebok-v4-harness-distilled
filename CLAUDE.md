@@ -2,7 +2,7 @@
 
 ## Laws
 1. **HOT_PATH** - intent=micro_task → execute + --lite
-2. **STATE-DRIVEN** - read .swebok_state.db via `python3 scripts/lib/state_engine.py get <key>` (SQLite ONLY)
+2. **STATE-DRIVEN** - read .swebok_state.db via `python3 lib/state_engine.py get <key>` (SQLite ONLY)
 3. **COMPILED-KNOWLEDGE** - for SWEBOK/ISO knowledge, execute: `python3 scripts/compiled_knowledge.py <query>`. This is the deterministic alternative to RAG: pre-distilled 872-book knowledge base in 7 layers (principles, antipatterns, ontologies, decision trees, recipes, comparisons, checklists). No LLM, no embeddings, no network. Same input = same answer.
 4. **CAVEMAN_ULTRA** - all output in DSL format with `;;` delimiter. **Scope:** the CAVEMAN_ULTRA delimiter applies to *verdict payloads* (gate outcomes, red/blue findings, self-heal recommendations). Diagnostic log lines emitted by hooks (e.g. `[PHASE-GUARD] BLOCKED: ...`, `[AOV] Screenshot: ...`) are not DSL — they are plain-text operational logs for human operators. Only the lines that the dispatcher parses as input to a downstream decision must obey the `KEY:VALUE;;KEY:VALUE` format.
 5. **MCP BRIDGE** - when a script outputs `<MCP_CALLS><MCP_CALL tool="X" args="Y"/></MCP_CALLS>`, you MUST: 1) Invoke MCP tool X with args Y. 2) Save the exact MCP tool output to `/tmp/mcp_result.json`. 3) Re-execute the original script with the flag `--verify-result /tmp/mcp_result.json` to close the loop and evaluate the visual/UI evidence.
@@ -13,7 +13,7 @@
 ## State Management
 - **Source of truth**: `.swebok_state.db` (SQLite WAL)
 - **NEVER read/write `.swebok_state` YAML** (deprecated)
-- Human debugging: `python3 scripts/lib/state_engine.py export_state`
+- Human debugging: `python3 lib/state_engine.py export_state`
 
 ## Gates
 - adversarial-gate.sh - Red/Blue team with strict DSL
@@ -33,8 +33,8 @@
 - tests/distilled-test.sh - **20/20 PASS, deterministic** — the compiled knowledge engine: 24 principles, 46 antipatterns, 5 ontologies, 5 decision trees, 5 recipes, 3 comparisons, 9 phase checklists, 4 risk catalogs. Pure Python, no LLM, no RAG, no network. See `distilled/README.md` for the architecture.
 
 ## Key Files
-- `scripts/lib/state_engine.py` - Atomic state with SQLite WAL (no fcntl.flock)
-- `scripts/lib/bash_scanner.py` - Phase-aware command filtering
-- `scripts/lib/dsl_engine.py` - DSL parsing with `;;` delimiter
+- `lib/state_engine.py` - Atomic state with SQLite WAL (no fcntl.flock)
+- `lib/bash_scanner.py` - Phase-aware command filtering
+- `lib/dsl_engine.py` - DSL parsing with `;;` delimiter
 - `hooks/pre-tool-use/phase-guard.sh` - Phase enforcement
 - `hooks/pre-tool-use/bash-guard.sh` - Bash command guard

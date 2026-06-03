@@ -54,6 +54,7 @@ class CompiledKnowledge:
         self.recipes = self._load_recipes()
         self.comparisons = self._load_comparisons()
         self.citations = self._load_citations()
+        self.corpus_enrichment = self._load_corpus_enrichment()
         # Build indexes for fast lookup
         self.principle_by_id = {p["id"]: p for p in self.principles}
         self.antipattern_by_id = {a["id"]: a for a in self.antipatterns}
@@ -108,6 +109,23 @@ class CompiledKnowledge:
     def _load_citations(self) -> Dict:
         return load_json(self.distilled_dir / "citations" / "by-domain.json")
 
+    def _load_corpus_enrichment(self) -> List[Dict]:
+        """Load the v1.5.3 corpus enrichment layer.
+
+        144 adversarially-accepted concepts from the 872-book corpus,
+        extracted via phrase-by-phrase distillation (1,039,222 candidates),
+        clustered into 200 themes, evaluated by 5-hyperagent council +
+        per-concept adversarial pass. Each concept is a specific technical
+        statement that complements (not duplicates) the 102 v1 layer items.
+
+        Returns empty list if the file does not exist (v1.5.2 or earlier).
+        """
+        path = self.distilled_dir / "corpus_enrichment.json"
+        if not path.exists():
+            return []
+        data = load_json(path)
+        return data.get("items", [])
+
     def query(self, question: str, top_k: int = 5) -> List[Dict]:
         """
         Answer a question by matching against the compiled knowledge base.
@@ -140,6 +158,23 @@ class CompiledKnowledge:
             score = self._score(t, q, ["id", "description", "domain"])
             if score > 0:
                 results.append({"type": "decision_tree", "data": t, "score": score})
+        # Corpus enrichment (v1.5.3 — 144 adversarially-accepted concepts)
+        for c in self.corpus_enrichment:
+            score = self._score(c, q, ["id", "content", "theme_name", "layer"])
+            if score > 0:
+                # Lightweight payload (no need to dump full metadata)
+                results.append({
+                    "type": "corpus_enrichment",
+                    "data": {
+                        "id": c["id"],
+                        "content": c["content"],
+                        "theme_id": c["theme_id"],
+                        "theme_name": c["theme_name"],
+                        "layer": c["layer"],
+                        "book": c["book"],
+                    },
+                    "score": score,
+                })
         # Sort by score, return top_k
         results.sort(key=lambda r: r["score"], reverse=True)
         return results[:top_k]

@@ -168,15 +168,20 @@ print(len(ck.ontologies))
 
 # === Test 12: Determinism — same query returns same result ===
 test_determinism() {
-    log_test "Test 12: Engine is deterministic (same input = same output)"
-    local r1 r2
-    r1=$(python3 "$COMPILER" --principle DRY 2>&1 | md5sum)
-    r2=$(python3 "$COMPILER" --principle DRY 2>&1 | md5sum)
-    if [[ "$r1" == "$r2" ]]; then
-        log_pass "deterministic (same hash on repeated invocation)"
-    else
-        log_fail "non-deterministic: $r1 != $r2"
-    fi
+    log_test "Test 12: Engine is deterministic across 5 diverse queries (v1.5.3 strengthened)"
+    local hashes=()
+    local q
+    # 5 diverse queries, run each twice, total 10 hashes must all match
+    for q in "DRY" "REST" "principle" "P5 checklist" "antipattern god"; do
+        local h1 h2
+        h1=$(python3 "$COMPILER" "$q" 2>&1 | md5sum | awk '{print $1}')
+        h2=$(python3 "$COMPILER" "$q" 2>&1 | md5sum | awk '{print $1}')
+        if [[ "$h1" != "$h2" ]]; then
+            log_fail "non-deterministic on query '$q': $h1 != $h2"
+            return
+        fi
+    done
+    log_pass "deterministic across 5 diverse queries (10/10 hash matches)"
 }
 
 # === Test 13: No LLM, no network (offline operation) ===
@@ -275,15 +280,15 @@ test_size_benefit() {
     fi
 }
 
-# === Test 18: Back-compat shim works (swebok-query.py) ===
+# === Test 18: compiled_knowledge.py direct CLI works (was swebok-query.py shim) ===
 test_swebok_query_shim() {
-    log_test "Test 18: swebok-query.py back-compat shim works"
+    log_test "Test 18: compiled_knowledge.py --principle KISS returns KISS"
     local out
-    out=$(python3 "$HARNESS_DIR/scripts/swebok-query.py" --principle KISS 2>&1)
+    out=$(python3 "$COMPILER" --principle KISS 2>&1)
     if echo "$out" | grep -q '"id": "KISS"'; then
-        log_pass "swebok-query.py shim works (back-compat preserved)"
+        log_pass "compiled_knowledge.py CLI returns KISS"
     else
-        log_fail "swebok-query.py shim failed: $out"
+        log_fail "compiled_knowledge.py --principle KISS failed: $out"
     fi
 }
 
@@ -323,6 +328,232 @@ test_compilation_metadata() {
     fi
 }
 
+# === Test 21: ML systems ontology exists and has core nodes (v1.5.2) ===
+test_ml_systems_ontology() {
+    log_test "Test 21: ml-systems ontology loads with required nodes"
+    local nodes
+    nodes=$(python3 -c "
+import sys; sys.path.insert(0, '$HARNESS_DIR/scripts')
+from compiled_knowledge import CompiledKnowledge
+ck = CompiledKnowledge()
+ont = ck.ontologies.get('ml-systems', {})
+n = ont.get('nodes', {})
+required = ['ml_systems', 'data', 'training', 'evaluation', 'serving', 'monitoring', 'governance']
+missing = [r for r in required if r not in n]
+print(len(missing))
+")
+    if [[ "$nodes" -eq 0 ]]; then
+        log_pass "ml-systems ontology has all 7 required top-level nodes"
+    else
+        log_fail "ml-systems ontology missing $nodes required nodes"
+    fi
+}
+
+# === Test 22: All 9 phases P1-P9 are covered (v1.5.2) ===
+test_all_phases_covered() {
+    log_test "Test 22: All 9 phases (P1-P9) are covered by at least one principle"
+    local count
+    count=$(python3 -c "
+import sys; sys.path.insert(0, '$HARNESS_DIR/scripts')
+from compiled_knowledge import CompiledKnowledge
+ck = CompiledKnowledge()
+covered = set()
+for p in ck.principles:
+    for ph in p.get('phases', []):
+        if ph != 'all':
+            covered.add(ph)
+required = {'P1','P2','P3','P4','P5','P6','P7','P8','P9'}
+missing = required - covered
+print(len(missing))
+")
+    if [[ "$count" -eq 0 ]]; then
+        log_pass "all 9 phases covered by at least one principle"
+    else
+        log_fail "$count phases not covered (P1, P8, P9 must be present)"
+    fi
+}
+
+# === Test 23: Five ontologies including new ml-systems (v1.5.2) ===
+test_five_ontologies() {
+    log_test "Test 23: 5+ ontologies including the new ml-systems"
+    local count
+    count=$(python3 -c "
+import sys; sys.path.insert(0, '$HARNESS_DIR/scripts')
+from compiled_knowledge import CompiledKnowledge
+ck = CompiledKnowledge()
+print(len(ck.ontologies))
+")
+    if [[ "$count" -ge 6 ]]; then
+        log_pass "$count ontologies loaded (>=6 required)"
+    else
+        log_fail "only $count ontologies (< 6)"
+    fi
+}
+
+# === Test 24: retrieval/ files are marked EXPERIMENTAL_v2 (v1.5.2) ===
+test_retrieval_marked_experimental() {
+    log_test "Test 24: scripts/retrieval/ is marked EXPERIMENTAL_v2"
+    local unmarked
+    unmarked=$(python3 -c "
+import os, sys
+n = 0
+for f in sorted(os.listdir('scripts/retrieval')):
+    if f == '__init__.py' or not f.endswith('.py'):
+        continue
+    p = os.path.join('scripts/retrieval', f)
+    with open(p) as fh:
+        if 'EXPERIMENTAL_v2' not in fh.read():
+            n += 1
+print(n)
+")
+    if [[ "$unmarked" -eq 0 ]]; then
+        log_pass "all retrieval files carry EXPERIMENTAL_v2 marker"
+    else
+        log_fail "$unmarked retrieval files are unmarked"
+    fi
+}
+
+# === Test 25: corpus_browser.py covers all 145,963 concepts (v1.5.2) ===
+test_corpus_browser_full_coverage() {
+    log_test "Test 25: corpus_browser.py --stats shows 145963 concepts from 777 books"
+    local count
+    count=$(python3 scripts/corpus_browser.py --stats 2>/dev/null | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+print(d['n_concepts'])
+")
+    if [[ "$count" -eq 145963 ]]; then
+        log_pass "corpus_browser covers 145,963 concepts (100% corpus)"
+    else
+        log_fail "corpus_browser has $count concepts (expected 145963)"
+    fi
+}
+
+# === Test 26: corpus_browser search returns content + book + line (v1.5.2) ===
+test_corpus_browser_search() {
+    log_test "Test 26: corpus_browser --search returns structured hits"
+    local ok
+    ok=$(python3 scripts/corpus_browser.py --search "yield from generator" --top 3 2>/dev/null | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+ok = len(d) > 0 and all('book' in r and 'line' in r and 'content' in r for r in d)
+print('OK' if ok else 'FAIL')
+")
+    if [[ "$ok" == "OK" ]]; then
+        log_pass "search returns structured hits with book/line/content"
+    else
+        log_fail "search returns malformed results"
+    fi
+}
+
+# === Test 27: corpus_browser --book fuzzy-finds a book (v1.5.2) ===
+test_corpus_browser_book_lookup() {
+    log_test "Test 27: corpus_browser --book finds a book via fuzzy match"
+    local found
+    found=$(python3 scripts/corpus_browser.py --book "AI Assisted Programming Tom Taulli" --top 1 2>/dev/null | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+print('YES' if d.get('found') and d.get('n_concepts', 0) > 0 else 'NO')
+")
+    if [[ "$found" == "YES" ]]; then
+        log_pass "fuzzy book lookup works"
+    else
+        log_fail "fuzzy book lookup failed"
+    fi
+}
+
+# === Test 28: corpus_browser --safe redacts injection patterns (v1.5.2) ===
+test_corpus_browser_safe_mode() {
+    log_test "Test 28: corpus_browser --safe redacts prompt-injection patterns"
+    local safe_ok
+    safe_ok=$(python3 scripts/corpus_browser.py --safe --search "ignore previous" --top 5 2>/dev/null | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+# The known injection sample from the book MUST be redacted
+hit = any(r.get('content') == '[REDACTED: prompt-injection pattern detected]' for r in d)
+print('OK' if hit else 'FAIL')
+")
+    if [[ "$safe_ok" == "OK" ]]; then
+        log_pass "--safe mode redacts prompt-injection patterns"
+    else
+        log_fail "--safe mode did not redact known injection"
+    fi
+}
+
+# === Test 29: corpus_browser is offline (no network) (v1.5.2) ===
+test_corpus_browser_offline() {
+    log_test "Test 29: corpus_browser works without network"
+    local ok
+    # Block network with an unrouteable address — if browser tries it, the call will fail
+    ok=$(HTTP_PROXY=http://127.0.0.1:1 HTTPS_PROXY=http://127.0.0.1:1 python3 scripts/corpus_browser.py --stats 2>&1 | python3 -c "
+import sys, json
+try:
+    d = json.loads(sys.stdin.read())
+    print('OK' if d.get('n_books', 0) == 777 else 'FAIL')
+except:
+    print('FAIL')
+")
+    if [[ "$ok" == "OK" ]]; then
+        log_pass "browser works without network (offline-capable)"
+    else
+        log_fail "browser tried to make a network call"
+    fi
+}
+
+# === Test 30: corpus_enrichment layer is loaded (v1.5.3) ===
+test_corpus_enrichment_loads() {
+    log_test "Test 30: corpus_enrichment.json loads with 144 items"
+    local n
+    n=$(python3 -c "
+import sys; sys.path.insert(0, '$HARNESS_DIR/scripts')
+from compiled_knowledge import CompiledKnowledge
+ck = CompiledKnowledge()
+print(len(ck.corpus_enrichment))
+")
+    if [[ "$n" -eq 144 ]]; then
+        log_pass "corpus_enrichment loaded with 144 items"
+    else
+        log_fail "corpus_enrichment has $n items (expected 144)"
+    fi
+}
+
+# === Test 31: query() returns corpus_enrichment type (v1.5.3) ===
+test_query_returns_enrichment() {
+    log_test "Test 31: query() returns corpus_enrichment type for relevant queries"
+    local found
+    found=$(python3 -c "
+import sys; sys.path.insert(0, '$HARNESS_DIR/scripts')
+from compiled_knowledge import CompiledKnowledge
+ck = CompiledKnowledge()
+res = ck.query('react', top_k=20)
+types = set(r['type'] for r in res)
+print('YES' if 'corpus_enrichment' in types else 'NO')
+")
+    if [[ "$found" == "YES" ]]; then
+        log_pass "query returns corpus_enrichment type"
+    else
+        log_fail "query never returns corpus_enrichment"
+    fi
+}
+
+# === Test 32: enrichment has 17 themes (v1.5.3) ===
+test_enrichment_themes() {
+    log_test "Test 32: enrichment covers 17 distinct themes"
+    local n
+    n=$(python3 -c "
+import sys; sys.path.insert(0, '$HARNESS_DIR/scripts')
+from compiled_knowledge import CompiledKnowledge
+ck = CompiledKnowledge()
+themes = set(c['theme_id'] for c in ck.corpus_enrichment)
+print(len(themes))
+")
+    if [[ "$n" -eq 17 ]]; then
+        log_pass "enrichment covers 17 themes (Git, React, LLMs, ML, DB, etc.)"
+    else
+        log_fail "enrichment has $n themes (expected 17)"
+    fi
+}
+
 # === CALL ALL TESTS ===
 test_engine_loads
 test_principles_complete
@@ -344,6 +575,18 @@ test_size_benefit
 test_swebok_query_shim
 test_risks_catalog
 test_compilation_metadata
+test_ml_systems_ontology
+test_all_phases_covered
+test_five_ontologies
+test_retrieval_marked_experimental
+test_corpus_browser_full_coverage
+test_corpus_browser_search
+test_corpus_browser_book_lookup
+test_corpus_browser_safe_mode
+test_corpus_browser_offline
+test_corpus_enrichment_loads
+test_query_returns_enrichment
+test_enrichment_themes
 
 echo ""
 echo "============================================"

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """
+*** EXPERIMENTAL_v2 - OPT-IN ONLY. NOT CONSUMED BY COMPILED_KNOWLEDGE.PY. ***
 SWEBOK v4 Harness V2 — LLM Provider Abstraction
 ================================================
 

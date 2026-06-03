@@ -27,8 +27,8 @@ cd "$HARNESS_DIR"
 echo "[pre-commit] Running SWEBOK v4 harness test gate..."
 
 # 1. Cold rebuild
-python3 scripts/lib/state_engine.py rebuild >/dev/null 2>&1
-python3 scripts/lib/state_engine.py check_integrity > /tmp/swebok_precommit_integrity.log
+python3 lib/state_engine.py rebuild >/dev/null 2>&1
+python3 lib/state_engine.py check_integrity > /tmp/swebok_precommit_integrity.log
 if ! grep -q '^ok$' /tmp/swebok_precommit_integrity.log; then
     echo "[pre-commit] FAIL: state DB integrity not 'ok' after rebuild"
     cat /tmp/swebok_precommit_integrity.log
@@ -55,7 +55,7 @@ fi
 # 4. HMAC chain
 if ! python3 -c "
 import sys
-sys.path.insert(0, '$HARNESS_DIR/scripts/lib')
+sys.path.insert(0, '$HARNESS_DIR/lib')
 import state_engine
 for tbl in ('adversarial_log', 'log_events', 'state_events', 'circuit_breaker_events'):
     ok, broken_at = state_engine.verify_audit_chain(tbl)

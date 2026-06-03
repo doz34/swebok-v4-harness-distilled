@@ -15,9 +15,12 @@
         "code"
       ],
       "phases": [
+        "P1",
         "P2",
         "P3",
-        "P5"
+        "P5",
+        "P8",
+        "P9"
       ],
       "category": "universal",
       "citation_density": "very_high",
@@ -46,8 +49,12 @@
         "design"
       ],
       "phases": [
+        "P1",
+        "P2",
         "P3",
-        "P5"
+        "P5",
+        "P8",
+        "P9"
       ],
       "category": "universal",
       "citation_density": "very_high",
@@ -78,7 +85,8 @@
       ],
       "phases": [
         "P5",
-        "P6"
+        "P6",
+        "P8"
       ],
       "category": "universal",
       "citation_density": "very_high",
@@ -117,11 +125,11 @@
       "citation_density": "very_high",
       "books_endorsing": 134,
       "sub_principles": {
-        "SRP": "Single Responsibility — a class has one reason to change",
-        "OCP": "Open/Closed — open for extension, closed for modification",
-        "LSP": "Liskov Substitution — subtypes must be substitutable for base types",
-        "ISP": "Interface Segregation — many specific interfaces > one general",
-        "DIP": "Dependency Inversion — depend on abstractions, not concretions"
+        "SRP": "Single Responsibility \u2014 a class has one reason to change",
+        "OCP": "Open/Closed \u2014 open for extension, closed for modification",
+        "LSP": "Liskov Substitution \u2014 subtypes must be substitutable for base types",
+        "ISP": "Interface Segregation \u2014 many specific interfaces > one general",
+        "DIP": "Dependency Inversion \u2014 depend on abstractions, not concretions"
       },
       "synthesis": "Five principles that, together, produce maintainable OO systems. Violating any of them creates specific failure modes.",
       "applies_when": [
@@ -138,6 +146,7 @@
         "architecture"
       ],
       "phases": [
+        "P1",
         "P2",
         "P3"
       ],
@@ -314,7 +323,8 @@
         "P2",
         "P3",
         "P5",
-        "P7"
+        "P7",
+        "P8"
       ],
       "category": "security",
       "citation_density": "very_high",
@@ -336,7 +346,8 @@
       "phases": [
         "P2",
         "P3",
-        "P7"
+        "P7",
+        "P8"
       ],
       "category": "security",
       "citation_density": "high",
@@ -357,7 +368,8 @@
       ],
       "phases": [
         "P5",
-        "P6"
+        "P6",
+        "P8"
       ],
       "category": "universal",
       "citation_density": "very_high",
@@ -378,7 +390,8 @@
       ],
       "phases": [
         "P5",
-        "P6"
+        "P6",
+        "P8"
       ],
       "category": "methodology",
       "citation_density": "very_high",
@@ -397,7 +410,8 @@
       ],
       "phases": [
         "P6",
-        "P7"
+        "P7",
+        "P8"
       ],
       "category": "methodology",
       "citation_density": "very_high",
@@ -414,7 +428,8 @@
       "phases": [
         "P5",
         "P6",
-        "P7"
+        "P7",
+        "P8"
       ],
       "category": "methodology",
       "citation_density": "very_high",
@@ -429,6 +444,7 @@
         "devops"
       ],
       "phases": [
+        "P1",
         "P5",
         "P6"
       ],
@@ -445,6 +461,7 @@
         "api-design"
       ],
       "phases": [
+        "P1",
         "P3",
         "P5"
       ],
@@ -460,7 +477,14 @@
         "all"
       ],
       "phases": [
-        "all"
+        "P1",
+        "P2",
+        "P3",
+        "P5",
+        "P6",
+        "P7",
+        "P8",
+        "P9"
       ],
       "category": "universal",
       "citation_density": "very_high",
@@ -490,7 +514,8 @@
       ],
       "phases": [
         "P3",
-        "P5"
+        "P5",
+        "P9"
       ],
       "category": "technical",
       "citation_density": "very_high",
@@ -504,7 +529,12 @@
         "all"
       ],
       "phases": [
-        "all"
+        "P1",
+        "P2",
+        "P3",
+        "P5",
+        "P8",
+        "P9"
       ],
       "category": "philosophical",
       "citation_density": "very_high",

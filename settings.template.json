@@ -11,8 +11,8 @@
       "bash scripts/self-heal.sh",
       "bash scripts/multiagent-launcher.sh",
       "bash scripts/skill-invoker.sh",
-      "python3 scripts/swebok-query.py",
-      "python3 scripts/intent-detector.py"
+      "python3 scripts/compiled_knowledge.py",
+      "python3 intent-detector.py"
     ],
     "deny": []
   },

@@ -11,3 +11,8 @@
 # pip install hypothesis      # for property-based tests
 # pip install ruff            # for linting
 # pip install bandit          # for security linting
+
+# scikit-learn is required by scripts/theme_clusterer.py (the v2 corpus-enrichment
+# pipeline). It is opt-in: the deterministic L0 path (compiled_knowledge.py) does
+# not import sklearn. Install only if you plan to re-run the v2 enrichment.
+# scikit-learn>=1.3,<2.0

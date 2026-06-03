@@ -29,7 +29,7 @@ echo "=============================="
 echo
 
 # Validate harness root
-for required in CLAUDE.md scripts/lib/state_engine.py hooks/pre-tool-use/phase-guard.sh; do
+for required in CLAUDE.md lib/state_engine.py hooks/pre-tool-use/phase-guard.sh; do
     if [[ ! -e "$HARNESS_DIR/$required" ]]; then
         echo -e "${RED}Error: harness directory missing $required${NC}"
         echo "Run this script from inside a valid swebok-v4-harness checkout."
@@ -83,12 +83,12 @@ read -r -d '' HARNESS_HOOKS_FRAGMENT <<JSON || true
       "bash $HARNESS_DIR/scripts/browser-use-orchestrator.sh",
       "bash $HARNESS_DIR/scripts/multiagent-launcher.sh",
       "bash $HARNESS_DIR/scripts/skill-invoker.sh",
-      "python3 $HARNESS_DIR/scripts/swebok-query.py",
-      "python3 $HARNESS_DIR/scripts/generate-kg.py",
-      "python3 $HARNESS_DIR/scripts/intent-detector.py",
-      "python3 $HARNESS_DIR/scripts/generate-ka-index.py",
-      "python3 $HARNESS_DIR/scripts/generate-keyword-index.py",
-      "python3 $HARNESS_DIR/scripts/search-knowledge-base.py"
+      "python3 $HARNESS_DIR/scripts/compiled_knowledge.py",
+      "python3 $HARNESS_DIR/generate-kg.py",
+      "python3 $HARNESS_DIR/intent-detector.py",
+      "python3 $HARNESS_DIR/generate-ka-index.py",
+      "python3 $HARNESS_DIR/generate-keyword-index.py",
+      "python3 $HARNESS_DIR/search-knowledge-base.py"
     ]
   },
   "hooks": {
