@@ -218,7 +218,7 @@ def _xact():
             if conn is not None:
                 try:
                     conn.close()
-                except Exception as _e:
+                except (sqlite3.Error, OSError) as _e:
                     _log.debug("state_engine: secondary error during cleanup", exc_info=_e)
             if "locked" in str(e).lower() or "busy" in str(e).lower():
                 time.sleep(min(backoff, 1.0))
@@ -234,12 +234,12 @@ def _xact():
             last_exc = e
             try:
                 conn.execute("ROLLBACK")
-            except Exception as _e:
+            except (sqlite3.Error, OSError) as _e:
                 _log.debug("state_engine: secondary error during cleanup", exc_info=_e)
             if "locked" in str(e).lower() or "busy" in str(e).lower():
                 try:
                     conn.close()
-                except Exception as _e:
+                except (sqlite3.Error, OSError) as _e:
                     _log.debug("state_engine: secondary error during cleanup", exc_info=_e)
                 time.sleep(min(backoff, 1.0))
                 backoff *= 2
@@ -248,13 +248,13 @@ def _xact():
         except Exception:
             try:
                 conn.execute("ROLLBACK")
-            except Exception as _e:
+            except (sqlite3.Error, OSError) as _e:
                 _log.debug("state_engine: secondary error during cleanup", exc_info=_e)
             raise
         finally:
             try:
                 conn.close()
-            except Exception as _e:
+            except (sqlite3.Error, OSError) as _e:
                 _log.debug("state_engine: secondary error during cleanup", exc_info=_e)
     # Exhausted retries
     if last_exc is not None:
@@ -301,7 +301,7 @@ def _audit_secret():
     if key_path.exists():
         try:
             return key_path.read_bytes()
-        except Exception as _e:
+        except (sqlite3.Error, OSError) as _e:
             _log.debug("state_engine: secondary error during cleanup", exc_info=_e)
     # First-time create
     try:
@@ -309,7 +309,7 @@ def _audit_secret():
         key_path.write_bytes(secret)
         try:
             os.chmod(str(key_path), 0o600)
-        except Exception as _e:
+        except (sqlite3.Error, OSError) as _e:
             _log.debug("state_engine: secondary error during cleanup", exc_info=_e)
         return secret
     except Exception as e:
@@ -578,7 +578,7 @@ def _init_db():
         _DB_READY = True
         try:
             prune_backup_files(keep_last=3)
-        except Exception as _e:
+        except (sqlite3.Error, OSError) as _e:
             _log.debug("state_engine: secondary error during cleanup", exc_info=_e)
     finally:
         conn.close()
@@ -625,7 +625,7 @@ def _migrate_v2_audit_metadata(conn):
     ).fetchall():
         try:
             conn.execute(f"REINDEX {idx_row[0]}")
-        except Exception as _e:
+        except (sqlite3.Error, OSError) as _e:
             _log.debug("state_engine: secondary error during cleanup", exc_info=_e)
 
 
@@ -789,7 +789,7 @@ def _incr_scalar(key, delta=1, cap=None):
         if conn is not None:
             try:
                 conn.close()
-            except Exception as _e:
+            except (sqlite3.Error, OSError) as _e:
                 _log.debug("state_engine: secondary error during cleanup", exc_info=_e)
 
 
@@ -836,7 +836,7 @@ def _incr_nested_phase(key, subkey, phase="P6", delta=1):
         if conn is not None:
             try:
                 conn.close()
-            except Exception as _e:
+            except (sqlite3.Error, OSError) as _e:
                 _log.debug("state_engine: secondary error during cleanup", exc_info=_e)
 
 
@@ -1208,7 +1208,7 @@ def _prune_with_trigger(table, trigger_name, keep_last):
                     f"END"
                 )
                 conn.commit()
-            except Exception as _e:
+            except (sqlite3.Error, OSError) as _e:
                 _log.debug("state_engine: secondary error during cleanup", exc_info=_e)
     finally:
         conn.close()
@@ -1286,7 +1286,7 @@ def prune_backup_files(keep_last=3):
             try:
                 old.unlink()
                 removed += 1
-            except Exception as _e:
+            except (sqlite3.Error, OSError) as _e:
                 _log.debug("state_engine: secondary error during cleanup", exc_info=_e)
         return removed
     except Exception:
@@ -1360,15 +1360,15 @@ def rebuild(keep_audit=True):
             if sidecar.exists():
                 try:
                     sidecar.unlink()
-                except Exception as _e:
+                except (sqlite3.Error, OSError) as _e:
                     _log.debug("state_engine: secondary error during cleanup", exc_info=_e)
         try:
             for old in sorted(HARNESS_DIR.glob(".swebok_state.db.corrupt.*"))[:-3]:
                 try:
                     old.unlink()
-                except Exception as _e:
+                except (sqlite3.Error, OSError) as _e:
                     _log.debug("state_engine: secondary error during cleanup", exc_info=_e)
-        except Exception as _e:
+        except (sqlite3.Error, OSError) as _e:
             _log.debug("state_engine: secondary error during cleanup", exc_info=_e)
     global _DB_READY
     _DB_READY = False
@@ -1440,7 +1440,7 @@ def rebuild(keep_audit=True):
                     sys.exit(5)
                 try:
                     src.unlink()
-                except Exception as _e:
+                except (sqlite3.Error, OSError) as _e:
                     _log.debug("state_engine: secondary error during cleanup", exc_info=_e)
         except Exception as e:
             print(f"[REBUILD] audit restore warning: {e}", file=sys.stderr)
@@ -1646,7 +1646,7 @@ def self_audit(council=False, since_days=30):
             "PASS",
             f"window={since_days}d verdicts={len(verdict_rows)} chains_ok={sum(1 for s in chain_status.values() if s == 'ok')}/4",
         )
-    except Exception as _e:
+    except (sqlite3.Error, OSError) as _e:
         _log.debug("state_engine: secondary error during cleanup", exc_info=_e)
     return report
 

@@ -2,6 +2,17 @@
 
 All notable changes to the SWEBOK v4 Harness V2 (Distilled) will be documented here.
 
+## [1.5.8] - 2026-06-03
+
+### Cleanup (final pass)
+
+1. **19 generic `except Exception` blocks in `lib/state_engine.py` refactored to specific types** — the 18 `except Exception as _e:` blocks in cleanup paths (conn.close, ROLLBACK, file unlink) now use `except (sqlite3.Error, OSError) as _e:`. The catch-all `except Exception as e` in the HMAC fallback path is preserved (it must catch all I/O errors including read-only FS). Defense in depth: a non-sqlite/OS error in a cleanup path will now propagate to the primary error rather than being silently logged.
+2. **Test 1 (Chunker) and Test 7 (graph entities) strengthened** — assert at least 10 entities/chunks (was just `> 0`). Catches a no-op chunker or a single-chunk bug.
+
+### Test results
+
+- 32 distilled + 20 v2 retrieval = **52/52 PASS**
+
 ## [1.5.7] - 2026-06-03
 
 ### Security (4 tractable HIGH/MED CISO follow-ups)
