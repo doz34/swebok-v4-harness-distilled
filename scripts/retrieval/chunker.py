@@ -82,7 +82,7 @@ def _book_from_path(path: Path) -> str:
     # Title-case but preserve common acronyms
     parts = []
     for w in name.split():
-        if w.upper() in ("SQL", "API", "REST", "HTTP", "CSS", "HTML", "JSON", "XML", "AI", "ML", "UI", "UX", "OOP", "MVC", "MVP", "CLI", "K8S", "AWS", "GCP", "CI", "CD", "OOP", "OOP", "JS", "TS", "GO", "CRDT", "OLAP", "OLTP"):
+        if w.upper() in ("SQL", "API", "REST", "HTTP", "CSS", "HTML", "JSON", "XML", "AI", "ML", "UI", "UX", "OOP", "MVC", "MVP", "CLI", "K8S", "AWS", "GCP", "CI", "CD", "JS", "TS", "GO", "CRDT", "OLAP", "OLTP"):
             parts.append(w.upper())
         else:
             parts.append(w.capitalize())

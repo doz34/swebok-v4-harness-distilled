@@ -34,8 +34,6 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from retrieval.chunker import Chunk
-import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # BM25 hyperparameters (standard Okapi defaults)
 K1 = 1.5

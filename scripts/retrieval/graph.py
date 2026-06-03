@@ -34,6 +34,7 @@ from retrieval.chunker import Chunk
 
 # Common technical terms that should be recognized as entities even in lowercase
 # (heuristics: these are common in software engineering literature)
+# set() automatically dedups (fixes CISO-V2-014: tdd bdd duplicate)
 _TECH_VOCAB = set("""
 api rest graphql grpc sql nosql postgres mysql mongodb redis sqlite
 python javascript typescript rust go java kotlin swift ruby php
@@ -47,7 +48,6 @@ http https tcp udp dns ssh tls ssl oauth jwt saml
 mvc mvvm mvp hexagonal layered event cqrs saga
 orm jdbc jpa hibernate sqlalchemy
 kafka rabbitmq nats zeromq pulsar
-tdd bdd
 """.split())
 
 # Sentence patterns that look like claims

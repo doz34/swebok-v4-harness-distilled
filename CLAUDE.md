@@ -30,7 +30,7 @@
 - docs/v1/ADR-003-multiagent-bridge.md for the opt-in council bridge (CRIT-2 close-out)
 
 ## Tests
-- tests/distilled-test.sh - **20/20 PASS, deterministic** — the compiled knowledge engine: 25 principles, 46 antipatterns, 5 ontologies, 5 decision trees, 5 recipes, 3 comparisons, 9 phase checklists, 4 risk catalogs. Pure Python, no LLM, no RAG, no network. See `distilled/README.md` for the architecture.
+- tests/distilled-test.sh - **20/20 PASS, deterministic** — the compiled knowledge engine: 24 principles, 46 antipatterns, 5 ontologies, 5 decision trees, 5 recipes, 3 comparisons, 9 phase checklists, 4 risk catalogs. Pure Python, no LLM, no RAG, no network. See `distilled/README.md` for the architecture.
 
 ## Key Files
 - `scripts/lib/state_engine.py` - Atomic state with SQLite WAL (no fcntl.flock)
