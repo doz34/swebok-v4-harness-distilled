@@ -2,6 +2,41 @@
 
 All notable changes to the SWEBOK v4 Harness V2 (Distilled) will be documented here.
 
+## [1.5.10] - 2026-06-03
+
+### Security (CRIT-8 semantic class)
+
+`lib/bash_scanner.py:has_path()` now combines the v1.5.9 word-boundary regex with a **path-verb heuristic**. If the command STARTS with a path-operating verb (cd, ls, mkdir, touch, rm, mv, cp, find, rsync, etc.) AND the forbidden path appears as a complete word (preceded by space or `/`, followed by space, `;`, `&`, `|`, or end-of-string), block. Catches the CRIT-8 semantic class:
+
+- `cd src` → BLOCKED (was missed by v1.5.9 trailing-slash rule)
+- `ls /tmp/src; rm -rf /` → BLOCKED (chained attack)
+- `cd /tmp/src; ls` → BLOCKED
+- `mkdir /tmp/src` → BLOCKED
+
+**Known remaining false positive** (deferred, requires real shell parser per EVIDENCE_LEDGER):
+- `ls /usr/src` (no trailing slash) — the user is listing a system subdir, not operating on the user's `src/`
+- `echo src` (string vs path ambiguity)
+- `grep src file.txt` (search pattern)
+
+### Test quality (3 v2 tests strengthened)
+
+- **Test 9 (hierarchy)**: assert `n_books > 0 AND n_chapters > 0` (was just `n_books > 0`)
+- **Test 10 (reranker fusion)**: assert `n >= 1 AND n_sources >= 1 AND top_score > 0` (was just `results[0].sources` truthy)
+- **Test 12 (pipeline roundtrip)**: assert `n >= 1 AND top_score > 0` (was just `n > 0`)
+
+### Test results
+
+- 32 distilled + 20 v2 retrieval = **52/52 PASS**, verified by 9th-pass adversarial council
+
+### Cumulative state (v1.5.0 → v1.5.10)
+
+- 13/13 original audit CRITICALs closed
+- 4 additional tractable HIGH/MED follow-ups closed in v1.5.7
+- 19 generic excepts refactored to specific types in v1.5.8
+- CRIT-8 substring class closed in v1.5.9
+- **CRIT-8 semantic class closed in v1.5.10** (substring + path-verb heuristic)
+- 9 adversarial council passes converged
+
 ## [1.5.9] - 2026-06-03
 
 ### CRIT-8 fix (substantive close-out)

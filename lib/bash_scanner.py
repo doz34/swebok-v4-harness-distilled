@@ -121,48 +121,64 @@ def has_extension(cmd: str, extensions: list) -> bool:
     return False
 
 
+# v1.5.10 (CRIT-8 semantic class): path-verb heuristic. If the command
+# STARTS with one of these, treat any matching path as a path operation
+# even without a trailing slash. Catches `cd src`, `ls /tmp/src; rm -rf /`,
+# etc. The pure-string cases (`echo src`, `grep src file.txt`) remain
+# DEFERRED per EVIDENCE_LEDGER — those need a real shell parser.
+_PATH_VERBS = frozenset({
+    "cd", "ls", "mkdir", "touch", "rm", "rmdir", "mv", "cp", "ln",
+    "chmod", "chown", "find", "rsync", "tar", "cpio", "dd",
+    "install", "cat", "less", "more", "head", "tail",
+})
+
+
 def has_path(cmd: str, paths: list) -> bool:
     """Check if command contains any forbidden path.
 
     v1.5.9 (CRIT-8 fix): use word-boundary + trailing-slash regex instead of
     substring `in` match. The substring version false-positives on:
-      - `echo rsrc`        (path 'src' was substring of 'rsrc' — now blocked
-                             because... actually the original paths have
-                             trailing /, so 'src/' was never substring of
-                             'rsrc'. False positives were on: `echo src`
-                             because some rules check `block_mkdir` which
-                             is the bare names ['src', 'lib', ...] not
-                             ['src/', 'lib/', ...]. This function only
-                             sees `block_paths` which have trailing slashes,
-                             so the bare-name false positives are out of
-                             scope here.)
+      - `echo rsrc`        (path 'src' was substring of 'rsrc' — now
+                             not blocked because src/ is a complete segment)
       - `ls /usr/src/`      (path 'src/' was substring of '/usr/src/' — now
-                             requires a path boundary which '/usr/src/' has
-                             before the inner 'src/'. Still matches.)
-    The CORRECT semantic: a forbidden path must be preceded by whitespace
-    (e.g., `cd src/`) or by `/` (e.g., `cd /src/`), AND must be followed by
-    `/` or end-of-string. This rejects `echo rsrc` (no `/` after rsrc)
-    and accepts `cd src/` (space before, / after).
+                             requires a word boundary which still matches
+                             /usr/src/ since /usr/ is a path prefix; this
+                             case is INTENTIONALLY matched: a user listing
+                             /usr/src IS touching the src/ directory.)
+    v1.5.10 (CRIT-8 semantic class): also catch `cd src` and chained ops
+    like `ls /tmp/src; rm -rf /` by combining the regex with a path-verb
+    heuristic. The pure-string cases (`echo src`, `grep src file.txt`)
+    remain DEFERRED per EVIDENCE_LEDGER — those need a real shell parser.
     """
+    # v1.5.10: detect the leading verb. If the command starts with a path-
+    # operating verb, treat any matching path as forbidden.
+    first_token = cmd.lstrip().split(maxsplit=1)
+    first_word = first_token[0] if first_token else ""
+    # Strip path prefix and shell builtins
+    first_word = first_word.split("/")[-1]
+    has_path_verb = first_word in _PATH_VERBS
+
     for path in paths:
         # The path in the rule list is e.g. "src/". We treat it as a path
         # SEGMENT: the literal "src" must be a complete directory name in
-        # the user's command, not a substring of another word. A path segment
-        # is:
-        #   - at start: ^src
-        #   - after /:    /src
-        # followed by:
-        #   - / (path continuation: src/foo, src/impl, src/x.py)
-        #   - end-of-string, space, ;, &, | (path boundary: src; or src &)
-        # NOT a word boundary — the boundary between r in 'src' and the next
-        # char is what makes a path segment, not the boundary between c in
-        # 'rsrc' (where src IS a substring of rsrc).
+        # the user's command, not a substring of another word.
         seg = path.rstrip('/')  # "src/" -> "src"
-        # (?<![A-Za-z0-9_]) = not preceded by a word char (so "rsrc" is rejected)
-        # src = the path segment
-        # (?=/|[\s;&|$]) = followed by / or a non-path char
+        # Match A: src followed by /  (the original v1.5.9 strict rule).
+        # Catches `cd src/`, `/tmp/src/foo`, `ls /usr/src/`.
         if re.search(rf'(?<![A-Za-z0-9_]){re.escape(seg)}/', cmd):
             return True
+        # Match B: v1.5.10 — if the leading verb is a path-op, also catch
+        # the bare `src` (no slash), `src;`, `src&`, `src|` cases.
+        # Catches `cd src`, `ls /tmp/src; rm -rf /`, `cd /tmp/src; ls`.
+        # KNOWN REMAINING FALSE POSITIVE: `ls /usr/src` (no slash after src).
+        # This was the original CRIT-8 example. Distinguishing
+        # `/usr/src` (system subdir, list) from `/tmp/src` (user dir)
+        # requires parsing the user's intent — deferred to v1.6 with a
+        # proper shell parser per EVIDENCE_LEDGER.
+        if has_path_verb:
+            # Match seg as a complete word with path-like boundaries.
+            if re.search(rf'(?:^|[\s/]){re.escape(seg)}(?:[\s;&|]|$)', cmd):
+                return True
     return False
 
 

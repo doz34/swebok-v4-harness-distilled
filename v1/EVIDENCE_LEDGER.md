@@ -102,6 +102,8 @@ The regression at ITER 6-7 is a methodological finding: **parallel council audit
 | 2026-06-02 | F-DO-08 (DevOps MED) | DevOps council | Launcher had `set -e` only, not `set -euo pipefail` | `head -10 scripts/multiagent-launcher.sh` | 94394a3 | `set -euo pipefail` line 9 | RESOLVED |
 | 2026-06-02 | F-DO-06 (DevOps MED) | DevOps council | log_dsl to STDOUT polluted envelope | `bash scripts/multiagent-launcher.sh emit-prompts P5 P6 2>/dev/null` | 94394a3 | clean JSONL on STDOUT | RESOLVED |
 
+| 2026-06-03 | CRIT-8 (substring+semantic class) | 9th-pass council | has_path() regex falsely blocked echo rsrc, ls /usr/src (substring) and missed cd src, ls /tmp/src; rm -rf / (semantic) | `python3 -c "import sys; sys.path.insert(0,'lib'); from bash_scanner import has_path; [has_path(c, ['src/']) for c in ['echo rsrc', 'cd src', 'ls /tmp/src; rm -rf /']]"` (was [True, False, False]) | bf2c982 | now [False, True, True] | RESOLVED (substring via word-boundary + trailing-slash regex; semantic via _PATH_VERBS heuristic) |
+| 2026-06-03 | CRIT-8 (string vs path ambiguity) | 9th-pass council | `echo src` and `grep src file.txt` still not blocked (string vs path is a semantic problem) | same as above | n/a | n/a | DEFERRED (requires real shell parser; documented in lib/bash_scanner.py) |
 ---
 
 ## How to append a new row

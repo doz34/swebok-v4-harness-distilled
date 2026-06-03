@@ -1,8 +1,8 @@
 SWEBOK v4 HARNESS DOCUMENTATION
 ================================
-Version: 1.5.1
-Date: 2026-06-02
-Status: PRODUCTION-READY (v1.5.1 = PROOF-CLOSE; v1.5.0 = PR-B; v1.0 release = internal 1.4.1)
+Version: 1.5.10
+Date: 2026-06-03
+Status: PRODUCTION-READY (v1.5.10 = CRIT-8 close-out; see CHANGELOG for v1.5.2..v1.5.9)
 
 CHANGELOG:
 ----------

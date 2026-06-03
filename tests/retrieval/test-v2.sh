@@ -233,7 +233,7 @@ print(f'N={n} HAS_SEED={has_seed}')
 
 # === Test 9: Hierarchy builds book tree ===
 test_hierarchy_books() {
-    log_test "Test 9: Hierarchy builds the book > chapter tree"
+    log_test "Test 9: Hierarchy builds book > chapter > section tree (v1.5.10 strengthened)"
     local out
     out=$(python3 -c "
 import sys, json
@@ -243,18 +243,25 @@ from retrieval.chunker import Chunk
 chunks = [Chunk(**json.loads(l)) for l in open('$CHUNKS_FILE') if l.strip()]
 h = Hierarchy()
 h.build(chunks)
-print(len(h.books))
+n_books = len(h.books)
+n_chapters = len(h.chapters)
+n_sections = len(h.sections)
+print(f'BOOKS={n_books} CHAPTERS={n_chapters} SECTIONS={n_sections}')
 ")
-    if [[ "$out" -gt 0 ]]; then
-        log_pass "hierarchy has $out books"
+    local nb nc ns
+    nb=$(echo "$out" | sed -n 's/.*BOOKS=\([0-9]*\).*/\1/p')
+    nc=$(echo "$out" | sed -n 's/.*CHAPTERS=\([0-9]*\).*/\1/p')
+    ns=$(echo "$out" | sed -n 's/.*SECTIONS=\([0-9]*\).*/\1/p')
+    if [[ "$nb" -gt 0 && "$nc" -gt 0 ]]; then
+        log_pass "hierarchy: $nb books, $nc chapters, $ns sections"
     else
-        log_fail "hierarchy has 0 books"
+        log_fail "hierarchy weak: $out"
     fi
 }
 
 # === Test 10: Reranker fuses scores ===
 test_reranker_fusion() {
-    log_test "Test 10: Reranker fuses BM25 + graph + embed scores"
+    log_test "Test 10: Reranker fuses BM25 + graph + embed scores (v1.5.10 strengthened)"
     local out
     out=$(python3 -c "
 import sys, json
@@ -270,12 +277,19 @@ bm25_res = bm25.search('API design', top_k=10)
 graph_chunks = [c for c in chunks if 'API' in c.text][:3]
 r = Reranker()
 results = r.rerank('API design', bm25_results=bm25_res, graph_chunks=graph_chunks, chunks_by_id=chunks_by_id, top_k=3)
-print('OK' if results and results[0].sources else 'EMPTY')
+n = len(results) if results else 0
+sources_n = len(results[0].sources) if results else 0
+score = results[0].score if results else 0
+print(f'N={n} SRC={sources_n} SCORE={score:.4f}')
 ")
-    if [[ "$out" == "OK" ]]; then
-        log_pass "reranker fuses multiple sources"
+    local n src score
+    n=$(echo "$out" | sed -n 's/.*N=\([0-9]*\).*/\1/p')
+    src=$(echo "$out" | sed -n 's/.*SRC=\([0-9]*\).*/\1/p')
+    score=$(echo "$out" | sed -n 's/.*SCORE=\([0-9.]*\).*/\1/p')
+    if [[ "$n" -ge 1 && "$src" -ge 1 ]] && awk "BEGIN { exit !(${score:-0} > 0) }"; then
+        log_pass "reranker: $n results, $src sources, top score $score"
     else
-        log_fail "reranker result: $out"
+        log_fail "reranker weak: $out"
     fi
 }
 
@@ -301,7 +315,7 @@ print(f'{len(d.chunks)} {len(d.summary)} {len(d.glossary)}')
 
 # === Test 12: Full pipeline builds index and loads ===
 test_pipeline_roundtrip() {
-    log_test "Test 12: Pipeline builds and reloads index"
+    log_test "Test 12: Pipeline builds and reloads index (v1.5.10 strengthened)"
     python3 "$HARNESS_DIR/scripts/retrieval/pipeline.py" "$DISTILLED_DIR" --output "$INDEX_FILE" --max-chars 1500 >/dev/null
     local out
     out=$(python3 -c "
@@ -312,12 +326,17 @@ from pathlib import Path
 p = IndexPipeline()
 p.load(Path('$INDEX_FILE'))
 results = p.search('API design', top_k=3)
-print(len(results))
+n = len(results) if results else 0
+top_score = results[0].score if results else 0
+print(f'N={n} SCORE={top_score:.4f}')
 ")
-    if [[ "$out" -gt 0 ]]; then
-        log_pass "pipeline roundtrip: $out results from reloaded index"
+    local n score
+    n=$(echo "$out" | sed -n 's/.*N=\([0-9]*\).*/\1/p')
+    score=$(echo "$out" | sed -n 's/.*SCORE=\([0-9.]*\).*/\1/p')
+    if [[ "$n" -ge 1 ]] && awk "BEGIN { exit !(${score:-0} > 0) }"; then
+        log_pass "pipeline roundtrip: $n results, top score $score"
     else
-        log_fail "pipeline roundtrip failed: $out"
+        log_fail "pipeline roundtrip weak: $out"
     fi
 }
 
