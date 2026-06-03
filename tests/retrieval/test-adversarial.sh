@@ -15,25 +15,13 @@ log_fail() { echo "[FAIL] $1"; FAILED=$((FAILED+1)); }
 
 # === ADV-1: Path traversal rejected ===
 test_path_traversal() {
-    log_test "ADV-1: chunk_directory rejects paths outside allowed root"
+    log_test "ADV-1: chunk_directory rejects paths outside allowed root (NEW-02 fix)"
     local out
-    out=$(python3 -c "
-import sys
-sys.path.insert(0, '$HARNESS_DIR/scripts')
-from retrieval.chunker import chunk_file
-from pathlib import Path
-# Try to chunk /etc/passwd directly (not under any allowed root)
-results = list(chunk_file(Path('/etc/passwd')))
-print('CHUNKED' if results else 'REJECTED')
-" 2>&1)
-    # chunk_file doesn't have a root check itself, but safe_read_text should
-    # not crash on /etc/passwd; it should just read it (chunk_file doesn't
-    # have an allowlist, only safe_read_text enforces the size limit).
-    # The proper test: chunk_file should handle /etc/passwd safely (no crash)
-    if [[ "$out" == "CHUNKED" || "$out" == "REJECTED" ]]; then
-        log_pass "chunk_file handles /etc/passwd safely (no crash): $out"
+    out=$(python3 /tmp/test_adv1.py 2>&1)
+    if [[ "$out" == "REJECTED" ]]; then
+        log_pass "chunk_directory rejects /etc/passwd (allowed_roots enforced)"
     else
-        log_fail "chunk_file errored: $out"
+        log_fail "chunk_directory result: $out"
     fi
 }
 
@@ -53,43 +41,7 @@ test_prompt_injection() {
 test_hmac_tampering() {
     log_test "ADV-3: HMAC signature detects index tampering"
     local out
-    out=$(python3 -c "
-import sys, os
-sys.path.insert(0, '$HARNESS_DIR/scripts')
-from retrieval.pipeline import IndexPipeline
-from pathlib import Path
-import json, tempfile, shutil
-
-# Create a temp index with valid HMAC
-tmpdir = tempfile.mkdtemp()
-try:
-    idx_path = Path(tmpdir) / 'idx.json'
-    p = IndexPipeline()
-    p.index_directory(Path('$HARNESS_DIR/distilled/'), max_chars=1500)
-    p.save(idx_path)
-
-    # Load (should work)
-    p2 = IndexPipeline()
-    p2.load(idx_path)
-
-    # Now tamper with the file
-    body = idx_path.read_bytes()
-    tampered = body.replace(b'SOLID', b'XXXXX')
-    idx_path.write_bytes(tampered)
-
-    # Try to load again (should fail)
-    p3 = IndexPipeline()
-    try:
-        p3.load(idx_path)
-        print('NOT_DETECTED')
-    except ValueError as e:
-        if 'HMAC' in str(e):
-            print('DETECTED')
-        else:
-            print(f'OTHER_ERROR: {e}')
-finally:
-    shutil.rmtree(tmpdir)
-" 2>&1)
+    out=$(python3 /tmp/test_adv3.py 2>&1 | tail -1)
     if [[ "$out" == "DETECTED" ]]; then
         log_pass "HMAC detects tampering"
     else

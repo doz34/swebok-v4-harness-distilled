@@ -179,10 +179,13 @@ def hmac_verify(data: bytes, signature: str, key: bytes) -> bool:
 def get_index_key() -> bytes:
     """
     Get the HMAC key for index signing.
+
+    SECURITY (NEW-01 fix): Refuses to return a hardcoded fallback.
     Priority:
     1. SWEBOK_INDEX_KEY env var (explicit)
     2. .audit_key file in harness dir (matches the state engine convention)
-    3. Generate a random key (warns the user to persist it)
+    3. Generate + persist a random key on first run, chmod 600
+    Raises EnvironmentError if all three fail.
     """
     env_key = os.environ.get("SWEBOK_INDEX_KEY")
     if env_key:
@@ -190,5 +193,16 @@ def get_index_key() -> bytes:
     audit_key = Path(__file__).parent.parent.parent / ".audit_key"
     if audit_key.exists():
         return audit_key.read_bytes()
-    # Last resort: generate ephemeral key
-    return hashlib.sha256(b"swebok-v4-harness-distilled:default").digest()[:32]
+    # Auto-generate a per-install key on first run
+    try:
+        new_key = os.urandom(32)
+        audit_key.write_bytes(new_key)
+        os.chmod(audit_key, 0o600)
+        print(f"[security] Auto-generated HMAC key at {audit_key} (chmod 600). "
+              f"Set SWEBOK_INDEX_KEY to override.", file=__import__("sys").stderr)
+        return new_key
+    except OSError as e:
+        raise EnvironmentError(
+            f"Cannot persist HMAC key to {audit_key}: {e}. "
+            f"Set SWEBOK_INDEX_KEY env var to override."
+        )

@@ -34,7 +34,7 @@ from typing import Iterator
 
 # Allow standalone import of security helpers
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from retrieval.security import safe_read_text, MAX_FILE_BYTES  # noqa: E402
+from retrieval.security import safe_read_text, MAX_FILE_BYTES, is_within_allowed  # noqa: E402
 
 
 @dataclass
@@ -187,16 +187,24 @@ def _split_oversized(text: str, max_chars: int = 1500, base_line: int = 0) -> It
         yield (current_start_line, current_start_line + current.count("\n"), current)
 
 
-def chunk_file(path: Path, max_chars: int = 1500, allow_symlinks: bool = False) -> Iterator[Chunk]:
+def chunk_file(path: Path, max_chars: int = 1500, allow_symlinks: bool = False, allowed_roots: set = None) -> Iterator[Chunk]:
     """
     Chunk a single file into logical units with full metadata.
-    Yields Chunk objects. Defaults: rejects symlinks, enforces max file size.
+    Yields Chunk objects.
+
+    SECURITY (NEW-02 fix): if allowed_roots is set, files outside any
+    allowed root are rejected. Defaults: rejects symlinks, enforces
+    max file size.
     """
     if not path.exists():
         return
     if path.is_symlink() and not allow_symlinks:
         # Reject symlinks by default (symlink attacks)
         return
+    # Path allowlist check (NEW-02 fix)
+    if allowed_roots is not None:
+        if not is_within_allowed(path, allowed_roots):
+            return
     try:
         text = safe_read_text(path, max_bytes=MAX_FILE_BYTES)
     except (FileNotFoundError, ValueError, OSError):
@@ -269,16 +277,26 @@ def chunk_directory(
     directory: Path,
     extensions: tuple = (".md", ".markdown", ".txt"),
     max_chars: int = 1500,
+    allow_symlinks: bool = False,
+    enforce_root: bool = True,
 ) -> Iterator[Chunk]:
     """
     Chunk all files in a directory recursively.
     Yields Chunk objects across all files.
+
+    SECURITY (NEW-02 fix): by default enforces that all files are
+    under the directory (the call-site root). Symlinks are rejected.
     """
     if not directory.exists():
         return
+    # Set the allowlist to the directory (NEW-02 fix)
+    allowed_roots = {directory.resolve()} if enforce_root else None
     for path in sorted(directory.rglob("*")):
         if path.is_file() and path.suffix.lower() in extensions:
-            yield from chunk_file(path, max_chars=max_chars)
+            yield from chunk_file(
+                path, max_chars=max_chars, allow_symlinks=allow_symlinks,
+                allowed_roots=allowed_roots,
+            )
 
 
 def chunks_to_jsonl(chunks: Iterator[Chunk], output_path: Path) -> int:
