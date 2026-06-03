@@ -30,6 +30,7 @@ from retrieval.embedder import Embedder
 from retrieval.graph import KnowledgeGraph
 from retrieval.hierarchy import Hierarchy
 from retrieval.reranker import RankedResult, Reranker
+from retrieval.security import hmac_sign, hmac_verify, get_index_key, parse_chunk_jsonl  # noqa: E402
 
 
 class IndexPipeline:
@@ -133,10 +134,10 @@ class IndexPipeline:
         return results
 
     def save(self, output_path: Path) -> None:
-        """Persist the index. Embeddings NOT saved (recomputed at load)."""
+        """Persist the index with HMAC signature. Embeddings NOT saved (recomputed at load)."""
         output_path.parent.mkdir(parents=True, exist_ok=True)
         data = {
-            "version": "1.0",
+            "version": "2.0",
             "n_chunks": len(self.chunks),
             "chunks": [c.to_dict() for c in self.chunks],
             "bm25": {
@@ -153,16 +154,48 @@ class IndexPipeline:
                 "chapters": {n: {"chunk_count": c.chunk_count, "total_chars": c.total_chars, "parent": c.parent} for n, c in self.hierarchy.chapters.items()},
             },
         }
-        with open(output_path, "w") as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
+        # Atomic write: write to .tmp, then rename
+        tmp_path = output_path.with_suffix(output_path.suffix + ".tmp")
+        body = json.dumps(data, ensure_ascii=False, indent=2).encode()
+        # Sign with HMAC
+        key = get_index_key()
+        sig = hmac_sign(body, key)
+        with open(tmp_path, "wb") as f:
+            f.write(body)
+        # Sidecar with signature
+        sig_path = output_path.with_suffix(output_path.suffix + ".sig")
+        with open(sig_path, "w") as f:
+            f.write(sig)
+        # Atomic rename
+        os.replace(tmp_path, output_path)
 
     def load(self, index_path: Path) -> None:
-        """Load an index from disk. Recomputes embeddings (cheaper than storing)."""
-        with open(index_path) as f:
-            data = json.load(f)
-        # Reconstruct chunks
-        self.chunks = [Chunk(**c) for c in data["chunks"]]
-        # Re-build BM25 (inverted index from stored vocab; rest is computed)
+        """Load an index from disk. Verifies HMAC signature. Recomputes embeddings."""
+        sig_path = index_path.with_suffix(index_path.suffix + ".sig")
+        with open(index_path, "rb") as f:
+            body = f.read()
+        # Verify HMAC if sidecar present
+        if sig_path.exists():
+            with open(sig_path) as f:
+                sig = f.read().strip()
+            key = get_index_key()
+            if not hmac_verify(body, sig, key):
+                raise ValueError(
+                    f"HMAC signature mismatch for {index_path}. "
+                    f"Index may be tampered. Re-run index_directory."
+                )
+        else:
+            print(f"[pipeline] WARNING: no signature file at {sig_path}, skipping HMAC verify", file=__import__("sys").stderr)
+        data = json.loads(body)
+        # Defensively parse chunks via parse_chunk_jsonl
+        chunks_parsed = []
+        for c in data["chunks"]:
+            parsed = parse_chunk_jsonl(json.dumps(c))
+            if parsed is None:
+                continue  # skip malformed
+            chunks_parsed.append(Chunk(**parsed))
+        self.chunks = chunks_parsed
+        # Re-build BM25
         self.bm25.build(self.chunks)
         # Re-build graph
         self.kg.build(self.chunks)

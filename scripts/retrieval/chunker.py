@@ -26,9 +26,15 @@ Usage:
 
 import hashlib
 import re
+import sys
+import os
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Iterator
+
+# Allow standalone import of security helpers
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from retrieval.security import safe_read_text, MAX_FILE_BYTES  # noqa: E402
 
 
 @dataclass
@@ -181,16 +187,19 @@ def _split_oversized(text: str, max_chars: int = 1500, base_line: int = 0) -> It
         yield (current_start_line, current_start_line + current.count("\n"), current)
 
 
-def chunk_file(path: Path, max_chars: int = 1500) -> Iterator[Chunk]:
+def chunk_file(path: Path, max_chars: int = 1500, allow_symlinks: bool = False) -> Iterator[Chunk]:
     """
     Chunk a single file into logical units with full metadata.
-    Yields Chunk objects.
+    Yields Chunk objects. Defaults: rejects symlinks, enforces max file size.
     """
     if not path.exists():
         return
+    if path.is_symlink() and not allow_symlinks:
+        # Reject symlinks by default (symlink attacks)
+        return
     try:
-        text = path.read_text(encoding="utf-8", errors="replace")
-    except Exception:
+        text = safe_read_text(path, max_bytes=MAX_FILE_BYTES)
+    except (FileNotFoundError, ValueError, OSError):
         return
     book = _book_from_path(path)
     char_offset = 0
