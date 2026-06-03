@@ -96,13 +96,15 @@ _BACKTICK_FENCE_RE = re.compile(r"```")
 def sanitize_for_prompt(text: str, max_length: int = 8000) -> str:
     """
     Sanitize text for inclusion in an LLM prompt.
-    - Escape triple backticks (defeats prompt-injection fence escapes)
+    - Neutralize triple-backtick fences (defeats prompt-injection escape attempts)
     - Truncate to max_length
     - Strip control characters (except newline/tab)
     """
-    # Escape backtick fences: replace ``` with ` + ` + ` (3 single backticks → 3 pairs of single backticks)
-    # Actually simpler: replace with '```' (escaped form)
-    text = text.replace("```", "```")
+    # Neutralize backtick fences: replace each triple-backtick with three
+    # zero-width-space-separated backticks, which renders the same in
+    # the LLM context but cannot be parsed as a markdown code-fence
+    # delimiter (zero-width space is a zero-width joiner in the U+200B-U+200D range)
+    text = text.replace("```", "`​`​`")
     # Truncate
     if len(text) > max_length:
         text = text[:max_length] + "\n[... truncated ...]"

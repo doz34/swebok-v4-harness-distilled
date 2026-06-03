@@ -131,7 +131,9 @@ class IndexPipeline:
                             break
         # Embeddings: cosine similarity (with cache to avoid re-embedding per query)
         embed_sims = {}
-        if view in ("all",) and self.embeddings:
+        # Always populate the query embedding cache (DEV-01 fix: amortize embedding)
+        # even if self.embeddings is empty (e.g. after load()).
+        if view in ("all",):
             query_emb = self._get_query_embedding(query)
             from retrieval.embedder import cosine_similarity
             for i, emb in enumerate(self.embeddings):
