@@ -1,0 +1,13 @@
+# SWEBOK v4 Harness V2 — Base dependencies
+# Pure stdlib by default (zero install for the deterministic L0 path).
+
+# Optional: real LLM providers (install only what you need)
+# pip install openai          # for OpenAIProvider
+# pip install anthropic       # for AnthropicProvider
+# pip install sentence-transformers  # for SentenceTransformerProvider
+
+# Development / testing
+# pip install pytest          # for unit tests
+# pip install hypothesis      # for property-based tests
+# pip install ruff            # for linting
+# pip install bandit          # for security linting

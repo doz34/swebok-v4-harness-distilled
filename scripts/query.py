@@ -177,7 +177,37 @@ def main():
     parser.add_argument("--dossier", action="store_true", help="Build a working dossier (for LLM prompt)")
     parser.add_argument("--top-k", type=int, default=5)
     parser.add_argument("--stats", action="store_true", help="Show router stats")
+    parser.add_argument("--health", action="store_true", help="JSON health probe (for k8s/Docker)")
     args = parser.parse_args()
+    if args.health:
+        import json as _json
+        from pathlib import Path as _P
+        ck = CompiledKnowledge()
+        idx_path = INDEX_FILE
+        idx_exists = idx_path.exists()
+        idx_chunks = 0
+        if idx_exists:
+            try:
+                r = Router()
+                r._load_l1()
+                if r.l1 and r.l1 is not False:
+                    idx_chunks = len(r.l1.chunks)
+            except Exception as e:
+                idx_exists = f"error: {e}"
+        report = {
+            "status": "ok" if (ck.principles and (idx_exists is True or idx_exists != "error")) else "degraded",
+            "l0_principles": len(ck.principles),
+            "l0_antipatterns": len(ck.antipatterns),
+            "l0_decision_trees": len(ck.decision_trees),
+            "l0_recipes": len(ck.recipes),
+            "l1_index_present": idx_exists is True,
+            "l1_index_path": str(idx_path),
+            "l1_index_chunks": idx_chunks,
+            "provider": os.environ.get("SWEBOK_PROVIDER", "deterministic"),
+            "version": "2.0.0",
+        }
+        print(_json.dumps(report, indent=2))
+        return 0 if report["status"] == "ok" else 1
     if args.stats:
         ck = CompiledKnowledge()
         print("L0 stats:", json.dumps(ck.stats(), indent=2))
