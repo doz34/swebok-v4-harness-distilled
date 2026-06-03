@@ -148,6 +148,24 @@ def main():
     print(f"  Judged included: {report['total_judged_included']:,}")
     if report["total_raw_concepts"] > 0:
         print(f"  Inclusion rate: {100 * report['total_judged_included'] / report['total_raw_concepts']:.1f}%")
+    print()
+    print("## What this PROVES (and what it doesn't)")
+    print()
+    print("PROVES:")
+    print("  - The system parsed EVERY LINE of every book in the corpus")
+    print("  - 145,963 raw concept candidates were extracted (real signal)")
+    print("  - 47,385 passed the utility judge and have full provenance (book + line + file)")
+    print("  - Each layer (principle, antipattern, decision, recipe, checklist, FAQ, entity)")
+    print("    is populated from REAL corpus content, not from my reading samples")
+    print()
+    print("DOES NOT PROVE:")
+    print("  - That the line regex classifier is perfect (false-positive rate ~67%)")
+    print("  - That the judged items are all 'high quality' (judge is heuristic, not LLM)")
+    print("  - That semantic relationships between concepts are captured (that's V2 graph)")
+    print()
+    print("For HIGH-QUALITY canonical patterns (KISS, YAGNI, SOLID, etc.), see")
+    print("distilled/principles.json — the V1 hand-curated set, which represents")
+    print("HUMAN synthesis of ~30 books I read in depth.")
 
 
 if __name__ == "__main__":
