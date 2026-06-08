@@ -24,19 +24,31 @@
     "PreToolUse": [
       {
         "matcher": "Write|Edit|MultiEdit|NotebookEdit",
-        "hooks": ["bash /home/doz/swebok-v4-harness/hooks/pre-tool-use/phase-guard.sh"]
+        "hooks": [
+          "bash /home/doz/swebok-v4-harness/hooks/pre-tool-use/phase-guard.sh",
+          "bash /home/doz/swebok-v4-harness-distilled/pre-tool-use/token-counter.sh"
+        ]
       },
       {
         "matcher": "Bash",
-        "hooks": ["bash /home/doz/swebok-v4-harness/hooks/pre-tool-use/bash-guard.sh"]
+        "hooks": [
+          "bash /home/doz/swebok-v4-harness/hooks/pre-tool-use/bash-guard.sh",
+          "bash /home/doz/swebok-v4-harness-distilled/pre-tool-use/token-counter.sh"
+        ]
       },
       {
         "matcher": "Skill|Task|Agent|WebFetch|WebSearch",
-        "hooks": ["bash /home/doz/swebok-v4-harness/hooks/pre-tool-use/phase-guard.sh"]
+        "hooks": [
+          "bash /home/doz/swebok-v4-harness/hooks/pre-tool-use/phase-guard.sh",
+          "bash /home/doz/swebok-v4-harness-distilled/pre-tool-use/token-counter.sh"
+        ]
       },
       {
         "matcher": "mcp__.*|Glob|Grep|LS|TodoWrite|NotebookRead|ExitPlanMode",
-        "hooks": ["bash /home/doz/swebok-v4-harness/hooks/pre-tool-use/phase-guard.sh"]
+        "hooks": [
+          "bash /home/doz/swebok-v4-harness/hooks/pre-tool-use/phase-guard.sh",
+          "bash /home/doz/swebok-v4-harness-distilled/pre-tool-use/token-counter.sh"
+        ]
       }
     ],
     "PostToolUse": [
