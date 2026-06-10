@@ -73,9 +73,11 @@ fi
 
 # 3. Test suite runner — fails on any [FAIL] line
 run_test_suite() {
-    local name="$1" script="$2" logfile="/tmp/swebok_precommit_${name}.log"
-    echo "[pre-commit]   → $name ($script)"
-    if ! bash "$script" > "$logfile" 2>&1; then
+    local name="$1"; shift
+    local script="$1"; shift
+    local logfile="/tmp/swebok_precommit_${name}.log"
+    echo "[pre-commit]   → $name ($script $*)"
+    if ! bash "$script" "$@" > "$logfile" 2>&1; then
         echo "[pre-commit] FAIL: $name exited non-zero"
         grep -E '^\[FAIL\]' "$logfile" | head -10
         exit 1
@@ -93,7 +95,7 @@ run_test_suite() {
 run_test_suite "distilled"        "tests/distilled-test.sh"
 run_test_suite "retrieval-v2"     "tests/retrieval/test-v2.sh"
 run_test_suite "adversarial"      "tests/retrieval/test-adversarial.sh"
-run_test_suite "adv-loop"         "bin/adv-loop test"
+run_test_suite "adv-loop"         "bin/adv-loop" "test"
 run_test_suite "adv-properties"   "tests/adv-loop/test-properties.sh"
 
 # Health tests (Python) — run after the bash suites
@@ -104,7 +106,7 @@ if ! python3 tests/test_health.py > /tmp/swebok_precommit_health_py.log 2>&1; th
 fi
 
 # 9. Health check — fail on BROKEN (exit 2). DEGRADED (exit 1) is a soft pass.
-if bash "$HARNESS_DIR/scripts/health-check.sh" > /tmp/swebok_precommit_health.log 2>&1; then
+if HARNESS_DIR="$HARNESS_DIR" bash "$HARNESS_DIR/health-check.sh" > /tmp/swebok_precommit_health.log 2>&1; then
     hc_exit=0
 else
     hc_exit=$?

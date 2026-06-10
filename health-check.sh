@@ -9,8 +9,8 @@
 
 set -euo pipefail
 
-HARNESS_DIR="${HARNESS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-STATE_ENGINE="$HARNESS_DIR/scripts/lib/state_engine.py"
+HARNESS_DIR="${HARNESS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
+STATE_ENGINE="$HARNESS_DIR/lib/state_engine.py"
 
 if [[ ! -d "$HARNESS_DIR" ]] || [[ ! -f "$STATE_ENGINE" ]]; then
     echo "BROKEN: HARNESS_DIR=$HARNESS_DIR invalid"

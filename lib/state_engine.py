@@ -1064,6 +1064,16 @@ def reset_all_circuits(phase=None):
         return False
 
 
+# ===== Sibling-module import helper =====
+# Ensure this file's directory (lib/) is on sys.path so that sibling modules
+# like state_engine_logging / state_engine_prune are found regardless of
+# whether the caller set PYTHONPATH, ran us directly, or imported as
+# lib.state_engine.
+_this_dir = str(_THIS_FILE.parent)
+if _this_dir not in sys.path:
+    sys.path.insert(0, _this_dir)
+
+
 # ===== Logging (extracted to state_engine_logging.py) =====
 from state_engine_logging import (  # noqa: F401  (re-export)
     log_tool_call, log_event, query_log_events,
