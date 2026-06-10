@@ -30,6 +30,7 @@ Usage:
   adv-loop history <phase> [N]                      Steering: show last N runs
   adv-loop ack <fingerprint>                        Steering: mark pattern as acknowledged
   adv-loop clear [phase]                            Steering: clear history (or one phase)
+  adv-loop corpus [path]                            Corpus: run adversarial payload regression tests
   adv-loop test                                     Run self-tests
   adv-loop help                                     Show this help
 
@@ -48,6 +49,11 @@ Steering Loop (S3):
   adv-loop ack a3f9b2c1       # mark a pattern as fixed
   adv-loop clear 3            # clear phase 3 history only
   adv-loop clear              # clear ALL history
+
+Corpus (S4):
+  adv-loop corpus                              # run the default corpus (60 payloads)
+  adv-loop corpus specs/adversarial-corpus/    # run a custom corpus dir
+  adv-loop corpus path/to/corpus-v1.json       # run a specific file
 
 Examples:
   adv-loop 0
@@ -389,7 +395,125 @@ print(f"✓ Test 20: live adv-loop run auto-logs to .swebok_steering_state.db (n
 if _os.path.exists('.swebok_steering_state.db'):
     _os.unlink('.swebok_steering_state.db')
 
-print("\nAll self-tests passed ✅ (5 S0/S1 + 7 S2 council + 8 S3 steering = 20 total)")
+# === S4 corpus tests ===
+
+from corpus import (
+    load_corpus, run_corpus, run_case, CorpusCase, ExpectedFinding,
+    report_to_dsl, report_to_text,
+)
+
+# Test 21: corpus file is well-formed and has 50+ cases
+cases = load_corpus('specs/adversarial-corpus/corpus-v1.json')
+assert len(cases) >= 50, f"Test 21 failed: only {len(cases)} cases, need 50+"
+phases_covered = set(c.phase for c in cases)
+assert len(phases_covered) == 11, f"Test 21 failed: phases covered = {phases_covered}"
+cats_covered = set(c.category for c in cases)
+assert len(cats_covered) >= 5, f"Test 21 failed: only {len(cats_covered)} categories"
+print(f"✓ Test 21: corpus = {len(cases)} cases, {len(phases_covered)}/11 phases, "
+      f"{len(cats_covered)} categories")
+
+# Test 22: ExpectedFinding.matches() works for each severity
+for sev, expected_min in [("LOW", "LOW"), ("MED", "MED"), ("HIGH", "HIGH"), ("CRIT", "CRIT")]:
+    ef = ExpectedFinding(severity_min=expected_min, category_contains="x")
+    assert ef.matches({"severity": sev, "category": "x"})
+    if expected_min != "LOW":
+        assert not ef.matches({"severity": "LOW", "category": "x"})
+print("✓ Test 22: ExpectedFinding.matches() respects severity rank")
+
+# Test 23: run_case detects vague language in work content
+case = CorpusCase(
+    id="test-vague",
+    name="test vague",
+    category="vague_language",
+    phase=0,
+    work_content="We should make this fast. Users might be happy.",
+    expected_findings=[ExpectedFinding(severity_min="MED", category_contains="spec_vague", count_min=1)],
+)
+result = run_case(case, project_root='.')
+assert result.passed, f"Test 23 failed: {result.details}"
+print(f"✓ Test 23: run_case detects vague work content ({len(result.actual_findings)} findings)")
+
+# Test 24: run_case detects demarcation violation
+case = CorpusCase(
+    id="test-demarcation",
+    name="test demarcation",
+    category="demarcation_violation",
+    phase=0,
+    work_content="Charter includes a feasibility study and ROI analysis and a go-no-go decision.",
+    expected_findings=[ExpectedFinding(severity_min="HIGH", category_contains="demarcation")],
+)
+result = run_case(case, project_root='.')
+assert result.passed, f"Test 24 failed: {result.details}"
+print("✓ Test 24: run_case detects P0→P1 demarcation violation")
+
+# Test 25: run_case fails when expected finding absent
+case = CorpusCase(
+    id="test-negative",
+    name="test negative",
+    category="vague_language",
+    phase=0,
+    work_content="Clean professional requirements without any vague words at all. Specific and measurable.",
+    expected_findings=[ExpectedFinding(severity_min="MED", category_contains="spec_vague", count_min=10)],
+)
+result = run_case(case, project_root='.')
+assert not result.passed, "Test 25 failed: should NOT pass when expectation unmet"
+assert "count_min" in result.details
+print("✓ Test 25: run_case correctly fails when expectation unmet")
+
+# Test 26: report_to_dsl produces well-formed DSL
+fake_report = type('R', (), {
+    'total': 60, 'passed': 58, 'failed': 2,
+    'by_category': {'vague': {'total': 10, 'passed': 10}, 'demarcation': {'total': 12, 'passed': 11}},
+    'failures': [type('F', (), {'case_id': 'x', 'details': 'y'})()],
+    'elapsed_s': 1.5,
+})()
+dsl = report_to_dsl(fake_report)
+assert "corpus:total=60" in dsl
+assert "corpus:passed=58" in dsl
+assert "corpus:failed=2" in dsl
+assert "corpus:by_category=" in dsl
+print("✓ Test 26: report_to_dsl is well-formed (KEY=VALUE;;)")
+
+# Test 27: full corpus run — all 60 cases pass
+import io
+import contextlib
+report = run_corpus('specs/adversarial-corpus/corpus-v1.json', project_root='.')
+assert report.total == 60, f"Test 27 failed: total={report.total}"
+assert report.passed == 60, f"Test 27 failed: {report.failed} cases failed: " + \
+    ", ".join(f.case_id for f in report.failures[:5])
+assert report.failed == 0
+print(f"✓ Test 27: full corpus run = {report.passed}/{report.total} passed "
+      f"({len(report.by_category)} categories all green)")
+
+# Test 28: corpus catches regression — case becomes adversarial with new content
+# If we mutate a passing case to remove the trigger, it should fail
+cases = load_corpus('specs/adversarial-corpus/corpus-v1.json')
+# Take vague-001 and replace its payload with a CLEAN one
+case = next(c for c in cases if c.id == "vague-001")
+clean_case = CorpusCase(
+    id=case.id, name=case.name, category=case.category, phase=case.phase,
+    work_content="The system processes 10,000 transactions per second with 99.95% availability SLA. "
+                 "P95 latency is 200ms measured at the load balancer.",
+    expected_findings=case.expected_findings,
+)
+result = run_case(clean_case, project_root='.')
+# Should fail because the clean content has no vague language
+assert not result.passed, f"Test 28 failed: should NOT pass on clean content"
+print("✓ Test 28: corpus correctly FAILS on clean content (regression detection)")
+
+# Test 29: CLI subcommand works
+import subprocess as _sp
+result = _sp.run(['bash', 'bin/adv-loop', 'corpus'], capture_output=True, text=True, cwd='.')
+assert 'Passed:' in result.stdout, f"Test 29 failed: no 'Passed:' in output"
+assert result.returncode == 0, f"Test 29 failed: exit {result.returncode}"
+# Extract pass count
+import re
+m = re.search(r'Passed: (\d+)', result.stdout)
+n_passed_cli = int(m.group(1)) if m else 0
+assert n_passed_cli == 60, f"Test 29 failed: CLI reports {n_passed_cli} passed"
+print(f"✓ Test 29: bin/adv-loop corpus CLI works ({n_passed_cli}/60 passed)")
+
+print("\nAll self-tests passed ✅ (5 S0/S1 + 7 S2 council + 8 S3 steering + 9 S4 corpus = 29 total)")
 PYEOF
 }
 
@@ -468,6 +592,19 @@ n = clear_history(default_db_path('.'), int('$P_ARG') if '$P_ARG' else None)
 print(f'cleared {n} runs')
 "
     exit 0
+    ;;
+  corpus)
+    CORPUS_ARG="${2:-specs/adversarial-corpus/corpus-v1.json}"
+    if [ -d "$CORPUS_ARG" ]; then
+      # Find first .json in the dir
+      CORPUS_ARG=$(ls "$CORPUS_ARG"/*.json 2>/dev/null | head -1)
+    fi
+    if [ ! -f "$CORPUS_ARG" ]; then
+      echo "corpus file not found: $CORPUS_ARG" >&2
+      exit 1
+    fi
+    PYTHONPATH=lib python3 -m adv-loop.corpus "$CORPUS_ARG"
+    exit $?
     ;;
   *)
     PHASE_ARG="${1:-}"

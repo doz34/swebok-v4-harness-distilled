@@ -13,7 +13,7 @@ S2 (2026-06-10) — Council Bridge:
 - Output: KEY:VALUE;;KEY:VALUE (swebok DSL)
 """
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Tuple
 import sys
 
 # Make adv_loop importable
@@ -68,14 +68,37 @@ def run_phase_adversarial_loop(
 ) -> str:
     """Run the full adversarial loop for a phase.
     Returns swebok DSL output (KEY:VALUE;;KEY:VALUE).
+    """
+    return _run_loop(phase, spec_content, work_content, work_dir,
+                     max_iterations, verbose, council_dsl)[0]
+
+
+def _run_loop(
+    phase: int,
+    spec_content: str,
+    work_content: str = "",
+    work_dir: str = ".",
+    max_iterations: int = 3,
+    verbose: bool = False,
+    council_dsl: str = "",
+) -> Tuple[str, List[AdversarialFinding]]:
+    """Internal: returns (dsl_string, structured_findings) for downstream use.
 
     Algorithm:
     1. Run feedforward controls (guides) — pre-check spec & work
     2. Run feedback sensors (sensors) — post-check content
     3. Aggregate findings, apply stop conditions
     4. (Optional) If council_dsl is provided, integrate council verdict
-    5. If stop condition met, exit; else iterate (with bounded pressure)
+    5. Emit DSL + return findings for the corpus / steering
+
+    The S4 corpus needs structured findings (with category and message),
+    which the DSL output cannot carry (lossy by design).
     """
+    if phase not in PHASE_FEEDFORWARDS:
+        return (
+            f"adv_loop:error=unknown_phase_{phase};;adv_loop:verdict=🔴",
+            [],
+        )
     if phase not in PHASE_FEEDFORWARDS:
         return f"adv_loop:error=unknown_phase_{phase};;adv_loop:verdict=🔴"
 
@@ -93,7 +116,13 @@ def run_phase_adversarial_loop(
             print(f"[feedforward] {r.severity}: {r.control_name} — {r.message}")
 
     # 2. Feedback (sensors) — post-phase
+    # S4 fix: lint BOTH spec_content and work_content. Previously only the
+    # spec was checked — a work artefact full of "should/maybe/TBD" was
+    # never caught. The corpus exposed this gap.
     fb_findings = run_all_feedback_sensors(phase, spec_content)
+    if work_content:
+        work_findings = run_all_feedback_sensors(phase, work_content)
+        fb_findings.extend(work_findings)
     fb_severity = severity_from_findings(fb_findings)
     if verbose:
         for f in fb_findings:
@@ -115,14 +144,15 @@ def run_phase_adversarial_loop(
             fix_suggestion=f.fix_suggestion,
         ))
 
-    # 4. Add findings to stop state and check stop
+    # 4. S4 fix: add all findings from this pass, then check stop ONCE
+    # (per pass). Previously the loop broke on the first stop reason during
+    # the pass, which truncated findings before the corpus / steering could
+    # see them. Now: 1 run_phase_adversarial_loop = 1 pass = all findings.
+    # Stop applies between passes (handled at call site, not here).
     for finding in all_findings:
         stop.add_finding(finding)
-        stop_reason = stop.check_stop()
-        if stop_reason:
-            if verbose:
-                print(f"[stop] {stop_reason}")
-            break
+    if verbose and all_findings:
+        print(f"[pass] collected {len(all_findings)} findings")
 
     # 5. Build base DSL
     base_dsl = stop.to_dsl()
@@ -189,7 +219,7 @@ def run_phase_adversarial_loop(
     if steering_fragment:
         out += ";;" + steering_fragment
     out += f";;adv_loop:verdict={final_verdict}"
-    return out
+    return out, all_findings
 
 
 def emit_council_envelope_and_signal(phase: int, spec_path: str, work_path: str = "") -> str:

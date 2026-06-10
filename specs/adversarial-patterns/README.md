@@ -140,8 +140,50 @@ Per Fowler : *"the human's job is to steer the agent by iterating on the harness
 | **S1** | 11 patterns complets (un par phase) | ✅ Done (2026-06-10) |
 | **S2** | Inferential checks (LLM-judge via Council Bridge) | ✅ Done (2026-06-10) |
 | **S3** | Steering loop persistence (memory blocks) | ✅ Done (2026-06-10) |
-| **S4** | Adversarial corpus (50+ attack payloads) | 2 jours |
+| **S4** | Adversarial corpus (50+ attack payloads) | ✅ Done (2026-06-10) |
 | **S5** | Property-based tests (4 propriétés par phase) | 2 jours |
+
+## 10.3. Adversarial corpus (S4) — usage
+
+```bash
+# Run the default corpus (60 payloads, 9 categories, 11 phases)
+bash bin/adv-loop corpus
+# → Total: 60  Passed: 60  Failed: 0
+
+# Run a custom corpus
+bash bin/adv-loop corpus specs/adversarial-corpus/my-corpus.json
+bash bin/adv-loop corpus path/to/corpus-dir/   # first .json in dir
+```
+
+**Architecture :**
+- `specs/adversarial-corpus/corpus-v1.json` : 60 payloads structurés
+- `lib/adv-loop/corpus.py` : loader + matcher + runner + reporter
+- Schéma par case : `{id, name, category, phase, work_content|spec_content, expected_findings: [...]}`
+- Expected finding : `{severity_min, category_contains, message_contains, count_min}`
+
+**Catégories (60 cas, 2026-06-10) :**
+- vague_language (14) : should/maybe/fast/TBD/etc.
+- demarcation_violation (12) : phase N mentions keywords of phase N±1
+- antipattern (5) : TODO/FIXME/console.log/print
+- missing_section (5) : Statut/Mission/Entry/Exit manquants
+- traceability_gap (5) : P3 sans P2, P6 sans P2 AC, etc.
+- nfr_gap (5) : srs sans perf/sec/scalability
+- compliance_gap (4) : RGPD/consent/ownership manquants
+- council_injection (5) : prompt-injection dans spec/work
+- edge_case (5) : empty, unicode, 10k chars, control chars
+
+**DSL output (corpus) :**
+- `corpus:total=60`, `corpus:passed=N`, `corpus:failed=N`
+- `corpus:by_category=<cat1>:p1/t1;...` (per-category pass rate)
+- `corpus:missed=<case_id>:<details>;...` (first 5 failures)
+- `corpus:elapsed_s=1.7`
+
+**Bugs trouvés par le corpus pendant S4 :**
+1. **Orchestrateur ne linter que le spec, pas le work** — un artefact de travail plein de "should/maybe" n'était jamais détecté. Fix : `run_all_feedback_sensors` appelé sur les DEUX.
+2. **Stop condition tronquait les findings pendant la passe** — `for f in all_findings: stop.check_stop()` brisait à la 1ère raison, perdant les findings suivants. Fix : ajouter tous les findings, puis check stop UNE FOIS par passe.
+3. **DSL trop lossy pour le corpus** — ne portait que les counts (findings_med=3), pas les catégories. Fix : `_run_loop()` retourne maintenant `(dsl, structured_findings)`.
+
+**Bénéfice :** le corpus est un harnais de régression pour le harnais. Si un payload cesse de produire le finding attendu, soit le payload n'est plus adversarial, soit le check est cassé. Either way, le mainteneur le voit immédiatement.
 
 ## 10.2. Steering loop (S3) — usage
 
@@ -235,6 +277,6 @@ bash bin/adv-loop 5 --verify-result /tmp/adv-loop-council-result.json
 
 ---
 
-> **Statut** : v1.2 (S3 complete) — 11 patterns + Council Bridge + Steering loop persistence, 20/20 self-tests
+> **Statut** : v1.3 (S4 complete) — 11 patterns + Council Bridge + Steering loop + 60-payload corpus, 29/29 self-tests
 > **Auteur** : swebok maintainer + Claude (adversarial planning mode)
 > **Date** : 2026-06-10
