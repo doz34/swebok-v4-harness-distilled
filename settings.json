@@ -26,7 +26,8 @@
         "matcher": "Write|Edit|MultiEdit|NotebookEdit",
         "hooks": [
           "bash /home/doz/swebok-v4-harness/hooks/pre-tool-use/phase-guard.sh",
-          "bash /home/doz/swebok-v4-harness-distilled/pre-tool-use/token-counter.sh"
+          "bash /home/doz/swebok-v4-harness-distilled/pre-tool-use/token-counter.sh",
+          "bash /home/doz/swebok-v4-harness-distilled/pre-tool-use/phase-change-detector.sh"
         ]
       },
       {
@@ -54,7 +55,11 @@
     "PostToolUse": [
       {
         "matcher": "Write|Edit|MultiEdit|NotebookEdit",
-        "hooks": ["bash /home/doz/swebok-v4-harness/hooks/post-tool-use/auto-verify.sh"]
+        "hooks": [
+          "bash /home/doz/swebok-v4-harness/hooks/post-tool-use/auto-verify.sh",
+          "bash /home/doz/swebok-v4-harness-distilled/post-tool-use/council-scheduler-hook.sh",
+          "bash /home/doz/swebok-v4-harness-distilled/post-tool-use/mini-council-hook.sh"
+        ]
       },
       {
         "matcher": "Skill|Task|Agent|WebFetch|WebSearch",
