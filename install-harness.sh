@@ -29,7 +29,7 @@ echo "=============================="
 echo
 
 # Validate harness root
-for required in CLAUDE.md lib/state_engine.py hooks/pre-tool-use/phase-guard.sh; do
+for required in CLAUDE.md lib/state_engine.py pre-tool-use/phase-guard.sh; do
     if [[ ! -e "$HARNESS_DIR/$required" ]]; then
         echo -e "${RED}Error: harness directory missing $required${NC}"
         echo "Run this script from inside a valid swebok-v4-harness checkout."
@@ -95,19 +95,19 @@ read -r -d '' HARNESS_HOOKS_FRAGMENT <<JSON || true
     "PreToolUse": [
       {
         "matcher": "Write|Edit|MultiEdit|NotebookEdit",
-        "hooks": ["bash $HARNESS_DIR/hooks/pre-tool-use/phase-guard.sh"]
+        "hooks": ["bash $HARNESS_DIR/pre-tool-use/phase-guard.sh"]
       },
       {
         "matcher": "Bash",
-        "hooks": ["bash $HARNESS_DIR/hooks/pre-tool-use/bash-guard.sh"]
+        "hooks": ["bash $HARNESS_DIR/pre-tool-use/bash-guard.sh"]
       },
       {
         "matcher": "Skill|Task|Agent|WebFetch|WebSearch",
-        "hooks": ["bash $HARNESS_DIR/hooks/pre-tool-use/phase-guard.sh"]
+        "hooks": ["bash $HARNESS_DIR/pre-tool-use/phase-guard.sh"]
       },
       {
         "matcher": "mcp__.*|Glob|Grep|LS|TodoWrite|NotebookRead|ExitPlanMode",
-        "hooks": ["bash $HARNESS_DIR/hooks/pre-tool-use/phase-guard.sh"]
+        "hooks": ["bash $HARNESS_DIR/pre-tool-use/phase-guard.sh"]
       }
     ],
     "PostToolUse": [

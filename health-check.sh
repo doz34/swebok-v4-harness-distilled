@@ -44,7 +44,7 @@ fi
 
 # 4. Hook latency probe (single phase-guard call)
 hook_t_start=$(date +%s%N)
-bash "$HARNESS_DIR/hooks/pre-tool-use/phase-guard.sh" < /dev/null >/dev/null 2>&1 || true
+bash "$HARNESS_DIR/pre-tool-use/phase-guard.sh" < /dev/null >/dev/null 2>&1 || true
 hook_t_end=$(date +%s%N)
 hook_ms=$(( (hook_t_end - hook_t_start) / 1000000 ))
 if [[ "$hook_ms" -le 500 ]]; then

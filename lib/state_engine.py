@@ -188,18 +188,22 @@ def _open(write_xact=False, cached=False):
     if cached:
         conn = getattr(_THREAD_LOCAL, "conn", None)
         if conn is None:
-            conn = sqlite3.connect(str(STATE_DB), timeout=30.0)
-            conn.execute("PRAGMA journal_mode=WAL")
-            conn.execute(f"PRAGMA busy_timeout={_BUSY_TIMEOUT_MS}")
-            conn.execute(f"PRAGMA journal_size_limit={_JOURNAL_SIZE_LIMIT}")
+            conn = _open_raw()
             _THREAD_LOCAL.conn = conn
         return conn
+    conn = _open_raw()
+    if write_xact:
+        conn.execute("BEGIN EXCLUSIVE")
+    return conn
+
+
+def _open_raw():
+    """Raw connection with standard PRAGMAs. Used by _open() and sibling modules
+    that need a direct connection (counters, prune) without BEGIN EXCLUSIVE."""
     conn = sqlite3.connect(str(STATE_DB), timeout=30.0)
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute(f"PRAGMA busy_timeout={_BUSY_TIMEOUT_MS}")
     conn.execute(f"PRAGMA journal_size_limit={_JOURNAL_SIZE_LIMIT}")
-    if write_xact:
-        conn.execute("BEGIN EXCLUSIVE")
     return conn
 
 

@@ -26,9 +26,7 @@ def _prune_with_trigger(table, trigger_name, keep_last):
     _init_db restores the trigger via _ensure_triggers on next startup (I1).
     """
     se = _se()
-    conn = sqlite3.connect(str(se.STATE_DB), timeout=30.0)
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute(f"PRAGMA busy_timeout={se._BUSY_TIMEOUT_MS}")
+    conn = se._open_raw()
     try:
         conn.execute(f"DROP TRIGGER IF EXISTS {trigger_name}")
         try:

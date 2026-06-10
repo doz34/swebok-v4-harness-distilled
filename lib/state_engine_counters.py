@@ -34,9 +34,7 @@ def _incr_scalar(key, delta=1, cap=None):
     se._init_db()
     conn = None
     try:
-        conn = sqlite3.connect(str(se.STATE_DB), timeout=60.0)
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute(f"PRAGMA busy_timeout={se._BUSY_TIMEOUT_MS}")
+        conn = se._open_raw()
         if cap is not None:
             sql = (
                 "INSERT INTO state(key, value) VALUES(?, ?) "
@@ -76,9 +74,7 @@ def _incr_nested_phase(key, subkey, phase="P6", delta=1):
     se._init_db()
     conn = None
     try:
-        conn = sqlite3.connect(str(se.STATE_DB), timeout=60.0)
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute(f"PRAGMA busy_timeout={se._BUSY_TIMEOUT_MS}")
+        conn = se._open_raw()
         # Ensure the row exists with a sane default
         conn.execute(
             "INSERT OR IGNORE INTO state(key, value) VALUES(?, ?)",
