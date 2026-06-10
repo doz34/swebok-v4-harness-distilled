@@ -429,7 +429,7 @@ If you find a security issue, please open a GitHub issue with the
   represent what the maintainers consider the consensus of the field.
   Newer practices may not be in there yet. Contributions welcome.
 
-See `SECURITY.md` for the full threat model and `AUDIT_REPORT.md` for
+See `SECURITY.md` for the full threat model and `AUDIT_REPORT-v1.5.3-historic-2026-06-03.md` for
 the quarterly audit findings.
 
 ---
@@ -442,7 +442,7 @@ the quarterly audit findings.
   add a test in `tests/distilled-test.sh`, run the tests.
 - **Add a phase rule:** edit `lib/bash_scanner.py`, add a test in
   `tests/`, run the tests.
-- **Audit the project:** see `AUDIT_REPORT.md` for the methodology.
+- **Audit the project:** see `AUDIT_REPORT-v1.5.3-historic-2026-06-03.md` for the v1.5.3 methodology (historic) or `ANALYSE_INTEGRALE_2026-06-10.md` for the latest 4-consultant adversarial council.
 
 ---
 
