@@ -113,15 +113,15 @@ read -r -d '' HARNESS_HOOKS_FRAGMENT <<JSON || true
     "PostToolUse": [
       {
         "matcher": "Write|Edit|MultiEdit|NotebookEdit",
-        "hooks": ["bash $HARNESS_DIR/hooks/post-tool-use/auto-verify.sh"]
+        "hooks": ["bash $HARNESS_DIR/post-tool-use/auto-verify.sh"]
       },
       {
         "matcher": "Skill|Task|Agent|WebFetch|WebSearch",
-        "hooks": ["bash $HARNESS_DIR/hooks/post-tool-use/auto-verify.sh"]
+        "hooks": ["bash $HARNESS_DIR/post-tool-use/auto-verify.sh"]
       },
       {
         "matcher": "Read",
-        "hooks": ["bash $HARNESS_DIR/hooks/post-tool-use/auto-verify.sh"]
+        "hooks": ["bash $HARNESS_DIR/post-tool-use/auto-verify.sh"]
       }
     ]
   },
