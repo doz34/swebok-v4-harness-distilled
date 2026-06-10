@@ -126,8 +126,9 @@ def check_phase_feedforwards(phase: int, work_dir: str = ".") -> List[Feedforwar
             f"Spec file missing: {config['spec']}",
             "Verify phase spec is at the expected path"
         ))
-    else:
-        results.append(FeedforwardResult("spec_exists", True, "LOW", f"Spec OK: {config['spec']}"))
+    # S3 fix: don't log "Spec OK" as a finding — it's a passing marker,
+    # not a real critique. Logging it pollutes the steering pattern detector
+    # (every run would mark "Spec OK" as a recurring LOW).
 
     # 2. Required deliverables presence
     work_path = Path(work_dir)

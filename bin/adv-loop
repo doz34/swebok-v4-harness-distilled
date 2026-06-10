@@ -26,6 +26,10 @@ Usage:
   adv-loop all [work_dir]                           Run on all 11 phases
   adv-loop council <phase> [work_path]              Council-only (emit envelope, exit 99)
   adv-loop patterns                                 List per-phase pattern scripts
+  adv-loop steer <phase> [threshold]                Steering: show recurring findings + actions
+  adv-loop history <phase> [N]                      Steering: show last N runs
+  adv-loop ack <fingerprint>                        Steering: mark pattern as acknowledged
+  adv-loop clear [phase]                            Steering: clear history (or one phase)
   adv-loop test                                     Run self-tests
   adv-loop help                                     Show this help
 
@@ -37,11 +41,20 @@ Council Bridge (S2):
   3. Dispatcher writes /tmp/adv-loop-council-result.json with red_lines + blue_lines
   4. adv-loop <phase> --verify-result /tmp/adv-loop-council-result.json
 
+Steering Loop (S3):
+  adv-loop steer 3            # show recurring findings for phase 3 (threshold=3)
+  adv-loop steer 3 5          # threshold=5 (more conservative)
+  adv-loop history 3 20       # last 20 runs of phase 3
+  adv-loop ack a3f9b2c1       # mark a pattern as fixed
+  adv-loop clear 3            # clear phase 3 history only
+  adv-loop clear              # clear ALL history
+
 Examples:
   adv-loop 0
   adv-loop 0 --council
   adv-loop 0 --verify-result /tmp/adv-loop-council-result.json
   adv-loop all
+  adv-loop steer 0
   adv-loop test
 
 Output format: swebok DSL (KEY:VALUE;;KEY:VALUE)
@@ -104,7 +117,7 @@ from council import (
     aggregate_council_results, load_verify_result, council_severity_to_dsl,
 )
 from pathlib import Path
-import json, tempfile, os
+import json, tempfile, os, subprocess
 
 # === Existing tests (S0/S1) ===
 # Test 1: clean P0 spec → no HIGH
@@ -221,7 +234,162 @@ assert ';;' in frag
 assert all('=' in piece for piece in frag.split(';;'))
 print("✓ Test 12: council DSL fragment is well-formed (KEY=VALUE;;...)")
 
-print("\nAll self-tests passed ✅ (5 S0/S1 + 7 S2 council)")
+# === S3 steering tests ===
+
+from steering import (
+    log_run, get_history, detect_repeating_findings, acknowledge_pattern,
+    clear_history, fingerprint_finding, get_steering_summary, steering_dsl,
+    FindingRecord, RunRecord, default_db_path,
+)
+
+# Test 13: fingerprint is stable across runs (same finding → same fingerprint)
+fp1 = fingerprint_finding("MED", "feedback:spec_vague", "This is maybe a vague test")
+fp2 = fingerprint_finding("MED", "feedback:spec_vague", "This is maybe a vague test")
+assert fp1 == fp2, f"Test 13 failed: fp1={fp1} != fp2={fp2}"
+fp3 = fingerprint_finding("MED", "feedback:spec_vague", "This is a DIFFERENT vague test")
+assert fp1 != fp3, f"Test 13 failed: different message same fingerprint"
+print("✓ Test 13: fingerprint stable for same finding, distinct for different")
+
+# Test 14: log 3 identical runs, verify pattern detection
+import tempfile
+steer_db = tempfile.NamedTemporaryFile(suffix='.db', delete=False).name
+try:
+    # 3 runs with same MED finding
+    for i in range(3):
+        run = RunRecord(
+            phase=2,
+            spec_path="fake/phase-2-requirements.md",
+            work_path=None,
+            verdict="🟡 MED",
+            findings=[
+                FindingRecord(
+                    severity="MED",
+                    category="feedback:spec_vague",
+                    message="This is maybe a vague test",
+                    line_ref="L42",
+                    fix_suggestion="Use measurable criterion",
+                ),
+            ],
+            council_severity=None,
+            dsl="phase_loop:findings_med=1",
+        )
+        log_run(steer_db, run)
+
+    # After 3 runs, the finding should be a detected pattern
+    patterns = detect_repeating_findings(steer_db, threshold=3)
+    assert len(patterns) >= 1, f"Test 14 failed: no patterns detected, history: {get_history(steer_db, 2)}"
+    p = patterns[0]
+    assert p.severity == "MED" and "vague" in p.category
+    assert p.occurrences >= 3
+    assert p.suggested_action is not None
+    print(f"✓ Test 14: pattern detection after 3 runs (occurrences={p.occurrences}, "
+          f"action suggested)")
+finally:
+    os.unlink(steer_db)
+
+# Test 15: 2 runs do NOT trigger pattern detection (below threshold)
+steer_db = tempfile.NamedTemporaryFile(suffix='.db', delete=False).name
+try:
+    for i in range(2):
+        run = RunRecord(
+            phase=5, spec_path="fake/p5.md", work_path=None, verdict="🟢 OK",
+            findings=[FindingRecord(severity="LOW", category="feedback:spec_vague",
+                                    message="Rare low finding")],
+        )
+        log_run(steer_db, run)
+    patterns = detect_repeating_findings(steer_db, threshold=3)
+    assert len(patterns) == 0, f"Test 15 failed: pattern detected with only 2 runs"
+    print("✓ Test 15: 2 runs do NOT trigger pattern (below threshold=3)")
+finally:
+    os.unlink(steer_db)
+
+# Test 16: acknowledge pattern (mark as fixed)
+steer_db = tempfile.NamedTemporaryFile(suffix='.db', delete=False).name
+try:
+    for i in range(4):
+        log_run(steer_db, RunRecord(
+            phase=3, spec_path="p3.md", work_path=None, verdict="🟠 HIGH",
+            findings=[FindingRecord(severity="HIGH", category="feedback:required_section",
+                                    message="Missing Entry Gate")],
+        ))
+    patterns = detect_repeating_findings(steer_db, threshold=3)
+    assert len(patterns) >= 1
+    fp = patterns[0].fingerprint
+    ok = acknowledge_pattern(steer_db, fp)
+    assert ok, "Test 16 failed: acknowledge_pattern returned False"
+    # Re-fetch and check acknowledged
+    patterns2 = detect_repeating_findings(steer_db, threshold=3)
+    assert patterns2[0].acknowledged, "Test 16 failed: pattern not marked acknowledged"
+    print("✓ Test 16: acknowledge_pattern marks pattern as fixed")
+finally:
+    os.unlink(steer_db)
+
+# Test 17: clear_history removes runs
+steer_db = tempfile.NamedTemporaryFile(suffix='.db', delete=False).name
+try:
+    for i in range(3):
+        log_run(steer_db, RunRecord(
+            phase=7, spec_path="p7.md", work_path=None, verdict="🟢 OK",
+            findings=[FindingRecord(severity="LOW", category="x", message="x")],
+        ))
+    n_before = len(get_history(steer_db, 7))
+    assert n_before == 3
+    n_cleared = clear_history(steer_db, phase=7)
+    assert n_cleared == 3, f"Test 17 failed: cleared {n_cleared}, expected 3"
+    n_after = len(get_history(steer_db, 7))
+    assert n_after == 0
+    print("✓ Test 17: clear_history(phase=N) removes N phase runs only")
+finally:
+    os.unlink(steer_db)
+
+# Test 18: get_steering_summary returns verdict trend
+steer_db = tempfile.NamedTemporaryFile(suffix='.db', delete=False).name
+try:
+    for verdict in ["🟢 OK", "🟢 OK", "🟡 MED", "🟢 OK"]:
+        log_run(steer_db, RunRecord(
+            phase=0, spec_path="p0.md", work_path=None, verdict=verdict,
+            findings=[FindingRecord(severity="LOW", category="x", message="x")],
+        ))
+    s = get_steering_summary(steer_db, 0, threshold=3, last_n=10)
+    assert s["verdict_trend"]["🟢 OK"] == 3
+    assert s["verdict_trend"]["🟡 MED"] == 1
+    assert s["total_runs_in_window"] == 4
+    print(f"✓ Test 18: steering summary = verdict trend {{🟢 OK: 3, 🟡 MED: 1}}")
+finally:
+    os.unlink(steer_db)
+
+# Test 19: steering_dsl produces well-formed fragment
+summary = {
+    "phase": 0, "total_runs_in_window": 5, "verdict_trend": {"🟢 OK": 5},
+    "patterns_count": 2,
+    "patterns": [
+        {"category": "feedback:spec_vague", "sample_message": "vague 1"},
+        {"category": "feedback:required_section", "sample_message": "missing 2"},
+    ],
+}
+dsl = steering_dsl(summary)
+assert "steering:run_total=5" in dsl
+assert "steering:patterns_detected=2" in dsl
+assert "feedback:spec_vague" in dsl
+print("✓ Test 19: steering DSL fragment is well-formed (KEY=VALUE;;...)")
+
+# Test 20: live integration — running adv-loop logs to .swebok_steering_state.db
+import os as _os
+if _os.path.exists('.swebok_steering_state.db'):
+    _os.unlink('.swebok_steering_state.db')
+result = subprocess.run(['bash', 'bin/adv-loop', '0'], capture_output=True, text=True, cwd='.')
+assert 'steering:' in result.stdout, f"Test 20 failed: no steering DSL in output: {result.stdout[:300]}"
+assert _os.path.exists('.swebok_steering_state.db'), "Test 20 failed: steering DB not created"
+import sqlite3 as _sq
+db = _sq.connect('.swebok_steering_state.db')
+n_runs = db.execute("SELECT COUNT(*) FROM runs WHERE phase=0").fetchone()[0]
+db.close()
+assert n_runs >= 1, f"Test 20 failed: phase 0 not in runs (n={n_runs})"
+print(f"✓ Test 20: live adv-loop run auto-logs to .swebok_steering_state.db (n_runs_p0={n_runs})")
+if _os.path.exists('.swebok_steering_state.db'):
+    _os.unlink('.swebok_steering_state.db')
+
+print("\nAll self-tests passed ✅ (5 S0/S1 + 7 S2 council + 8 S3 steering = 20 total)")
 PYEOF
 }
 
@@ -243,6 +411,63 @@ case "${1:-help}" in
     PHASE_ARG="${2:-}"
     WORK_ARG="${3:-}"
     COUNCIL_FLAG=1
+    ;;
+  steer)
+    PHASE_STEER="${2:-0}"
+    THRESHOLD="${3:-3}"
+    python3 -c "
+import sys; sys.path.insert(0, 'lib/adv-loop')
+from steering import get_steering_summary, default_db_path
+s = get_steering_summary(default_db_path('.'), int('$PHASE_STEER'), int('$THRESHOLD'))
+print(f'Phase {s[\"phase\"]}: {s[\"total_runs_in_window\"]} runs, {s[\"patterns_count\"]} recurring patterns')
+print(f'Verdict trend: {s[\"verdict_trend\"]}')
+if s['patterns']:
+    for p in s['patterns']:
+        print(f'  [{p[\"occurrences\"]}x] {p[\"severity\"]} {p[\"category\"]}')
+        print(f'    sample: {p[\"sample_message\"]}')
+        print(f'    action: {p[\"suggested_action\"]}')
+else:
+    print('  (no recurring patterns above threshold)')
+"
+    exit 0
+    ;;
+  history)
+    PHASE_HIST="${2:-0}"
+    N="${3:-10}"
+    python3 -c "
+import sys; sys.path.insert(0, 'lib/adv-loop')
+from steering import get_history, default_db_path
+rows = get_history(default_db_path('.'), int('$PHASE_HIST'), int('$N'))
+for r in rows:
+    print(f'  #{r[\"id\"]} {r[\"ts\"]} | {r[\"verdict\"]} | '
+          f'C={r[\"findings_crit\"]} H={r[\"findings_high\"]} '
+          f'M={r[\"findings_med\"]} L={r[\"findings_low\"]}'
+          + (f' | council={r[\"council_severity\"]}' if r['council_severity'] else ''))
+if not rows:
+    print('  (no history for this phase)')
+"
+    exit 0
+    ;;
+  ack)
+    FP="${2:-}"
+    if [ -z "$FP" ]; then echo "Usage: adv-loop ack <fingerprint>"; exit 1; fi
+    python3 -c "
+import sys; sys.path.insert(0, 'lib/adv-loop')
+from steering import acknowledge_pattern, default_db_path
+ok = acknowledge_pattern(default_db_path('.'), '$FP')
+print('acknowledged' if ok else 'not_found')
+"
+    exit 0
+    ;;
+  clear)
+    P_ARG="${2:-}"
+    python3 -c "
+import sys; sys.path.insert(0, 'lib/adv-loop')
+from steering import clear_history, default_db_path
+n = clear_history(default_db_path('.'), int('$P_ARG') if '$P_ARG' else None)
+print(f'cleared {n} runs')
+"
+    exit 0
     ;;
   *)
     PHASE_ARG="${1:-}"

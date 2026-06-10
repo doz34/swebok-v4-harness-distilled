@@ -139,9 +139,53 @@ Per Fowler : *"the human's job is to steer the agent by iterating on the harness
 | **S0 (maintenant)** | 3 patterns (P0, P5, P7) + self-tests | ✅ Done |
 | **S1** | 11 patterns complets (un par phase) | ✅ Done (2026-06-10) |
 | **S2** | Inferential checks (LLM-judge via Council Bridge) | ✅ Done (2026-06-10) |
-| **S3** | Steering loop persistence (memory blocks) | 1 jour |
+| **S3** | Steering loop persistence (memory blocks) | ✅ Done (2026-06-10) |
 | **S4** | Adversarial corpus (50+ attack payloads) | 2 jours |
 | **S5** | Property-based tests (4 propriétés par phase) | 2 jours |
+
+## 10.2. Steering loop (S3) — usage
+
+```bash
+# 1. Run adv-loop normally — chaque run est auto-loggé dans .swebok_steering_state.db
+bash bin/adv-loop 2
+# → DSL output inclut maintenant un fragment steering:run_total=N etc.
+
+# 2. Inspecter l'historique
+bash bin/adv-loop history 2 10      # 10 derniers runs de la phase 2
+bash bin/adv-loop history 2 50      # 50 derniers
+
+# 3. Détecter les patterns qui se répètent
+bash bin/adv-loop steer 2           # threshold=3 par défaut
+bash bin/adv-loop steer 2 5         # threshold=5 (plus conservateur)
+
+# 4. Marquer un pattern comme fixé (après amélioration du script)
+bash bin/adv-loop ack a3f9b2c1
+
+# 5. Nettoyer l'historique
+bash bin/adv-loop clear 2           # clear phase 2 only
+bash bin/adv-loop clear             # clear ALL
+```
+
+**Architecture :**
+- DB isolée : `.swebok_steering_state.db` (séparée de `.swebok_state.db` pour ne pas toucher au schema principal)
+- Tables : `runs` (résumé par run), `findings` (détail), `patterns` (détection récurrence)
+- Fingerprint : SHA256 tronqué à 16 chars de `severity|category|message[:80]` — stable cross-runs
+- Auto-log : chaque invocation de `adv-loop` insère un run + findings + met à jour les patterns
+
+**DSL fragment steering (KEY=VALUE;;) :**
+- `steering:run_total=N` — nombre de runs dans la fenêtre (last_n=10)
+- `steering:patterns_detected=M` — patterns au-dessus du threshold
+- `steering:recurring_categories=<top3>` — catégories les plus fréquentes
+- `steering:top_finding=<message[:60]>` — pattern le plus récurrent
+
+**Actions suggérées par pattern :**
+- HIGH `feedback:spec_vague` → ajouter un check non-vague-langage au script de pattern
+- HIGH `feedforward:demarcation` → resserrer la liste `PHASE_FEEDFORWARDS` dans feedback.py
+- HIGH `feedback:required_section` → ajouter la section manquante à la spec
+- HIGH `feedback:cross_phase` → ajouter une back-reference vers la phase antérieure
+- LOW `feedback:spec_vague` → tolérable (LOW vague en prose est normal)
+
+**Fix inclus (S3+) :** le check `feedforward:spec_exists` ne log plus "Spec OK" comme un LOW finding (c'était un marqueur de succès, pas un finding — polluait le détecteur de patterns).
 
 ## 10.1. Council Bridge (S2) — usage
 
@@ -191,6 +235,6 @@ bash bin/adv-loop 5 --verify-result /tmp/adv-loop-council-result.json
 
 ---
 
-> **Statut** : v1.1 (S2 complete) — 11 patterns + Council Bridge (4 LLM-judges par phase), 12/12 self-tests, validation end-to-end P5
+> **Statut** : v1.2 (S3 complete) — 11 patterns + Council Bridge + Steering loop persistence, 20/20 self-tests
 > **Auteur** : swebok maintainer + Claude (adversarial planning mode)
 > **Date** : 2026-06-10

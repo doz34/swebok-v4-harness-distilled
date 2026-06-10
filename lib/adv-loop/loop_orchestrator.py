@@ -39,6 +39,14 @@ from council import (
     aggregate_council_results,
     council_severity_to_dsl,
 )
+from steering import (
+    log_run as steering_log_run,
+    get_steering_summary,
+    steering_dsl,
+    FindingRecord,
+    RunRecord,
+    default_db_path as steering_db_path,
+)
 
 
 def severity_from_findings(findings: List) -> str:
@@ -140,8 +148,48 @@ def run_phase_adversarial_loop(
         except Exception as e:
             council_fragment = f"council:error={e};;council:severity=LOW"
 
+    # 7. Steering loop persistence (S3) — log this run, detect patterns
+    steering_fragment = ""
+    try:
+        # Build finding records
+        finding_records = [
+            FindingRecord(
+                severity=f.severity,
+                category=f.category,
+                message=f.message,
+                line_ref=getattr(f, "line_ref", None),
+                fix_suggestion=f.fix_suggestion,
+            )
+            for f in all_findings
+        ] + ([FindingRecord(
+            severity=agg.get("council_severity", "LOW"),
+            category="council",
+            message=f"Council verdict: {agg.get('council_severity', 'LOW')}",
+        )] if council_dsl and "agg" in locals() else [])
+
+        run_rec = RunRecord(
+            phase=phase,
+            spec_path="(in-process)",  # not available here; CLI logs with real path
+            work_path=work_dir,
+            verdict=stop.verdict(),
+            findings=finding_records,
+            council_severity=agg.get("council_severity") if council_dsl and "agg" in locals() else None,
+            dsl=base_dsl,
+        )
+        steering_log_run(steering_db_path(work_dir), run_rec)
+        summary = get_steering_summary(steering_db_path(work_dir), phase, threshold=3, last_n=10)
+        steering_fragment = steering_dsl(summary)
+    except Exception as e:
+        steering_fragment = f"steering:error={e}"
+
     final_verdict = stop.verdict()
-    return base_dsl + (";;" + council_fragment if council_fragment else "") + f";;adv_loop:verdict={final_verdict}"
+    out = base_dsl
+    if council_fragment:
+        out += ";;" + council_fragment
+    if steering_fragment:
+        out += ";;" + steering_fragment
+    out += f";;adv_loop:verdict={final_verdict}"
+    return out
 
 
 def emit_council_envelope_and_signal(phase: int, spec_path: str, work_path: str = "") -> str:
