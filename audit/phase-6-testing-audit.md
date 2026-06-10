@@ -95,7 +95,7 @@
 - [x] C. Acceptation des défauts de basse priorité (dette de test documentée)
 
 ### 3.3 Depuis sources externes
-- **Couverture corpus** : 13% (4 ressources corpus-aligned, 2e phase la moins couverte)
+  - Couverture corpus : **86%** (post-vague 8, 2026-06-09) — cf. §39 du corpus-references/SWEBOK_CORPUS_BOOKS_REFERENCE.md
   - Mac Studio (2 livres : Full Stack Testing Mohan, Introduction to Software Testing)
   - Standards NIST/OWASP (1 : NIST 800-22r1a)
   - Open-access (1 : Lessons Learned in Software Testing Kaner, OWASP ASVS 5.0)

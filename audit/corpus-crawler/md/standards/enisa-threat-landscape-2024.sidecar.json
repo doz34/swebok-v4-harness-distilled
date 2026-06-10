@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/enisa-threat-landscape-2024.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/enisa-threat-landscape-2024.md",
+  "title": "ENISA Threat Landscape 2024 | ENISA",
+  "engine_used": "bs4-handrolled",
+  "char_count": 167,
+  "heading_count": 1,
+  "sha256": "9d613f65a66cd047941ff78262a1d4ecd57ab6acfbad10470000f2aa668d0f6b",
+  "source_url": "https://www.enisa.europa.eu/publications/enisa-threat-landscape-2024",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.795813+00:00"
+}

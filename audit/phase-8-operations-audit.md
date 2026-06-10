@@ -9,6 +9,7 @@
 - Spec existante : `specs/workflows/by-phase/phase-7-operations.md`
 - Date de l'audit : __________
 - Auditeur : mainteneur
+- Couverture corpus : **92%** (post-vague 8, 2026-06-09) — cf. §39 du corpus-references/SWEBOK_CORPUS_BOOKS_REFERENCE.md
 
 ---
 

@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/ostep.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/ostep.md",
+  "title": "Operating Systems: Three Easy Pieces",
+  "engine_used": "bs4-handrolled",
+  "char_count": 20080,
+  "heading_count": 0,
+  "sha256": "120eb97411ed20f2c159062b175cf68886183b07d31dd161d365e7436cdb455c",
+  "source_url": "https://pages.cs.wisc.edu/~remzi/OSTEP/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.249118+00:00"
+}

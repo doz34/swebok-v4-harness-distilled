@@ -1,0 +1,13 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/nist-ai-100-1.pdf",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/nist-ai-100-1.md",
+  "engine_used": "pdfplumber",
+  "page_count": 48,
+  "char_count": 102118,
+  "is_image_only": false,
+  "sha256": "7576edb531d9848825814ee88e28b1795d3a84b435b4b797d3670eafdc4a89f1",
+  "source_url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:53.579157+00:00",
+  "image_only_note": ""
+}

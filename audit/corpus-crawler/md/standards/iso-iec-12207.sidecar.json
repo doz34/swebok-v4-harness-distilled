@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/iso-iec-12207.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/iso-iec-12207.md",
+  "title": "ISO 32000-2:2017 - Document management \u2014 Portable document format \u2014 Part 2: PDF 2.0",
+  "engine_used": "bs4-handrolled",
+  "char_count": 2101,
+  "heading_count": 4,
+  "sha256": "59a2942be3abfb2005aeddb8510f22eafe57efcbc4dbaf1adf3ad1c7de20da20",
+  "source_url": "https://www.iso.org/standard/63534.html",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:59.003863+00:00"
+}

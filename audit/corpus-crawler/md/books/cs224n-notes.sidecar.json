@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/cs224n-notes.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/cs224n-notes.md",
+  "title": "Stanford CS 224N | Natural Language Processing with Deep Learning",
+  "engine_used": "bs4-handrolled",
+  "char_count": 33549,
+  "heading_count": 26,
+  "sha256": "51043804c40220ac498f76a20ca62d5042fe4a1ebb6d834650c6405cdf8e79a8",
+  "source_url": "http://web.stanford.edu/class/cs224n/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:57.863896+00:00"
+}

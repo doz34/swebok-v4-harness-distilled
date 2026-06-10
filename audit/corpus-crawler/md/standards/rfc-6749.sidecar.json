@@ -1,0 +1,11 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/rfc-6749.txt",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/rfc-6749.md",
+  "title": "Internet Engineering Task Force (IETF)                     D. Hardt, Ed.",
+  "engine_used": "passthrough",
+  "char_count": 163498,
+  "sha256": "f204fc8661d6c92d2ec6e0b54808f961a9ad26e792f57f312d9528335519bd71",
+  "source_url": "https://www.rfc-editor.org/rfc/rfc6749.txt",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:26:06.825144+00:00"
+}

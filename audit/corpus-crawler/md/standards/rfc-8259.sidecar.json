@@ -1,0 +1,11 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/rfc-8259.txt",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/rfc-8259.md",
+  "title": "Internet Engineering Task Force (IETF)                      T. Bray, Ed.",
+  "engine_used": "passthrough",
+  "char_count": 28360,
+  "sha256": "61a5378f4255c720beb2a4b4a63b29540147c140f36988bf086291989b4cd2d7",
+  "source_url": "https://www.rfc-editor.org/rfc/rfc8259.txt",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:26:06.828163+00:00"
+}

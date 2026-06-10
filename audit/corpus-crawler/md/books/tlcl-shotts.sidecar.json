@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/tlcl-shotts.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/tlcl-shotts.md",
+  "title": "Linux Command Line Books by William Shotts",
+  "engine_used": "bs4-handrolled",
+  "char_count": 4375,
+  "heading_count": 4,
+  "sha256": "3480196133c2878780010a06522fa8bbb371efd479d35a8dab0becd2dcabdcd4",
+  "source_url": "http://linuxcommand.org/tlcl.php",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.506392+00:00"
+}

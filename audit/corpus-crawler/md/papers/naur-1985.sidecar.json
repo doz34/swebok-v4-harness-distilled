@@ -1,0 +1,13 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/papers/naur-1985.pdf",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/papers/naur-1985.md",
+  "engine_used": "pdfplumber",
+  "page_count": 14,
+  "char_count": 252,
+  "is_image_only": true,
+  "sha256": "0bcd908a5862694cd228527edaf7a4b5a1f118da8c7edfaf8ad34c1e5fcbc9c4",
+  "source_url": "http://pages.cs.wisc.edu/~remzi/Naur.pdf",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:22:49.499360+00:00",
+  "image_only_note": "PDF appears to be scanned images; run `ocrmypdf <input> <out_pdf>` and reconvert. This pipeline does not OCR by default."
+}

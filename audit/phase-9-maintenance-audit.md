@@ -10,6 +10,7 @@
 - Spec existante : `specs/workflows/by-phase/phase-9-maintenance.md` (v2 finale, 2026-06-07)
 - Date de l'audit : 2026-06-07
 - Auditeur : mainteneur
+- Couverture corpus : **95%** (post-vague 8, 2026-06-09) — cf. §39 du corpus-references/SWEBOK_CORPUS_BOOKS_REFERENCE.md
 - **Verdict global** : 🟢 (atteint dès la première conversation, 4 décisions tranchées vague 1)
 
 ---

@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/owasp-asvs-repo.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/owasp-asvs-repo.md",
+  "title": "ASVS/5.0/en at master \u00b7 OWASP/ASVS \u00b7 GitHub",
+  "engine_used": "bs4-handrolled",
+  "char_count": 10249,
+  "heading_count": 3,
+  "sha256": "09ab707b9f31d368b9cb8783abfd851f22d60852ccafc16a488ac667f115fee9",
+  "source_url": "https://github.com/OWASP/ASVS/tree/master/5.0/en",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:59.669069+00:00"
+}

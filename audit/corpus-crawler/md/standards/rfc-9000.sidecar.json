@@ -1,0 +1,11 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/rfc-9000.txt",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/rfc-9000.md",
+  "title": "\ufeff",
+  "engine_used": "passthrough",
+  "char_count": 403426,
+  "sha256": "f88aae47f8b18e102024916e975e919201d8dde689cba79b01079eaedd402e22",
+  "source_url": "https://www.rfc-editor.org/rfc/rfc9000.txt",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:26:06.832252+00:00"
+}

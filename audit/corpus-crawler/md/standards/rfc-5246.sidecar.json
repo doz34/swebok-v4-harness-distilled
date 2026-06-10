@@ -1,0 +1,11 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/rfc-5246.txt",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/rfc-5246.md",
+  "title": "Network Working Group                                          T. Dierks",
+  "engine_used": "passthrough",
+  "char_count": 222395,
+  "sha256": "2ebe1b8e651696aeacc8ab3848bedb465505737901ea3b691acf40c392958feb",
+  "source_url": "https://www.rfc-editor.org/rfc/rfc5246.txt",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:26:06.823198+00:00"
+}

@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/think-python-downey.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/think-python-downey.md",
+  "title": "Think Python, 2nd edition \u2013 Green Tea Press",
+  "engine_used": "bs4-handrolled",
+  "char_count": 4021,
+  "heading_count": 3,
+  "sha256": "4ad41f9a41a5c2c973597ae57990e5b521663ba807573e35193beb1130643bce",
+  "source_url": "https://greenteapress.com/wp/think-python-2e/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.498219+00:00"
+}

@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/ir-book.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/ir-book.md",
+  "title": "Introduction to Information Retrieval",
+  "engine_used": "bs4-handrolled",
+  "char_count": 9654,
+  "heading_count": 4,
+  "sha256": "2500db3d6129db8199f5a218b4baee1e40d5983fd5677b792a992110f42b2134",
+  "source_url": "https://nlp.stanford.edu/IR-book/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.130450+00:00"
+}

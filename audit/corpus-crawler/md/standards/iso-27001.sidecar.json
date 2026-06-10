@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/iso-27001.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/iso-27001.md",
+  "title": "ISO/IEC 27001:2022 - Information security management systems",
+  "engine_used": "bs4-handrolled",
+  "char_count": 8918,
+  "heading_count": 11,
+  "sha256": "d6be73ab66473e37267730b2938d81360667cc32655c28b741de07e81fd96796",
+  "source_url": "https://www.iso.org/standard/27001",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.927313+00:00"
+}

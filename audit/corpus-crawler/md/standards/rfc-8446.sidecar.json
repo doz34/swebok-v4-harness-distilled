@@ -1,0 +1,11 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/rfc-8446.txt",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/rfc-8446.md",
+  "title": "Internet Engineering Task Force (IETF)                       E. Rescorla",
+  "engine_used": "passthrough",
+  "char_count": 337736,
+  "sha256": "47871bc8820a2c3b6ea89f061055577058862cf543686b82d10131239702b3bd",
+  "source_url": "https://www.rfc-editor.org/rfc/rfc8446.txt",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:26:06.829680+00:00"
+}

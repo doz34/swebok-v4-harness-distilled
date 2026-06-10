@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/prob-ml-murphy-2.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/prob-ml-murphy-2.md",
+  "title": "GitHub - probml/pml2-book: Probabilistic Machine Learning: Advanced Topics \u00b7 GitHub",
+  "engine_used": "bs4-handrolled",
+  "char_count": 6018,
+  "heading_count": 16,
+  "sha256": "4562927317a5068cc8c51d1a6adfec24bba179dd2eb16bbe8c5b19fa27b81857",
+  "source_url": "https://github.com/probml/pml2-book",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.418222+00:00"
+}

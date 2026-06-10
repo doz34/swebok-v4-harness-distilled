@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/info-theory-mackay.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/info-theory-mackay.md",
+  "title": "David MacKay: Information Theory, Pattern Recognition and Neural Networks: The Book",
+  "engine_used": "bs4-handrolled",
+  "char_count": 13552,
+  "heading_count": 0,
+  "sha256": "bc43107e86df0c5b2caff074fe2e3a9a7e74de70d2c112bd34dd684fab23dfa0",
+  "source_url": "http://www.inference.org.uk/itprnn/book.html",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.118233+00:00"
+}

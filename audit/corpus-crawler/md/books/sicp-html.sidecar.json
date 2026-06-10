@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/sicp-html.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/sicp-html.md",
+  "title": "Structure and Interpretation of Computer Programs, 2e",
+  "engine_used": "bs4-handrolled",
+  "char_count": 3,
+  "heading_count": 0,
+  "sha256": "8f33d8b79860de7d9b293f4eca1e4999408c200651d6b551717e7c7ae9b239e1",
+  "source_url": "https://sarabander.github.io/sicp/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.422414+00:00"
+}

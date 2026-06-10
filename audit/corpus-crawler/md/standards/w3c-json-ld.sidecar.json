@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/w3c-json-ld.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/w3c-json-ld.md",
+  "title": "JSON-LD 1.1",
+  "engine_used": "bs4-handrolled",
+  "char_count": 2977,
+  "heading_count": 0,
+  "sha256": "9e2c9972d0f60bc744e975731643a9a63d410afc6b682eb8898ad2720e452866",
+  "source_url": "https://www.w3.org/TR/json-ld11/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:26:00.776064+00:00"
+}

@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/nist-ai-rmf.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/nist-ai-rmf.md",
+  "title": "AI Risk Management Framework | NIST",
+  "engine_used": "bs4-handrolled",
+  "char_count": 6316,
+  "heading_count": 10,
+  "sha256": "fa0acd27cfe613d7e21fdf5ef5ce728f78a82fd7ebe7de9396a59ed6236bff3e",
+  "source_url": "https://www.nist.gov/itl/ai-risk-management-framework",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:59.307505+00:00"
+}

@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/w3c-xpath-31.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/w3c-xpath-31.md",
+  "title": "XML Path Language (XPath) 3.1",
+  "engine_used": "bs4-handrolled",
+  "char_count": 523565,
+  "heading_count": 155,
+  "sha256": "ca1f8b00f9626e3e73589a371d702acf6bf0f4708c96a2cb0e87ca7a5ad3b88c",
+  "source_url": "https://www.w3.org/TR/xpath-31/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:26:02.568171+00:00"
+}

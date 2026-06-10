@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/twelve-factor.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/twelve-factor.md",
+  "title": "The Twelve-Factor App",
+  "engine_used": "bs4-handrolled",
+  "char_count": 985,
+  "heading_count": 1,
+  "sha256": "69230eae64071cc9ffcdfff6154c00dfb85c0c96d0710c63d189e20879a9dab9",
+  "source_url": "https://12factor.net/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.514002+00:00"
+}

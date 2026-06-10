@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/nist-glossary.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/nist-glossary.md",
+  "title": "Glossary | CSRC",
+  "engine_used": "bs4-handrolled",
+  "char_count": 4342,
+  "heading_count": 1,
+  "sha256": "6718afad1bf97dbcec51f196ae27c6fdee5babca6b40ee58df599e31fddc57ac",
+  "source_url": "https://csrc.nist.gov/glossary",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:59.366140+00:00"
+}

@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/book-landing/pragprog-pragmatic-programmer-20th.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/book-landing/pragprog-pragmatic-programmer-20th.md",
+  "title": "The Pragmatic Programmer, 20th Anniversary Edition: your journey to mastery by David Thomas and Andrew Hunt",
+  "engine_used": "bs4-handrolled",
+  "char_count": 9849,
+  "heading_count": 15,
+  "sha256": "7b1c7bb915ed04aefe2516ffd2f6badff2fde3465dbab9f19f62615cc473d2e9",
+  "source_url": "https://pragprog.com/titles/tpp20/the-pragmatic-programmer-20th-anniversary-edition/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:57.658528+00:00"
+}

@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Google Tag Manager -->
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-75468017-1', 'auto');
+        ga('send', 'pageview');
+      </script>
+      <script>
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});
+        var f=d.getElementsByTagName(s)[0], j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;
+        j.src= 'https://www.googletagmanager.com/gtag/js?id='+i+dl;f.parentNode.insertBefore(j,f); })
+        (window,document,'script','dataLayer','GTM-WVF23W3');
+      </script>
+    <!-- End Google Tag Manager -->
+
+    <meta charset="utf-8">
+    <meta content="initial-scale=1, minimum-scale=1, width=device-width" name="viewport">
+    <title>Google SRE - Site Reliability engineering</title>
+    <meta name="description" content="Site reliability engineering: Explore key sre principles &amp; practices. Learn how reliability engineers enhance system's reliability, scalability and performance.">
+    <link rel="canonical" href="https://sre.google/">
+    <link rel="apple-touch-icon-precomposed" sizes="180x180" href="https://lh3.googleusercontent.com/gWsjPZC9Fbk97ga1qFDlK88JynGoiUIF_mFTx-DocUWT94qi8OI7WIkD-5_VXfIvMQk1hpgdLZEDK9UJgjrevhz85GRmU60wJ9Mx">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://lh3.googleusercontent.com/gWsjPZC9Fbk97ga1qFDlK88JynGoiUIF_mFTx-DocUWT94qi8OI7WIkD-5_VXfIvMQk1hpgdLZEDK9UJgjrevhz85GRmU60wJ9Mx">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://lh3.googleusercontent.com/gWsjPZC9Fbk97ga1qFDlK88JynGoiUIF_mFTx-DocUWT94qi8OI7WIkD-5_VXfIvMQk1hpgdLZEDK9UJgjrevhz85GRmU60wJ9Mx">
+    <link rel="shortcut icon" href="https://lh3.googleusercontent.com/gWsjPZC9Fbk97ga1qFDlK88JynGoiUIF_mFTx-DocUWT94qi8OI7WIkD-5_VXfIvMQk1hpgdLZEDK9UJgjrevhz85GRmU60wJ9Mx">
+    <link rel="preconnect" href="https://lh3.googleusercontent.com/" crossorigin>
+    <link rel="preconnect" href="https://kstatic.googleusercontent.com/" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com/" crossorigin>
+    <link rel="preconnect" href="https://www.gstatic.com/" crossorigin>
+    <link rel="preconnect" href="https://www.google-analytics.com/" crossorigin>
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin>
+    <link rel="preconnect" href="https://www.youtube.com/" crossorigin>
+
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700|Google+Sans:400,500|Product+Sans:400&amp;lang=en&amp;display=swap">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="/static/css/index.min.css?cache=4b4f0ea" rel="stylesheet" rel="preload" as="style">
+    <link as="style" href="https://www.gstatic.com/glue/cookienotificationbar/cookienotificationbar.min.css" rel="stylesheet">
+        <script type="application/ld+json">
+            {
+              "@context": "https://schema.org",
+              "@type": "VideoObject",
+              "name": "The History of SRE",
+              "description": "Since 2004, Site Reliability Engineering (SRE) has evolved to become the industry-leading practice for service reliability. In this video, hear from key figures about the history of SRE and what’s next for the SRE community.",
+              "thumbnailUrl": "https://i3.ytimg.com/vi/1NF6N2RwVoc/maxresdefault.jpg",
+              "uploadDate": "2020-07-15T00:00:00+00:00",
+              "duration": "PT4M53S",
+              "contentUrl": "https://www.youtube.com/watch?v=1NF6N2RwVoc"
+            }
+        </script>
+    <script defer src="/static/js/detect.min.js?cache=8d84ad0"></script>
+  </head>
+
+  <body class="glue-body">
+    <!-- Google Tag Manager (noscript) -->
+      <noscript>
+        <iframe class="no-script-iframe" src="https://www.googletagmanager.com/ns.html?id=GTM-WVF23W3"></iframe>
+      </noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+<header class="glue-header glue-header--single header" glue-header-options='{"steppedNav": "true"}'>
+  <div class="glue-header__bar glue-header__bar--desktop glue-header__drawer" id="header-drawer">
+    <div class="glue-header__tier">
+      <div class="glue-header__container">
+        <div class="glue-header__lock-up">
+          <div class="glue-header__logo">
+            <a class="glue-header__logo-link" href="/" aria-label="Google" title="Google">
+              <div class="glue-header__logo-container">
+                <svg role="presentation" aria-hidden="true" class="glue-header__logo-svg" alt="Google">
+                  <use xlink:href="/static/img/glue-icons.svg#google-color-logo"></use>
+                </svg>
+              </div>
+              <p class="glue-header__logo--product header-product-logo">Site Reliability Engineering</p>
+            </a>
+          </div>
+          <a href="#page-content" class="glue-header__skip-content" aria-label="Jump to Content" title="Jump to Content">
+            <p class="glue-header__skip-content-text">Jump to Content</p>
+          </a>
+        </div>
+      </div>
+
+      <div class="glue-header__container glue-header__stepped-nav">
+        <div class="glue-header__stepped-nav-controls-container">
+          <div class="glue-header__stepped-nav-controls" tabindex="0" role="tabpanel">
+            <div class="glue-header__stepped-nav-controls-arrow">
+              <svg role="presentation" class="glue-icon glue-icon--18px" alt="Previous">
+                <use xlink:href="/static/img/glue-icons.svg#chevron-left"></use>
+              </svg>
+              <svg role="presentation" class="glue-icon glue-icon--18px glue-header__stepped-nav-subnav-icon" alt="Next">
+                <use xlink:href="/static/img/glue-icons.svg#chevron-right"></use>
+              </svg>
+            </div>
+            <div class="glue-header__stepped-nav-controls-title glue-header__link"></div>
+          </div>
+        </div>
+        <div class="glue-header__stepped-nav-menus"></div>
+      </div>
+
+      <div class="glue-header__container glue-header__container--flex-auto">
+        <nav class="glue-header__link-bar">
+          <ul id="list-1" class="glue-header__list glue-header__link-bar--arrow">
+              <li class="glue-header__item glue-header--is-active">
+                <a class="glue-header__link"
+                    href="/"
+                    title="Home"
+                    aria-label="Home"
+>
+                    Home
+                </a>
+              </li>
+              <li class="glue-header__item">
+                <a class="glue-header__link mega-menu-button"
+                    href="#"
+                    title="Resources"
+                    aria-label="Resources"
+ aria-expanded="false">
+                    <span class="no-event">
+                      Resources
+                      <i class="material-icons new-release-icon" data-release-date="2022-03-31"></i>
+                    </span>
+                    <svg role="presentation" class="glue-icon glue-icon--20px mega-menu-expand-icon no-event" alt="Resources">
+                      <use xlink:href="/static/img/glue-icons.svg#expand-more"></use>
+                    </svg>
+                </a>
+<section class="glue-mod-elevation-1 mega-menu js-hide">
+  <div class="glue-page">
+    <div class="glue-grid glue-mod-spacer-4-top glue-mod-spacer-4-bottom">
+            <div class="glue-grid__col glue-grid__col--span-3 glue-mod-spacer-4-bottom">
+              <ul class="mega-menu-container">
+                <div class="mega-menu-image">
+                  <svg fill="none" height="24" viewBox="0 0 22 24" width="22"><g fill="#1a73e8"><path d="m11.9736 7.42627c-1.0507 0-1.9019.85333-1.9019 1.90667 0 1.05336.8512 1.90666 1.9019 1.90666s1.9019-.8533 1.9019-1.90666c0-1.05334-.8512-1.90667-1.9019-1.90667z"></path><path d="m11.9726 0c-4.98758 0-9.04417 3.92-9.28357 8.85333l-2.553663 3.41337c-.332507.44-.0133 1.0666.532013 1.0666h1.99505v4c0 1.4667 1.19702 2.6667 2.66006 2.6667h1.33003v4h9.31018v-6.24c3.1389-1.4933 5.3202-4.7067 5.3202-8.42667 0-5.16-4.163-9.33333-9.3103-9.33333zm3.9901 9.33333c0 .17334-.0133.34667-.0266.52l1.104.87997c.1064.08.133.2134.0665.3334l-1.0641 1.8533c-.0665.12-.2128.16-.3192.12l-1.3167-.5333c-.2793.2133-.5719.3866-.8911.52l-.2128 1.4133c-.0133.1333-.133.2267-.266.2267h-2.1281c-.133 0-.2394-.0934-.266-.2267l-.1995-1.4133c-.3325-.1334-.62511-.3067-.90442-.52l-1.31673.5333c-.1197.04-.266 0-.3325-.12l-1.06403-1.8533c-.0665-.1067-.0399-.2534.0665-.3334l1.11723-.87997c-.0133-.17333-.0266-.34666-.0266-.52 0-.17333.0266-.36.0532-.52l-1.13053-.88c-.1064-.08-.133-.21333-.0665-.34666l1.06403-1.84c.0665-.12.1995-.16.3192-.12l1.33003.53333c.26601-.2.57192-.38667.89112-.52l.1995-1.41333c.0266-.13334.133-.22667.266-.22667h2.1281c.133 0 .2394.09333.266.22667l.1995 1.41333c.3192.13333.6118.30667.8911.52l1.33-.53333c.1197-.04.266 0 .3192.12l1.0641 1.84c.0665.12.0399.26666-.0665.34666l-1.1306.88c.0399.16.0532.33334.0532.52z"></path></g></svg>
+                </div>
+                <li class="mega-menu-tile">
+                  <p class="glue-cta mega-menu-title">
+                    <a class="text-decoration"
+                        href="/resources/"
+                        title="Latest resources"
+                        aria-label="Latest resources">
+                      Latest resources
+                    </a>
+                  </p>
+                      <p class="mega-menu-caption glue-mod-spacer-3-top">
+                        <a class="glue-caption text-decoration mega-menu-variant"
+                            href="/resources/practices-and-processes/ai-engineering-reliable-operations/"
+                            title="AI Engineering Reliable Operations"
+                            aria-label="AI Engineering Reliable Operations"
+>
+                          AI Engineering Reliable Operations
+                        </a>
+                          <span class="glue-eyebrow new-link-text">New!</span>
+                      </p>
+                      <p class="mega-menu-caption">
+                        <a class="glue-caption text-decoration mega-menu-variant"
+                            href="/resources/videos/"
+                            title="Google SRE Video Gallery"
+                            aria-label="Google SRE Video Gallery"
+>
+                          Google SRE Video Gallery
+                        </a>
+                          <span class="glue-eyebrow new-link-text">New!</span>
+                      </p>
+                      <p class="mega-menu-caption">
+                        <a class="glue-caption text-decoration mega-menu-variant"
+                            href="/resources/practices-and-processes/product-focused-reliability-for-sre/"
+                            title="Product-Focused Reliability for SRE"
+                            aria-label="Product-Focused Reliability for SRE"
+>
+                          Product-Focused Reliability for SRE
+                        </a>
+                      </p>
+                      <p class="mega-menu-caption">
+                        <a class="glue-caption text-decoration mega-menu-variant"
+                            href="/20/"
+                            title="Twentieth Anniversary"
+                            aria-label="Twentieth Anniversary"
+>
+                          Twentieth Anniversary
+                        </a>
+                      </p>
+                      <p class="mega-menu-caption">
+                        <a class="glue-caption text-decoration mega-menu-variant"
+                            href="https://goo.gle/sre-20-ll"
+                            title="Twenty years of SRE lessons learned"
+                            aria-label="Twenty years of SRE lessons learned"
+>
+                          Twenty years of SRE lessons learned
+                        </a>
+                      </p>
+                      <p class="mega-menu-caption">
+                        <a class="glue-caption text-decoration mega-menu-variant"
+                            href="/prodverbs/"
+                            title="Prodverbs"
+                            aria-label="Prodverbs"
+>
+                          Prodverbs
+                        </a>
+                      </p>
+                      <p class="mega-menu-caption">
+                        <a class="glue-caption text-decoration mega-menu-variant"
+                            href="/resources/practices-and-processes/sre-fundamentals-course/"
+                            title="SRE Fundamentals"
+                            aria-label="SRE Fundamentals"
+>
+                          SRE Fundamentals
+                        </a>
+                      </p>
+                      <p class="mega-menu-caption">
+                        <a class="glue-caption text-decoration mega-menu-variant"
+                            href="/resources/practices-and-processes/measuring-reliability/"
+                            title="Measuring Reliability"
+                            aria-label="Measuring Reliability"
+>
+                          Measuring Reliability
+                        </a>
+                      </p>
+                      <p class="mega-menu-caption">
+                        <a class="glue-caption text-decoration mega-menu-variant"
+                            href="/resources/practices-and-processes/no-heroes/"
+                            title="Why Heroism is Bad"
+                            aria-label="Why Heroism is Bad"
+>
+                          Why Heroism is Bad
+                        </a>
+                      </p>
+                      <p class="mega-menu-caption">
+                        <a class="glue-caption text-decoration mega-menu-variant"
+                            href="/resources/practices-and-processes/stpa/"
+                            title="System Theoretic Process Analysis"
+                            aria-label="System Theoretic Process Analysis"
+>
+                          System Theoretic Process Analysis
+                        </a>
+                      </p>
+                      <p class="mega-menu-caption">
+                        <a class="glue-caption text-decoration mega-menu-variant"
+                            href="/next26/"
+                            title="Ask an SRE at Next '26"
+                            aria-label="Ask an SRE at Next '26"
+>
+                          Ask an SRE at Next '26
+                        </a>
+                      </p>
+                </li>
+              </ul>
+            </div>
+            <div class="glue-grid__col glue-grid__col--span-3 glue-mod-spacer-4-bottom">
+              <ul class="mega-menu-container">
+                <div class="mega-menu-image">
+                  <svg fill="none" height="23" viewBox="0 0 22 23" width="22"><path d="m0 .087402h21.9868v22h-21.9868z" fill="#fff"></path><path d="m17.0624.0874023h-13.05471c-1.19668 0-2.17578.9899977-2.17578 2.1999977v17.6c0 1.21.9791 2.2 2.17578 2.2h13.05471c1.1966 0 2.1757-.99 2.1757-2.2v-17.6c0-1.21-.9791-2.1999977-2.1757-2.1999977zm-13.05471 2.1999977h5.43945v8.8l-2.71973-1.65-2.71972 1.65z" fill="#1a73e8"></path></svg>
+                </div>
+                <li class="mega-menu-tile">
+                  <p class="glue-cta mega-menu-title">
+                    <a class="text-decoration"
+                        href="/books/"
+                        title="Books"
+                        aria-label="Books">
+                      Books
+                    </a>
+                  </p>
+                      <p class="mega-menu-caption glue-mod-spacer-3-top">
+                        <a class="glue-caption text-decoration mega-menu-variant"
+                            href="/books/building-secure-reliable-systems/"
+                            title="Building Secure &amp; Reliable Systems"
+                            aria-label="Building Secure &amp; Reliable Systems"
+>
+                          Building Secure &amp; Reliable Systems
+                        </a>
+                      </p>
+                      <p class="mega-menu-caption">
+                        <a class="glue-caption text-decoration mega-menu-variant"
+                            href="/workbook/table-of-contents/"
+                            title="The Site Reliability Workbook"
+                            aria-label="The Site Reliability Workbook"
+>
+                          The Site Reliability Workbook
+                        </a>
+                      </p>
+                      <p class="mega-menu-caption">
+                        <a class="glue-caption text-decoration mega-menu-variant"
+                            href="/sre-book/table-of-contents/"
+                            title="Site Reliability Engineering"
+                            aria-label="Site Reliability Engineering"
+>
+                          Site Reliability Engineering
+                        </a>
+                      </p>
+                </li>
+              </ul>
+            </div>
+            <div class="glue-grid__col glue-grid__col--span-3 glue-mod-spacer-4-bottom">
+              <ul class="mega-menu-container">
+                <div class="mega-menu-image">
+                  <svg fill="none" height="23" viewBox="0 0 22 23" width="22"><path d="m0 .087402h21.9354v22h-21.9354z" fill="#fff"></path><path d="m19.4981.0874023h-17.06084c-1.34049 0-2.43726 1.0999977-2.43726 2.4444477v17.11115c0 1.3444 1.09677 2.4444 2.43726 2.4444h17.06084c1.3405 0 2.4373-1.1 2.4373-2.4444v-17.11115c0-1.34445-1.0968-2.4444477-2.4373-2.4444477zm-6.0932 17.1110977h-8.53037v-2.4444h8.53037zm3.6559-4.8889h-12.18627v-2.44442h12.18627zm0-4.88886h-12.18627v-2.44445h12.18627z" fill="#1a73e8"></path></svg>
+                </div>
+                <li class="mega-menu-tile">
+                  <p class="glue-cta mega-menu-title">
+                    <a class="text-decoration"
+                        href="/mobaa/"
+                        title="Mobaa"
+                        aria-label="Mobaa">
+                      Mobaa
+                    </a>
+                  </p>
+                      <p class="mega-menu-caption glue-mod-spacer-3-top">
+                        <a class="glue-caption text-decoration mega-menu-variant"
+                            href="/mobaa/2024/"
+                            title="2024 Gallery"
+                            aria-label="2024 Gallery"
+>
+                          2024 Gallery
+                        </a>
+                      </p>
+                      <p class="mega-menu-caption">
+                        <a class="glue-caption text-decoration mega-menu-variant"
+                            href="/mobaa/2022/"
+                            title="2022 Gallery"
+                            aria-label="2022 Gallery"
+>
+                          2022 Gallery
+                        </a>
+                      </p>
+                      <p class="mega-menu-caption">
+                        <a class="glue-caption text-decoration mega-menu-variant"
+                            href="/mobaa/frayed/"
+                            title="2020 Gallery"
+                            aria-label="2020 Gallery"
+>
+                          2020 Gallery
+                        </a>
+                      </p>
+                      <p class="mega-menu-caption">
+                        <a class="glue-caption text-decoration mega-menu-variant"
+                            href="https://goo.gle/mobaa-vector"
+                            title="Vector Methods"
+                            aria-label="Vector Methods"
+>
+                          Vector Methods
+                        </a>
+                      </p>
+                </li>
+              </ul>
+            </div>
+            <div class="glue-grid__col glue-grid__col--span-3 glue-mod-spacer-4-bottom">
+              <ul class="mega-menu-container">
+                <div class="mega-menu-image">
+                  <svg fill="none" height="28" viewBox="0 0 28 28" width="28"><path d="m.000977 0h27.9958v27.8329h-27.9958z" fill="#fff"></path><path d="m5.09014 15.4092v5.0606l8.90776 4.8328 8.9078-4.8328v-5.0606l-8.9078 4.8329zm8.90776-12.87899-13.9979 7.59079 13.9979 7.5908 11.4528-6.2118v8.7421h2.5451v-10.1211z" fill="#1a73e8"></path></svg>
+                </div>
+                <li class="mega-menu-tile">
+                  <p class="glue-cta mega-menu-title">
+                    <a class="text-decoration"
+                        href="https://goo.gle/sre-classroom"
+                        title="Classroom"
+                        aria-label="Classroom">
+                      Classroom
+                    </a>
+                  </p>
+                      <p class="mega-menu-caption glue-mod-spacer-3-top">
+                        <a class="glue-caption text-decoration mega-menu-variant"
+                            href="https://goo.gle/sre-classroom-distributed-pubsub"
+                            title="Distributed PubSub"
+                            aria-label="Distributed PubSub"
+>
+                          Distributed PubSub
+                        </a>
+                      </p>
+                      <p class="mega-menu-caption">
+                        <a class="glue-caption text-decoration mega-menu-variant"
+                            href="https://goo.gle/sre-classroom-imageserver"
+                            title="Distributed Image Server"
+                            aria-label="Distributed Image Server"
+>
+                          Distributed Image Server
+                        </a>
+                      </p>
+                      <p class="mega-menu-caption">
+                        <a class="glue-caption text-decoration mega-menu-variant"
+                            href="/resources/practices-and-processes/art-of-slos/"
+                            title="The Art of SLO"
+                            aria-label="The Art of SLO"
+>
+                          The Art of SLO
+                        </a>
+                      </p>
+                </li>
+              </ul>
+            </div>
+    </div>
+    <button class="mega-menu-close-btn btn-override" title="close" type="button" tabindex="0">
+      <svg role="presentation" class="glue-icon glue-icon--24px" alt="Close">
+        <use xlink:href="/static/img/glue-icons.svg#close"></use>
+      </svg>
+    </button>
+  </div>
+</section>                  <ul id="list-2" class="glue-header__list glue-header__list--nested">
+                      <li class="glue-header__item">
+                        <a class="glue-header__link"
+                            href="#"
+                            title="Latest resources"
+                            aria-label="Latest resources">
+                          Latest resources
+                        </a>
+                          <ul id="list-3" class="glue-header__list glue-header__list--nested">
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="/resources/"
+                                    title="Resources overview"
+                                    aria-label="Resources overview"
+>
+                                  Resources overview
+                                </a>
+                              </li>
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="/resources/practices-and-processes/ai-engineering-reliable-operations/"
+                                    title="AI Engineering Reliable Operations"
+                                    aria-label="AI Engineering Reliable Operations"
+>
+                                  AI Engineering Reliable Operations
+                                </a>
+                                  <span class="glue-eyebrow new-link-text">New!</span>
+                              </li>
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="/resources/videos/"
+                                    title="Google SRE Video Gallery"
+                                    aria-label="Google SRE Video Gallery"
+>
+                                  Google SRE Video Gallery
+                                </a>
+                                  <span class="glue-eyebrow new-link-text">New!</span>
+                              </li>
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="/resources/practices-and-processes/product-focused-reliability-for-sre/"
+                                    title="Product-Focused Reliability for SRE"
+                                    aria-label="Product-Focused Reliability for SRE"
+>
+                                  Product-Focused Reliability for SRE
+                                </a>
+                              </li>
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="/20/"
+                                    title="Twentieth Anniversary"
+                                    aria-label="Twentieth Anniversary"
+>
+                                  Twentieth Anniversary
+                                </a>
+                              </li>
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="https://goo.gle/sre-20-ll"
+                                    title="Twenty years of SRE lessons learned"
+                                    aria-label="Twenty years of SRE lessons learned"
+>
+                                  Twenty years of SRE lessons learned
+                                </a>
+                              </li>
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="/prodverbs/"
+                                    title="Prodverbs"
+                                    aria-label="Prodverbs"
+>
+                                  Prodverbs
+                                </a>
+                              </li>
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="/resources/practices-and-processes/sre-fundamentals-course/"
+                                    title="SRE Fundamentals"
+                                    aria-label="SRE Fundamentals"
+>
+                                  SRE Fundamentals
+                                </a>
+                              </li>
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="/resources/practices-and-processes/measuring-reliability/"
+                                    title="Measuring Reliability"
+                                    aria-label="Measuring Reliability"
+>
+                                  Measuring Reliability
+                                </a>
+                              </li>
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="/resources/practices-and-processes/no-heroes/"
+                                    title="Why Heroism is Bad"
+                                    aria-label="Why Heroism is Bad"
+>
+                                  Why Heroism is Bad
+                                </a>
+                              </li>
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="/resources/practices-and-processes/stpa/"
+                                    title="System Theoretic Process Analysis"
+                                    aria-label="System Theoretic Process Analysis"
+>
+                                  System Theoretic Process Analysis
+                                </a>
+                              </li>
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="/next26/"
+                                    title="Ask an SRE at Next '26"
+                                    aria-label="Ask an SRE at Next '26"
+>
+                                  Ask an SRE at Next '26
+                                </a>
+                              </li>
+                          </ul>
+                      </li>
+                      <li class="glue-header__item">
+                        <a class="glue-header__link"
+                            href="#"
+                            title="Books"
+                            aria-label="Books">
+                          Books
+                        </a>
+                          <ul id="list-3" class="glue-header__list glue-header__list--nested">
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="/books/"
+                                    title="Books overview"
+                                    aria-label="Books overview"
+>
+                                  Books overview
+                                </a>
+                              </li>
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="/books/building-secure-reliable-systems/"
+                                    title="Building Secure &amp; Reliable Systems"
+                                    aria-label="Building Secure &amp; Reliable Systems"
+>
+                                  Building Secure &amp; Reliable Systems
+                                </a>
+                              </li>
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="/workbook/table-of-contents/"
+                                    title="The Site Reliability Workbook"
+                                    aria-label="The Site Reliability Workbook"
+>
+                                  The Site Reliability Workbook
+                                </a>
+                              </li>
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="/sre-book/table-of-contents/"
+                                    title="Site Reliability Engineering"
+                                    aria-label="Site Reliability Engineering"
+>
+                                  Site Reliability Engineering
+                                </a>
+                              </li>
+                          </ul>
+                      </li>
+                      <li class="glue-header__item">
+                        <a class="glue-header__link"
+                            href="#"
+                            title="Mobaa"
+                            aria-label="Mobaa">
+                          Mobaa
+                        </a>
+                          <ul id="list-3" class="glue-header__list glue-header__list--nested">
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="/mobaa/"
+                                    title="Mobaa overview"
+                                    aria-label="Mobaa overview"
+>
+                                  Mobaa overview
+                                </a>
+                              </li>
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="/mobaa/2024/"
+                                    title="2024 Gallery"
+                                    aria-label="2024 Gallery"
+>
+                                  2024 Gallery
+                                </a>
+                              </li>
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="/mobaa/2022/"
+                                    title="2022 Gallery"
+                                    aria-label="2022 Gallery"
+>
+                                  2022 Gallery
+                                </a>
+                              </li>
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="/mobaa/frayed/"
+                                    title="2020 Gallery"
+                                    aria-label="2020 Gallery"
+>
+                                  2020 Gallery
+                                </a>
+                              </li>
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="https://goo.gle/mobaa-vector"
+                                    title="Vector Methods"
+                                    aria-label="Vector Methods"
+>
+                                  Vector Methods
+                                </a>
+                              </li>
+                          </ul>
+                      </li>
+                      <li class="glue-header__item">
+                        <a class="glue-header__link"
+                            href="#"
+                            title="Classroom"
+                            aria-label="Classroom">
+                          Classroom
+                        </a>
+                          <ul id="list-3" class="glue-header__list glue-header__list--nested">
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="https://goo.gle/sre-classroom"
+                                    title="Classroom overview"
+                                    aria-label="Classroom overview"
+>
+                                  Classroom overview
+                                </a>
+                              </li>
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="https://goo.gle/sre-classroom-distributed-pubsub"
+                                    title="Distributed PubSub"
+                                    aria-label="Distributed PubSub"
+>
+                                  Distributed PubSub
+                                </a>
+                              </li>
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="https://goo.gle/sre-classroom-imageserver"
+                                    title="Distributed Image Server"
+                                    aria-label="Distributed Image Server"
+>
+                                  Distributed Image Server
+                                </a>
+                              </li>
+                              <li class="glue-header__item">
+                                <a class="glue-header__link"
+                                    href="/resources/practices-and-processes/art-of-slos/"
+                                    title="The Art of SLO"
+                                    aria-label="The Art of SLO"
+>
+                                  The Art of SLO
+                                </a>
+                              </li>
+                          </ul>
+                      </li>
+                  </ul>
+              </li>
+              <li class="glue-header__item">
+                <a class="glue-header__link"
+                    href="/books/"
+                    title="Books"
+                    aria-label="Books"
+>
+                    Books
+                </a>
+              </li>
+              <li class="glue-header__item">
+                <a class="glue-header__link"
+                    href="/careers/"
+                    title="Careers"
+                    aria-label="Careers"
+>
+                    Careers
+                </a>
+              </li>
+              <li class="glue-header__item">
+                <a class="glue-header__link"
+                    href="/cloud/"
+                    title="Cloud"
+                    aria-label="Cloud"
+>
+                    Cloud
+                </a>
+              </li>
+              <li class="glue-header__item">
+                <a class="glue-header__link"
+                    href="/local/"
+                    title="Local"
+                    aria-label="Local"
+>
+                    Local
+                </a>
+              </li>
+              <li class="glue-header__item">
+                <a class="glue-header__link"
+                    href="/prodcast/"
+                    title="Prodcast"
+                    aria-label="Prodcast"
+>
+                    Prodcast
+                </a>
+              </li>
+              <li class="glue-header__item">
+                <a class="glue-header__link"
+                    href="/spotlight/"
+                    title="Spotlight"
+                    aria-label="Spotlight"
+>
+                    Spotlight
+                </a>
+              </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <div class="glue-header__bar glue-header__bar--mobile header-bar-mobile">
+    <div class="glue-header__tier">
+      <div class="glue-header__container">
+        <div class="glue-header__lock-up">
+          <div class="glue-header__hamburger glue-header__hamburger--first-tier">
+            <div class="glue-header__hamburger-wrapper">
+              <button type="button" class="glue-header__drawer-toggle-btn"
+                  aria-controls="header-drawer" aria-expanded="false" aria-label="Open the navigation drawer">
+                <svg role="presentation" class="glue-icon glue-icon--24px" alt="Header hamburger" aria-hidden="true">
+                  <use xlink:href="/static/img/glue-icons.svg#menu"></use>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="glue-header__logo">
+            <a class="glue-header__logo-link" href="/" aria-label="Google" title="Google">
+              <div class="glue-header__logo-container">
+                <svg role="presentation" aria-hidden="true" class="glue-header__logo-svg" alt="Google">
+                  <use xlink:href="/static/img/glue-icons.svg#google-color-logo"></use>
+                </svg>
+              </div>
+              <p class="glue-header__logo--product header-product-logo">Site Reliability Engineering</p>
+            </a>
+          </div>
+          <a href="#page-content" class="glue-header__skip-content" aria-label="Jump to Content" title="Jump to Content">
+            <p class="glue-header__skip-content-text">Jump to Content</p>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="glue-header__drawer-backdrop"></div>
+</header>    <main class="main-content" id="page-content">
+  <div class="home-page glue-mod-spacer-6-top">
+    <div class="glue-page glue-mod-text-center">
+      <h1 class="glue-headline glue-headline--headline-2 glue-mod-spacer-5-top home-page-heading">What is Site Reliability Engineering (SRE)?</h1>
+      <p class="glue-mod-spacer-2-top home-page-sub-heading home-page-headline home-page-heading">SRE is what you get when you treat operations as if it’s a software problem. Our mission is to protect, provide for, and progress the software and systems behind all of Google’s public services — Google Search, Ads, Gmail, Android, YouTube, and App Engine, to name just a few — with an ever-watchful eye on their availability, latency, performance, and capacity.</p>
+    </div>
+
+<section class="glue-page">
+  <div class="glue-mod-spacer-4-top">
+    <div class="glue-carousel glue-carousel--simple sre-carousel-autostart" data-glue-pagination="sre-carousel-autostart">
+      <div class="glue-carousel__wrap">
+        <div class="glue-carousel__list">
+            <div class="glue-carousel__item home-page-item">
+              <div class="glue-carousel__image">
+                <img src="https://kstatic.googleusercontent.com/files/9e6ae780c63a1f2f58eb8bf21bdb909d0595f99d1a96a98c4c0a47f5adfbb8a0fdfd926851f338fed790fa1b0b09fbe7e219f095646970595a9ef1ecbcb89022" class="mobile-image" alt="SRE Prodcast" width="1152"
+                    height="640">
+                <img src="https://lh3.googleusercontent.com/XR8evrRlmXPUrru9x5wRHUla6KttnXKISrZW3isCMmTlcJ9XFVUW_NClNEs5jHOYwDIIYZFeWAkjB_SO2o6uvelNrlZCucx2qvxD4Ovf9l-hgv-E4iSY=w1028-rw" class="desktop-image" alt="SRE Prodcast" width="1069"
+                    height="502">
+              </div>
+              <div class="home-page-carousel-wrapper mobile-image">
+                <h2 class="glue-headline glue-headline--headline-3">SRE Prodcast</h2>
+                <p class="glue-mod-spacer-2-bottom glue-mod-spacer-2-top home-page-slide-description">Discover new perspectives on site reliability engineering on Prodcast, our podcast on SRE and production software.</p>
+                  <a class="glue-body--large" href="/prodcast/" title="New episodes!" aria-label="New episodes!">
+                    <button class="glue-button glue-button--medium-emphasis home-page-read-more" aria-label="New episodes!">New episodes!
+                      <svg role="presentation" class="glue-icon glue-icon--18px" aria-hidden="true">
+                        <use xlink:href="/static/img/glue-icons.svg#arrow-forward"></use>
+                      </svg>
+                    </button>
+                  </a>
+              </div>
+              <div class="home-page-carousel desktop-image">
+                <div class="home-page-carousel-content">
+                  <h2 class="glue-headline glue-headline--headline-3">SRE Prodcast</h2>
+                  <p class="glue-mod-spacer-2-bottom glue-mod-spacer-2-top home-page-slide-description">Discover new perspectives on site reliability engineering on Prodcast, our podcast on SRE and production software.</p>
+                    <a class="glue-body--large" href="/prodcast/" title="New episodes!" aria-label="New episodes!">
+                      <button class="glue-button glue-button--medium-emphasis home-page-read-more" aria-label="New episodes!">New episodes!
+                        <svg role="presentation" class="glue-icon glue-icon--18px" aria-hidden="true">
+                          <use xlink:href="/static/img/glue-icons.svg#arrow-forward"></use>
+                        </svg>
+                    </button>
+                    </a>
+                </div>
+              </div>
+            </div>
+            <div class="glue-carousel__item home-page-item">
+              <div class="glue-carousel__image">
+                <img src="https://kstatic.googleusercontent.com/files/d2311fd018f427f79472d85a3b9dd4ec046e8ecbab7756d13f8fe2f7caac63aa407c3d0b29f4f8130398a6df22d2d52b3662e07a033c3528f1e3d4977c2f237c" class="mobile-image" alt="SRE Video Gallery" width="1152"
+                    height="640">
+                <img src="https://lh3.googleusercontent.com/qu0voJ2hdI5eYd4iwz86shPGtfnw1hLlElyQcKH8Xd5CVllCTtzet3z9xgHfzEsm171stqNZn8AvQ7vbGJJsuIAb1bxzv-lmiDKKFVz8Xe-sybp27A=w1028-rw" class="desktop-image" alt="SRE Video Gallery" width="1069"
+                    height="502">
+              </div>
+              <div class="home-page-carousel-wrapper mobile-image">
+                <h2 class="glue-headline glue-headline--headline-3">SRE Video Gallery</h2>
+                <p class="glue-mod-spacer-2-bottom glue-mod-spacer-2-top home-page-slide-description">Explore SRE topics in depth in our video gallery!</p>
+                  <a class="glue-body--large" href="resources/videos/" title="Read more" aria-label="Read more">
+                    <button class="glue-button glue-button--medium-emphasis home-page-read-more" aria-label="Read more">Read more
+                      <svg role="presentation" class="glue-icon glue-icon--18px" aria-hidden="true">
+                        <use xlink:href="/static/img/glue-icons.svg#arrow-forward"></use>
+                      </svg>
+                    </button>
+                  </a>
+              </div>
+              <div class="home-page-carousel desktop-image">
+                <div class="home-page-carousel-content">
+                  <h2 class="glue-headline glue-headline--headline-3">SRE Video Gallery</h2>
+                  <p class="glue-mod-spacer-2-bottom glue-mod-spacer-2-top home-page-slide-description">Explore SRE topics in depth in our video gallery!</p>
+                    <a class="glue-body--large" href="resources/videos/" title="Read more" aria-label="Read more">
+                      <button class="glue-button glue-button--medium-emphasis home-page-read-more" aria-label="Read more">Read more
+                        <svg role="presentation" class="glue-icon glue-icon--18px" aria-hidden="true">
+                          <use xlink:href="/static/img/glue-icons.svg#arrow-forward"></use>
+                        </svg>
+                    </button>
+                    </a>
+                </div>
+              </div>
+            </div>
+            <div class="glue-carousel__item home-page-item">
+              <div class="glue-carousel__image">
+                <img src="https://kstatic.googleusercontent.com/files/892285cb5463651fea6970063486201883863c5d04ec11ae5fa772ff9cb1feb2ae29072950021eb0e71509a8f329b2addd7eeebf0f94adad43c26922e2866c8a" class="mobile-image" alt="Museum of Borgmon Abstract Art" width="1152"
+                    height="640">
+                <img src="https://lh3.googleusercontent.com/UhWXIvN7HcRAOBiFZkPtyHsPhvevPN-z_IDnMdlmDU4L2YCPqmd1viwyBv2USH2wBsOM1vUVH06vWwse1JT7j9em5xz1IqvNzMQJmNKtvBK8djDKw7E=w1028-rw" class="desktop-image" alt="Museum of Borgmon Abstract Art" width="1069"
+                    height="502">
+              </div>
+              <div class="home-page-carousel-wrapper mobile-image">
+                <h2 class="glue-headline glue-headline--headline-3">Museum of Borgmon Abstract Art</h2>
+                <p class="glue-mod-spacer-2-bottom glue-mod-spacer-2-top home-page-slide-description">Explore more of the beauty that emerges from chaos, in this biennial collection of images from our monitoring systems.</p>
+                  <a class="glue-body--large" href="mobaa/2024/" title="Read more" aria-label="Read more">
+                    <button class="glue-button glue-button--medium-emphasis home-page-read-more" aria-label="Read more">Read more
+                      <svg role="presentation" class="glue-icon glue-icon--18px" aria-hidden="true">
+                        <use xlink:href="/static/img/glue-icons.svg#arrow-forward"></use>
+                      </svg>
+                    </button>
+                  </a>
+              </div>
+              <div class="home-page-carousel desktop-image">
+                <div class="home-page-carousel-content">
+                  <h2 class="glue-headline glue-headline--headline-3">Museum of Borgmon Abstract Art</h2>
+                  <p class="glue-mod-spacer-2-bottom glue-mod-spacer-2-top home-page-slide-description">Explore more of the beauty that emerges from chaos, in this biennial collection of images from our monitoring systems.</p>
+                    <a class="glue-body--large" href="mobaa/2024/" title="Read more" aria-label="Read more">
+                      <button class="glue-button glue-button--medium-emphasis home-page-read-more" aria-label="Read more">Read more
+                        <svg role="presentation" class="glue-icon glue-icon--18px" aria-hidden="true">
+                          <use xlink:href="/static/img/glue-icons.svg#arrow-forward"></use>
+                        </svg>
+                    </button>
+                    </a>
+                </div>
+              </div>
+            </div>
+            <div class="glue-carousel__item home-page-item">
+              <div class="glue-carousel__image">
+                <img src="https://kstatic.googleusercontent.com/files/4782a313e3cdd6cbe3346d30d1d1cb6778950ceb535f955d91c84f80eacb10a1f8fa164af5471ce0b188c1fcfe27c7e877aad9b350411c6a8a8fddd6b02b4400" class="mobile-image" alt="SRE Careers" width="1152"
+                    height="640">
+                <img src="https://lh3.googleusercontent.com/UlNkZVGWPbzXBbbWVMVlTl0lBv2N51qEIYDnp4STILLcbXwJh1iTwhBGXPlusqrl0ymRYc82YXd-VrqxJBJRXWPzmPzEI5iYyHcsAjVUonFdSzq0LE4N=w1028-rw" class="desktop-image" alt="SRE Careers" width="1069"
+                    height="502">
+              </div>
+              <div class="home-page-carousel-wrapper mobile-image">
+                <h2 class="glue-headline glue-headline--headline-3">SRE Careers</h2>
+                <p class="glue-mod-spacer-2-bottom glue-mod-spacer-2-top home-page-slide-description">Hear from some of our most senior<br>
+engineers about their role at Google.</p>
+                  <a class="glue-body--large" href="/careers/" title="Read more" aria-label="Read more">
+                    <button class="glue-button glue-button--medium-emphasis home-page-read-more" aria-label="Read more">Read more
+                      <svg role="presentation" class="glue-icon glue-icon--18px" aria-hidden="true">
+                        <use xlink:href="/static/img/glue-icons.svg#arrow-forward"></use>
+                      </svg>
+                    </button>
+                  </a>
+              </div>
+              <div class="home-page-carousel desktop-image">
+                <div class="home-page-carousel-content">
+                  <h2 class="glue-headline glue-headline--headline-3">SRE Careers</h2>
+                  <p class="glue-mod-spacer-2-bottom glue-mod-spacer-2-top home-page-slide-description">Hear from some of our most senior<br>
+engineers about their role at Google.</p>
+                    <a class="glue-body--large" href="/careers/" title="Read more" aria-label="Read more">
+                      <button class="glue-button glue-button--medium-emphasis home-page-read-more" aria-label="Read more">Read more
+                        <svg role="presentation" class="glue-icon glue-icon--18px" aria-hidden="true">
+                          <use xlink:href="/static/img/glue-icons.svg#arrow-forward"></use>
+                        </svg>
+                    </button>
+                    </a>
+                </div>
+              </div>
+            </div>
+            <div class="glue-carousel__item home-page-item">
+              <div class="glue-carousel__image">
+                <img src="https://kstatic.googleusercontent.com/files/09c672dad8616ab3c48884add7f20e785de3df110e0ea4861bd18552e60fc1d3e2e75149621a9bf78167b77526e79331f11172be5c10db8ea2c847cc627a116b" class="mobile-image" alt="SRE Resources" width="1152"
+                    height="640">
+                <img src="https://lh3.googleusercontent.com/lfDd051503YIQ6vwDyrdzZUbCZ_xli9Bryl3QsyIGaoUPLDst8HnSHlXyqbB7u_Omj1mTpqePKBg4LrRPZqjPtHCe3GrIno14CeV=w1028-rw" class="desktop-image" alt="SRE Resources" width="1069"
+                    height="502">
+              </div>
+              <div class="home-page-carousel-wrapper mobile-image">
+                <h2 class="glue-headline glue-headline--headline-3">SRE Resources</h2>
+                <p class="glue-mod-spacer-2-bottom glue-mod-spacer-2-top home-page-slide-description">A curated list of Site Reliability and Production Engineering resources.</p>
+                  <a class="glue-body--large" href="/resources/" title="Read more" aria-label="Read more">
+                    <button class="glue-button glue-button--medium-emphasis home-page-read-more" aria-label="Read more">Read more
+                      <svg role="presentation" class="glue-icon glue-icon--18px" aria-hidden="true">
+                        <use xlink:href="/static/img/glue-icons.svg#arrow-forward"></use>
+                      </svg>
+                    </button>
+                  </a>
+              </div>
+              <div class="home-page-carousel desktop-image">
+                <div class="home-page-carousel-content">
+                  <h2 class="glue-headline glue-headline--headline-3">SRE Resources</h2>
+                  <p class="glue-mod-spacer-2-bottom glue-mod-spacer-2-top home-page-slide-description">A curated list of Site Reliability and Production Engineering resources.</p>
+                    <a class="glue-body--large" href="/resources/" title="Read more" aria-label="Read more">
+                      <button class="glue-button glue-button--medium-emphasis home-page-read-more" aria-label="Read more">Read more
+                        <svg role="presentation" class="glue-icon glue-icon--18px" aria-hidden="true">
+                          <use xlink:href="/static/img/glue-icons.svg#arrow-forward"></use>
+                        </svg>
+                    </button>
+                    </a>
+                </div>
+              </div>
+            </div>
+            <div class="glue-carousel__item home-page-item">
+              <div class="glue-carousel__image">
+                <img src="https://kstatic.googleusercontent.com/files/f213d1db69dd56c3544f8f84d6e410168e079dd29031a9d5803a42149afe42f479414c6e4e8355690a8ebb466436b989b1d1e74eb5c2fb8e1cc82bc7bbf3776e" class="mobile-image" alt="What is SRE?" width="1152"
+                    height="640">
+                <img src="https://lh3.googleusercontent.com/WLOH0Pg_eojR66OtQAt8z3eXeF3uNWhHNR02sYA8iJViMB_ejb1Tgj7Na2xtTasTeyoy6R2siGknfwdZs7plD1Y3YR2nuHdYmJhE-JagAiew1QxkwJI=w1028-rw" class="desktop-image" alt="What is SRE?" width="1069"
+                    height="502">
+              </div>
+              <div class="home-page-carousel-wrapper mobile-image">
+                <h2 class="glue-headline glue-headline--headline-3">What is SRE?</h2>
+                <p class="glue-mod-spacer-2-bottom glue-mod-spacer-2-top home-page-slide-description">Since 2004, SRE has evolved to become the industry-leading practice for service reliability.</p>
+                  <p class="glue-mod-spacer-2-bottom glue-mod-spacer-2-top home-page-slide-description">Hear from key figures about the history of SRE and what’s next for the SRE community.</p>
+                  <button class="glue-button glue-button--medium-emphasis glue-button--icon carousel-modal-trigger" tabindex="0" aria-label="Watch video">
+                    <svg role="presentation" class="glue-icon glue-icon--18px" aria-hidden="true">
+                      <use xlink:href="/static/img/glue-icons.svg#video-youtube"></use>
+                    </svg>Watch video
+                  </button>
+              </div>
+              <div class="home-page-carousel desktop-image">
+                <div class="home-page-carousel-content">
+                  <h2 class="glue-headline glue-headline--headline-3">What is SRE?</h2>
+                  <p class="glue-mod-spacer-2-bottom glue-mod-spacer-2-top home-page-slide-description">Since 2004, SRE has evolved to become the industry-leading practice for service reliability.</p>
+                    <p class="glue-mod-spacer-2-bottom glue-mod-spacer-2-top home-page-slide-description">Hear from key figures about the history of SRE and what’s next for the SRE community.</p>
+                    <button class="glue-button glue-button--medium-emphasis glue-button--icon carousel-modal-trigger" tabindex="0" aria-label="Watch video">
+                      <svg role="presentation" class="glue-icon glue-icon--18px" aria-hidden="true">
+                        <use xlink:href="/static/img/glue-icons.svg#video-youtube"></use>
+                      </svg>Watch video
+                    </button>
+                </div>
+              </div>
+            </div>
+            <div class="glue-carousel__item home-page-item">
+              <div class="glue-carousel__image">
+                <img src="https://kstatic.googleusercontent.com/files/0139abbb93f223d0d477a7b8dcc6d814916f88a66ca53025fbeb8054bab15b87f9453137b777f1aecc5b953ad217efbfc7a5c85bef57c04715343a42481ad6e3" class="mobile-image" alt="Product-Focused Reliability for SRE" width="1152"
+                    height="640">
+                <img src="https://lh3.googleusercontent.com/EBa-UBv6hbdxNkN9MBocm4DCA818qdjJ45RhwUzcJnpnKDgrgIUJvFyE3Vlrs4LV0fFMQN-Az46OBFjyaLFrN2ZEBYAWEI8scE9la9qcF5d6_gPzJ4s3=w1028-rw" class="desktop-image" alt="Product-Focused Reliability for SRE" width="1069"
+                    height="502">
+              </div>
+              <div class="home-page-carousel-wrapper mobile-image">
+                <h2 class="glue-headline glue-headline--headline-3">Product-Focused Reliability for SRE</h2>
+                <p class="glue-mod-spacer-2-bottom glue-mod-spacer-2-top home-page-slide-description">Learn about how a product-focused reliability model can effectively support the overall reliability of a product.</p>
+                  <a class="glue-body--large" href="resources/practices-and-processes/product-focused-reliability-for-sre/" title="Read more" aria-label="Read more">
+                    <button class="glue-button glue-button--medium-emphasis home-page-read-more" aria-label="Read more">Read more
+                      <svg role="presentation" class="glue-icon glue-icon--18px" aria-hidden="true">
+                        <use xlink:href="/static/img/glue-icons.svg#arrow-forward"></use>
+                      </svg>
+                    </button>
+                  </a>
+              </div>
+              <div class="home-page-carousel desktop-image">
+                <div class="home-page-carousel-content">
+                  <h2 class="glue-headline glue-headline--headline-3">Product-Focused Reliability for SRE</h2>
+                  <p class="glue-mod-spacer-2-bottom glue-mod-spacer-2-top home-page-slide-description">Learn about how a product-focused reliability model can effectively support the overall reliability of a product.</p>
+                    <a class="glue-body--large" href="resources/practices-and-processes/product-focused-reliability-for-sre/" title="Read more" aria-label="Read more">
+                      <button class="glue-button glue-button--medium-emphasis home-page-read-more" aria-label="Read more">Read more
+                        <svg role="presentation" class="glue-icon glue-icon--18px" aria-hidden="true">
+                          <use xlink:href="/static/img/glue-icons.svg#arrow-forward"></use>
+                        </svg>
+                    </button>
+                    </a>
+                </div>
+              </div>
+            </div>
+            <div class="glue-carousel__item home-page-item">
+              <div class="glue-carousel__image">
+                <img src="https://kstatic.googleusercontent.com/files/fd65c3ea04fc81a43a2675142ca2cbc7593ab6c93e17d73461ff86f64ea92e609ec108db26c765c86f12d74b8561529eff163897632dd2d31a2ded1e36df50d8" class="mobile-image" alt="SRE Books" width="1152"
+                    height="640">
+                <img src="https://lh3.googleusercontent.com/Yq9Ab0aSxhZq_1bfmaPv0mnWesk1Nw0CcjcQ7Lj1JHC_WKghHZbGuzVLUAnJuKPWAoiI_KecQlKVuODEO-4_fIwCdyTwCGchx7Q27RA=w1028-rw" class="desktop-image" alt="SRE Books" width="1069"
+                    height="502">
+              </div>
+              <div class="home-page-carousel-wrapper mobile-image">
+                <h2 class="glue-headline glue-headline--headline-3">SRE Books</h2>
+                <p class="glue-mod-spacer-2-bottom glue-mod-spacer-2-top home-page-slide-description">Read our SRE books online: <br>
+Building Secure &amp; Reliable Systems, <br>
+The SRE Workbook, <br>
+and the original SRE book.</p>
+                  <a class="glue-body--large" href="/books/" title="Read online" aria-label="Read online">
+                    <button class="glue-button glue-button--medium-emphasis home-page-read-more" aria-label="Read online">Read online
+                      <svg role="presentation" class="glue-icon glue-icon--18px" aria-hidden="true">
+                        <use xlink:href="/static/img/glue-icons.svg#arrow-forward"></use>
+                      </svg>
+                    </button>
+                  </a>
+              </div>
+              <div class="home-page-carousel desktop-image">
+                <div class="home-page-carousel-content">
+                  <h2 class="glue-headline glue-headline--headline-3">SRE Books</h2>
+                  <p class="glue-mod-spacer-2-bottom glue-mod-spacer-2-top home-page-slide-description">Read our SRE books online: <br>
+Building Secure &amp; Reliable Systems, <br>
+The SRE Workbook, <br>
+and the original SRE book.</p>
+                    <a class="glue-body--large" href="/books/" title="Read online" aria-label="Read online">
+                      <button class="glue-button glue-button--medium-emphasis home-page-read-more" aria-label="Read online">Read online
+                        <svg role="presentation" class="glue-icon glue-icon--18px" aria-hidden="true">
+                          <use xlink:href="/static/img/glue-icons.svg#arrow-forward"></use>
+                        </svg>
+                    </button>
+                    </a>
+                </div>
+              </div>
+            </div>
+        </div>
+
+        <div class="glue-carousel__paginate glue-pagination-previous">
+          <button type="button" class="glue-pagination__button"
+              data-glue-pagination-previous
+              data-glue-pagination="sre-carousel-autostart"
+              data-glue-pagination-update-model="false"
+              title="Previous"
+              aria-label="Previous">
+            <div class="glue-carousel__paginate-wrap">
+              <div class="glue-carousel__arrow glue-carousel__arrow--left"></div>
+            </div>
+          </button>
+        </div>
+
+        <div class="glue-carousel__paginate glue-pagination-next">
+          <button type="button" class="glue-pagination__button"
+              data-glue-pagination-next
+              data-glue-pagination="sre-carousel-autostart"
+              data-glue-pagination-update-model="false"
+              title="Next"
+              aria-label="Next">
+            <div class="glue-carousel__paginate-wrap">
+              <div class="glue-carousel__arrow glue-carousel__arrow--right"></div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <div class="glue-carousel__navigation">
+        <div class="glue-pagination-page-list" data-glue-pagination-page-list data-glue-pagination="sre-carousel-autostart" role="tablist">
+            <div class="glue-pagination__button-container glue-pagination__page-list-button-container">
+              <button type="button" class="glue-pagination__button glue-pagination__page-list-button" role="tab" data-glue-pagination-page="1"
+                  aria-label="slide1">1</button>
+            </div>
+            <div class="glue-pagination__button-container glue-pagination__page-list-button-container">
+              <button type="button" class="glue-pagination__button glue-pagination__page-list-button" role="tab" data-glue-pagination-page="2"
+                  aria-label="slide2">2</button>
+            </div>
+            <div class="glue-pagination__button-container glue-pagination__page-list-button-container">
+              <button type="button" class="glue-pagination__button glue-pagination__page-list-button" role="tab" data-glue-pagination-page="3"
+                  aria-label="slide3">3</button>
+            </div>
+            <div class="glue-pagination__button-container glue-pagination__page-list-button-container">
+              <button type="button" class="glue-pagination__button glue-pagination__page-list-button" role="tab" data-glue-pagination-page="4"
+                  aria-label="slide4">4</button>
+            </div>
+            <div class="glue-pagination__button-container glue-pagination__page-list-button-container">
+              <button type="button" class="glue-pagination__button glue-pagination__page-list-button" role="tab" data-glue-pagination-page="5"
+                  aria-label="slide5">5</button>
+            </div>
+            <div class="glue-pagination__button-container glue-pagination__page-list-button-container">
+              <button type="button" class="glue-pagination__button glue-pagination__page-list-button" role="tab" data-glue-pagination-page="6"
+                  aria-label="slide6">6</button>
+            </div>
+            <div class="glue-pagination__button-container glue-pagination__page-list-button-container">
+              <button type="button" class="glue-pagination__button glue-pagination__page-list-button" role="tab" data-glue-pagination-page="7"
+                  aria-label="slide7">7</button>
+            </div>
+            <div class="glue-pagination__button-container glue-pagination__page-list-button-container">
+              <button type="button" class="glue-pagination__button glue-pagination__page-list-button" role="tab" data-glue-pagination-page="8"
+                  aria-label="slide8">8</button>
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+    <div class="glue-modal glue-modal__carousel" role="dialog" aria-modal="true"
+        aria-labelledby="modal-label" aria-describedby="carousel-modal-content">
+      <div id="carousel-modal-content" class="glue-carousel-modal__content-wrapper"
+          data-glue-yt-video-vid="1NF6N2RwVoc"
+          data-glue-yt-video-height="100%"
+          data-glue-yt-video-width="100%">
+      </div>
+      <button class="glue-modal__close-btn" aria-label="Close"></button>
+    </div>
+
+    <section class="glue-mod-spacer-5-top glue-page" id="modal-label">
+        <div class="glue-grid lazy-load-monitor glue-mod-spacer-6-bottom home-page-variant">
+          <div class="glue-grid__col glue-grid__col--span-1"></div>
+          <div class="glue-grid__col glue-grid__col--span-5 home-page-card">
+            <h2 class="glue-headline glue-headline--headline-3 glue-mod-spacer-2-bottom">What we do as <span>SRE</span></h2>
+            <p class="home-page-headline">Our job is a combination not found elsewhere in the industry. Like traditional operations groups, we keep important, revenue-critical systems up and running despite hurricanes, bandwidth outages, and configuration errors.</p>
+          </div>
+          <div class="glue-grid__col glue-grid__col--span-5 home-page-card-image monitor">
+            <picture>
+              <source type="image/webp" srcset="https://lh3.googleusercontent.com/12rg5Y2H9x_AGUrVq-rc2XW8MAojmtoVqi0Xi_FKEGWKoxP5qflAcSnyLzX92wYr5MZVTBFKO2HVXb7m8tP7jlnCBWq6qpL2VvdhIHaGEUfJ8NeKCsk2=w503-rw">
+              <img src="https://lh3.googleusercontent.com/12rg5Y2H9x_AGUrVq-rc2XW8MAojmtoVqi0Xi_FKEGWKoxP5qflAcSnyLzX92wYr5MZVTBFKO2HVXb7m8tP7jlnCBWq6qpL2VvdhIHaGEUfJ8NeKCsk2=rw" alt="sre expert" width="503" height="236"
+>
+            </picture>
+          </div>
+        </div>
+        <div class="glue-grid lazy-load-monitor glue-mod-spacer-6-bottom home-page-variant">
+          <div class="glue-grid__col glue-grid__col--span-1"></div>
+          <div class="glue-grid__col glue-grid__col--span-5 home-page-card is-reverse">
+            <h2 class="glue-headline glue-headline--headline-3 glue-mod-spacer-2-bottom">How we SRE at <span>Google</span></h2>
+            <p class="home-page-headline">As SRE, we flip between the fine-grained detail of disk driver IO scheduling to the big picture of continental-level service capacity, across a range of systems and a user population measured in billions.</p>
+          </div>
+          <div class="glue-grid__col glue-grid__col--span-5 home-page-card-image monitor">
+            <picture>
+              <source type="image/webp" srcset="https://lh3.googleusercontent.com/K4ctb-bP-59YqOGgcA0BNK2FzUPrWbWfI_Kr04pUJpIEOpFACJmpCbfDbREZnvA9Vh7yGXOCsvo4vO7fbzHgkfTxTKKsiXr3SIrDAdohFLXNJi7Nn98=w503-rw">
+              <img src="https://lh3.googleusercontent.com/K4ctb-bP-59YqOGgcA0BNK2FzUPrWbWfI_Kr04pUJpIEOpFACJmpCbfDbREZnvA9Vh7yGXOCsvo4vO7fbzHgkfTxTKKsiXr3SIrDAdohFLXNJi7Nn98=rw" alt="sre expert" width="503" height="236"
+loading="lazy">
+            </picture>
+          </div>
+        </div>
+    </section>
+
+
+<div class="bottom-banner glue-mod-spacer-5-bottom
+ glue-mod-spacer-5-top">
+<div class="bottom-banner__spacing" id="bottom-banner-button">
+  <h2 class="glue-headline glue-headline--headline-3 glue-mod-spacer-3-bottom">
+      Interested in joining SRE?
+  </h2>
+  <p class="bottom-banner__headline bottom-banner__spacer">
+      Google strives to cultivate an inclusive workplace. <span>We believe diversity of perspectives and ideas leads to better discussions, decisions, and outcomes for everyone.</span>
+  </p>
+    <a class="glue-mod-spacer-3-top no-decoration" href="https://www.google.com/about/careers/applications/jobs/results/?q=%22site+reliability+engineering%22"
+        target="_blank" rel="noopener noreferrer" aria-label="Explore SRE opportunities at Google">
+      <button class="glue-button glue-button--low-emphasis glue-button--icon-right"
+          tabindex="0" aria-controls="bottom-banner-button" aria-label="Explore SRE opportunities at Google">
+        Explore SRE opportunities at Google
+        <svg role="presentation" aria-hidden="true" class="glue-icon glue-icon--20px">
+          <use xlink:href="/static/img/glue-icons.svg#open-in-new"></use>
+        </svg>
+      </button>
+    </a>
+</div></div>
+  </div>
+    </main>
+<footer class="glue-footer">
+  <section class="glue-footer__upper">
+    <div class="glue-social glue-social__group">
+      <p class="glue-social__title glue-social__title--inline">Follow us</p>
+      <ul class="glue-social__list glue-no-bullet">
+          <li class="glue-social__item">
+            <a class="glue-social__link" href="https://www.twitter.com/googlesre/" target="_blank" rel="noopener noreferrer" title="Follow us on Twitter">
+              <svg role="presentation" aria-hidden="true" class="glue-icon glue-icon--24px glue-icon--social" alt="twitter-X">
+                <use xlink:href="/static/img/glue-icons.svg#twitter-X"></use>
+              </svg>
+            </a>
+          </li>
+          <li class="glue-social__item">
+            <a class="glue-social__link" href="https://www.youtube.com/google" target="_blank" rel="noopener noreferrer" title="Follow us on YouTube">
+              <svg role="presentation" aria-hidden="true" class="glue-icon glue-icon--24px glue-icon--social" alt="video-youtube">
+                <use xlink:href="/static/img/glue-icons.svg#video-youtube"></use>
+              </svg>
+            </a>
+          </li>
+      </ul>
+    </div>
+  </section>
+  <section class="glue-footer__global">
+    <div class="glue-footer__logo">
+      <a href="https://www.google.com" target="_blank" rel="noopener noreferrer" aria-label="Google" title="Google">
+        <svg role="img" aria-hidden="true" class="glue-footer__logo-img" alt="Google">
+          <use xlink:href="/static/img/glue-icons.svg#google-solid-logo"></use>
+        </svg>
+      </a>
+    </div>
+    <ul class="glue-footer__global-links glue-no-bullet">
+        <li class="glue-footer__global-links-list-item">
+          <a class="glue-footer__link" href="https://about.google/" target="_blank" rel="noopener noreferrer" aria-label="About Google" title="About Google">About Google</a>
+        </li>
+        <li class="glue-footer__global-links-list-item">
+          <a class="glue-footer__link" href="https://about.google/products/" target="_blank" rel="noopener noreferrer" aria-label="Google products" title="Google products">Google products</a>
+        </li>
+        <li class="glue-footer__global-links-list-item">
+          <a class="glue-footer__link" href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" aria-label="Privacy" title="Privacy">Privacy</a>
+        </li>
+        <li class="glue-footer__global-links-list-item">
+          <a class="glue-footer__link" href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" aria-label="Terms" title="Terms">Terms</a>
+        </li>
+    </ul>
+    <ul class="glue-footer__global-links glue-footer__global-links--extra glue-no-bullet">
+      <li class="glue-footer__global-links-list-item glue-footer__global-links-list-item--extra">
+        <a class="glue-footer__link" href="https://support.google.com/?hl=en" aria-label="Help" title="Help" target="_blank" rel="noopener noreferrer">
+          <svg role="img" aria-hidden="true" class="glue-icon glue-icon--24px glue-icon--footer-help" alt="Help">
+            <use xlink:href="/static/img/glue-icons.svg#help"></use>
+          </svg>
+          Help
+        </a>
+      </li>
+    </ul>
+  </section>
+</footer>
+    <script defer src="https://www.gstatic.com/external_hosted/hammerjs/v2_0_2/hammer.min.js"></script>
+    <script defer src="/static/js/index.min.js?cache=50d0546"></script>
+    <script src="https://www.gstatic.com/glue/cookienotificationbar/cookienotificationbar.min.js"
+        data-glue-cookie-notification-bar-category="2B"
+        data-glue-cookie-notification-bar-language="en"
+        data-glue-cookie-notification-bar-site-id="sre.google">
+    </script>
+  </body>
+</html>

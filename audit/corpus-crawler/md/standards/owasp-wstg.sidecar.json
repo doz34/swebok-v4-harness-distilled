@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/owasp-wstg.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/owasp-wstg.md",
+  "title": "GitHub - OWASP/wstg: The Web Security Testing Guide is a comprehensive Open Source guide to testing the security of web applications and web services. \u00b7 GitHub",
+  "engine_used": "bs4-handrolled",
+  "char_count": 4883,
+  "heading_count": 8,
+  "sha256": "2a8b5db599a3b9ae247f273511ee3edc24a23a3bcec17a1df0c60381500a01d7",
+  "source_url": "https://github.com/OWASP/wstg",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:59.806477+00:00"
+}

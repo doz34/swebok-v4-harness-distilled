@@ -1,0 +1,13 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/nist-800-37r2.pdf",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/nist-800-37r2.md",
+  "engine_used": "pdfplumber",
+  "page_count": 183,
+  "char_count": 596424,
+  "is_image_only": false,
+  "sha256": "4f75e1136bb905a654f1bcd9eefefb4108f47597276ee5eec0688f6d96f6a01d",
+  "source_url": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-37r2.pdf",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:23:45.273324+00:00",
+  "image_only_note": ""
+}

@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/cs229-notes.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/cs229-notes.md",
+  "title": "CS229: Machine Learning",
+  "engine_used": "bs4-handrolled",
+  "char_count": 11927,
+  "heading_count": 5,
+  "sha256": "2b34915eca0517ef490b53e913751402d4334d1eab2af503b250fee3c0538ab3",
+  "source_url": "https://cs229.stanford.edu/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:57.874849+00:00"
+}

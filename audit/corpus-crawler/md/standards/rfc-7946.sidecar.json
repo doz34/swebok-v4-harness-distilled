@@ -1,0 +1,11 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/rfc-7946.txt",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/rfc-7946.md",
+  "title": "Internet Engineering Task Force (IETF)                         H. Butler",
+  "engine_used": "passthrough",
+  "char_count": 49143,
+  "sha256": "cb52f07b9cc6c841750d75850988fe8f32c7b7f0e1f7420f2069d5b5ded124f8",
+  "source_url": "https://www.rfc-editor.org/rfc/rfc7946.txt",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:26:06.827312+00:00"
+}

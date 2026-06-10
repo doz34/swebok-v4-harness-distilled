@@ -1,0 +1,773 @@
+# corpus-crawler — sources whitelist
+# ===================================
+# Only domains listed here are allowed as download origins.
+# Anything not on this list is rejected by the crawler, even on HTTP 200.
+#
+# License: every entry MUST be either:
+#   - public domain (US Gov, IEEE SWEBOK excerpts marked as such)
+#   - explicit Creative Commons (CC BY, CC BY-SA, CC BY-NC, CC BY-NC-SA, CC0)
+#   - official free distribution by the author/publisher (sample chapters,
+#     free books, open-access editions)
+#   - Internet Archive borrow (lending, 14-day window, signed-in user)
+#
+# NOT allowed: random "PDF download" sites, libgen mirrors, Sci-Hub,
+# z-library, torrent indexes, .onion endpoints, anything behind a
+# paywall that the user has not legitimately unlocked.
+
+version: 2
+generated: 2026-06-09
+last_validated: 2026-06-09
+
+# Global rate-limit policy. The crawler enforces these per-host.
+policy:
+  user_agent: "swebok-corpus-crawler/1.0 (research, non-commercial; contact: local@home.doz)"
+  min_delay_seconds: 1.5        # polite floor between requests to the same host
+  max_concurrent_per_host: 2
+  max_file_size_mb: 80          # reject >80MB unless entry overrides
+  request_timeout_seconds: 60
+  respect_robots_txt: true
+  max_retries: 3
+  retry_backoff_base: 2.0       # exponential backoff: 2s, 4s, 8s
+  content_type_strict: true     # reject mismatches (e.g., HTML for .pdf URL)
+
+# Whitelisted domains. The crawler resolves URLs only against these.
+allowed_hosts:
+  # Standards bodies (public-domain or open-license)
+  - nvlpubs.nist.gov
+  - csrc.nist.gov
+  - www.nist.gov
+  - pages.nist.gov
+  - owasp.org
+  - www.owasp.org
+  - github.com
+  - raw.githubusercontent.com
+  - api.github.com
+  - specs.opencontainers.org
+  - datatracker.ietf.org
+  - www.rfc-editor.org
+  - rfc-editor.org
+  - www.w3.org
+  - www.omg.org
+  - www.itu.int
+  - safecode.org
+  - cloudsecurityalliance.org
+  - www.enisa.europa.eu
+  - www.iso.org
+  - standards.ieee.org
+  - www.computer.org
+  - ieeexplore.ieee.org
+
+  # Open educational / textbook mirrors (CC or author-released)
+  - web.stanford.edu
+  - stanford.edu
+  - nlp.stanford.edu
+  - www.greenteapress.com
+  - greenteapress.com
+  - linuxcommand.org
+  - mml-book.github.io
+  - www.mmds.org
+  - mmds.org
+  - infolab.stanford.edu
+  - cs229.stanford.edu
+  - cs231n.github.io
+  - incompleteideas.net
+  - inference.org.uk
+  - www.inference.org.uk
+  - inference.com
+  - linear.axler.net
+  - d2l.ai
+  - www.deeplearningbook.org
+  - algs4.cs.princeton.edu
+  - mitpress.mit.edu
+  - ocw.mit.edu
+  - www.press.uchicago.edu
+  - domagoj-saleti.from.hr
+  - pages.cs.wisc.edu
+  - sarabander.github.io       # SICP community HTML mirror
+  - www.csc.lsu.edu            # Peter Chen's papers page (LSU)
+  - learning.oreilly.com       # the public landing pages for free sample chapters only
+  - media.pragprog.com         # Pragmatic Bookshelf free chapters (publisher-released)
+  - pragprog.com               # Pragmatic Bookshelf catalogue (HTML pages)
+  - sre.google                 # Google SRE book / workbook (free online)
+  - lawsofux.com               # Laws of UX (free online)
+  - 12factor.net               # The Twelve-Factor App
+  - martinfowler.com           # Martin Fowler's bliki (open articles)
+
+  # Online / open access
+  - archive.org                # Internet Archive borrow
+  - openlibrary.org
+  - www.gutenberg.org
+  - gutenberg.org
+  - www.oapen.org
+  - directory.doabooks.org
+  - upload.wikimedia.org
+  - en.wikisource.org
+
+  # Open cloud-native / foundation content
+  - www.cncf.io
+  - glossary.cncf.io
+  - maturitymodel.cncf.io
+  - argoproj.github.io
+  - argo-cd.readthedocs.io
+  - argocd.readthedocs.io
+  - fluxcd.io
+  - kubernetes.io
+  - k8s.io
+
+  # Academic mirrors for founder papers
+  - www.win.tue.nl             # Parnas 1972 (mirror)
+  - www.cs.unc.edu             # Brooks "No Silver Bullet" (UNC tech report)
+  - curtclifton.net            # Moseley & Marks "Out of the Tar Pit" (author site)
+  - www.michael-jackson.org    # Michael Jackson software engineering essays
+  - www.cs.uh.edu              # Chen 1976 ER model (UH mirror)
+  - cs.wisc.edu                # Naur 1985 (UWisc mirror)
+  - pages.cs.wisc.edu          # UWisc pages (Naur, OSTEP)
+
+  # ACM / arxiv / open repository
+  - arxiv.org
+  - export.arxiv.org
+  - dl.acm.org
+
+# ---------------------------------------------------------------------------
+# Sources par catégorie. Chaque entrée est une URL de download DIRECT
+# (pas une page HTML intermédiaire). Pour les pages de listing, ajouter
+# un script dédié dans scripts/ (ex: ia_borrow.py).
+# ---------------------------------------------------------------------------
+
+categories:
+
+  # --- NIST standards & guidance (US Gov, public domain) -------------
+  - name: nist-standards
+    kind: standards
+    license: "Public Domain (US Gov)"
+    entries:
+      - id: nist-800-53r5
+        title: "Security and Privacy Controls for Information Systems and Organizations (SP 800-53 Rev 5)"
+        url: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf
+        phase: [P7, P8]
+      - id: nist-csf-2.0
+        title: "Cybersecurity Framework 2.0 (CSWP 29)"
+        url: https://nvlpubs.nist.gov/nistpubs/CSWP/NIST.CSWP.29.pdf
+        phase: [P7, P8]
+      - id: nist-ai-100-1
+        title: "AI Risk Management Framework (AI 100-1)"
+        url: https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf
+        phase: [P0, P1, P5]
+      - id: nist-800-218
+        title: "Secure Software Development Framework (SSDF) v1.0 (SP 800-218)"
+        url: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218.pdf
+        phase: [P5, P7]
+      - id: nist-800-207
+        title: "Zero Trust Architecture (SP 800-207)"
+        url: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-207.pdf
+        phase: [P3, P7, P8]
+      - id: nist-800-37r2
+        title: "Risk Management Framework for Information Systems and Organizations (SP 800-37 Rev 2)"
+        url: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-37r2.pdf
+        phase: [P0, P1, P7, P8]
+      - id: nist-800-61r2
+        title: "Computer Security Incident Handling Guide (SP 800-61 Rev 2)"
+        url: https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-61r2.pdf
+        phase: [P7, P8]
+      - id: nist-glossary
+        title: "NIST Glossary of Key Information Security Terms"
+        url: https://csrc.nist.gov/glossary
+        format: html
+        phase: [P0, P7, P8]
+      - id: nist-rmf
+        title: "NIST Risk Management Framework (CSRC project)"
+        url: https://csrc.nist.gov/projects/risk-management
+        format: html
+        phase: [P0, P1, P7]
+      - id: nist-ai-rmf
+        title: "NIST AI Risk Management Framework (landing page)"
+        url: https://www.nist.gov/itl/ai-risk-management-framework
+        format: html
+        phase: [P0, P1, P5]
+
+  # --- OWASP (CC / open license) ------------------------------------
+  - name: owasp
+    kind: standards
+    license: "CC BY-SA 4.0"
+    entries:
+      - id: owasp-asvs-5.0
+        title: "OWASP Application Security Verification Standard 5.0"
+        # Direct PDF links under owasp.org/www-pdf-archive/ are now
+        # Cloudflare-fronted redirects to GitHub — they return HTML,
+        # not PDF. Use the GitHub repo instead.
+        url: https://github.com/OWASP/ASVS
+        format: html
+        phase: [P7, P8]
+      - id: owasp-top10-2021
+        title: "OWASP Top 10 (2021)"
+        url: https://owasp.org/Top10/
+        format: html
+        phase: [P7, P8]
+      - id: owasp-mobile-top10
+        title: "OWASP Mobile Top 10"
+        url: https://owasp.org/www-project-mobile-top-10/
+        format: html
+        phase: [P7, P8]
+      - id: owasp-samm-2
+        title: "OWASP Software Assurance Maturity Model v2"
+        url: https://owasp.org/www-project-samm/
+        format: html
+        phase: [P7, P8]
+      - id: owasp-cheat-sheets
+        title: "OWASP Cheat Sheet Series (Index)"
+        url: https://github.com/OWASP/CheatSheetSeries/raw/master/Index.md
+        format: md
+        phase: [P5, P7, P8]
+      - id: owasp-wstg
+        title: "OWASP Web Security Testing Guide"
+        url: https://github.com/OWASP/wstg
+        format: html
+        phase: [P6, P7]
+      - id: owasp-asvs-repo
+        title: "OWASP ASVS repository (full markdown source)"
+        url: https://github.com/OWASP/ASVS/tree/master/5.0/en
+        format: html
+        phase: [P7, P8]
+
+  # --- IETF / W3C / OMG (toujours libre) ----------------------------
+  - name: ietf-rfcs
+    kind: standards
+    license: "IETF Trust / public domain"
+    entries:
+      # rfc-editor.org serves the canonical RFC text directly at
+      # /rfc/rfcN.txt. datatracker.ietf.org wraps it in a JS-rendered
+      # Vue app whose static HTML does not contain the RFC body, so it
+      # is unreliable for a non-JS crawler. We use rfc-editor.org
+      # .txt instead. (rfc-editor.org blocks HEAD for non-browser UAs
+      # but allows GET, which the fetcher uses.)
+      - id: rfc-7231
+        title: "HTTP/1.1 Semantics and Content (RFC 7231)"
+        url: https://www.rfc-editor.org/rfc/rfc7231.txt
+        format: txt
+        phase: [P5, P7]
+      - id: rfc-7807
+        title: "Problem Details for HTTP APIs (RFC 7807)"
+        url: https://www.rfc-editor.org/rfc/rfc7807.txt
+        format: txt
+        phase: [P3, P5]
+      - id: rfc-7946
+        title: "The GeoJSON Format (RFC 7946)"
+        url: https://www.rfc-editor.org/rfc/rfc7946.txt
+        format: txt
+        phase: [P3, P5]
+      - id: rfc-8259
+        title: "The JSON Data Interchange Syntax (RFC 8259)"
+        url: https://www.rfc-editor.org/rfc/rfc8259.txt
+        format: txt
+        phase: [P5]
+      - id: rfc-9000
+        title: "QUIC: A UDP-Based Multiplexed and Secure Transport (RFC 9000)"
+        url: https://www.rfc-editor.org/rfc/rfc9000.txt
+        format: txt
+        phase: [P3, P7]
+      - id: rfc-6749
+        title: "The OAuth 2.0 Authorization Framework (RFC 6749)"
+        url: https://www.rfc-editor.org/rfc/rfc6749.txt
+        format: txt
+        phase: [P7]
+      - id: rfc-7519
+        title: "JSON Web Token (RFC 7519)"
+        url: https://www.rfc-editor.org/rfc/rfc7519.txt
+        format: txt
+        phase: [P7]
+      - id: rfc-8446
+        title: "The Transport Layer Security (TLS) Protocol Version 1.3 (RFC 8446)"
+        url: https://www.rfc-editor.org/rfc/rfc8446.txt
+        format: txt
+        phase: [P7, P8]
+      - id: rfc-5246
+        title: "The Transport Layer Security (TLS) Protocol Version 1.2 (RFC 5246)"
+        url: https://www.rfc-editor.org/rfc/rfc5246.txt
+        format: txt
+        phase: [P7, P8]
+      - id: rfc-8141
+        title: "Uniform Resource Names (URN) (RFC 8141)"
+        url: https://www.rfc-editor.org/rfc/rfc8141.txt
+        format: txt
+        phase: [P5]
+      - id: rfc-6234
+        title: "Syntactic Uses of AS and Route Reflection (RFC 6234 — historical, soft)"
+        url: https://www.rfc-editor.org/rfc/rfc6234.txt
+        format: txt
+        phase: [P3]
+
+
+  - name: w3c-recs
+    kind: standards
+    license: "W3C Document License"
+    entries:
+      - id: w3c-html-latest
+        title: "HTML Living Standard (WHATWG — current W3C recommendation)"
+        url: https://www.w3.org/TR/html/
+        format: html
+        phase: [P5, P7]
+      - id: w3c-json-ld
+        title: "JSON-LD 1.1"
+        url: https://www.w3.org/TR/json-ld11/
+        format: html
+        phase: [P5]
+      - id: w3c-sparql11
+        title: "SPARQL 1.1 Query Language"
+        url: https://www.w3.org/TR/sparql11-query/
+        format: html
+        phase: [P5]
+      - id: w3c-owl2
+        title: "OWL 2 Web Ontology Language Document Overview"
+        url: https://www.w3.org/TR/owl2-overview/
+        format: html
+        phase: [P3, P5]
+      - id: w3c-rdf11
+        title: "RDF 1.1 Concepts and Abstract Syntax"
+        url: https://www.w3.org/TR/rdf11-concepts/
+        format: html
+        phase: [P3, P5]
+      - id: w3c-xpath-31
+        title: "XPath 3.1"
+        url: https://www.w3.org/TR/xpath-31/
+        format: html
+        phase: [P5]
+      - id: w3c-xslt-30
+        title: "XSLT 3.0"
+        url: https://www.w3.org/TR/xslt-30/
+        format: html
+        phase: [P5]
+      - id: w3c-xml
+        title: "Extensible Markup Language (XML) 1.0 (Fifth Edition)"
+        url: https://www.w3.org/TR/xml/
+        format: html
+        phase: [P5]
+
+  - name: omg-specs
+    kind: standards
+    license: "OMG public download pages"
+    entries:
+      - id: omg-uml
+        title: "OMG UML (Unified Modeling Language) public spec page"
+        url: https://www.omg.org/spec/UML
+        format: html
+        phase: [P3, P4]
+      - id: omg-bpmn-2
+        title: "OMG BPMN 2.0 public spec page"
+        url: https://www.omg.org/spec/BPMN/2.0/
+        format: html
+        phase: [P2, P3]
+
+  - name: itu
+    kind: standards
+    license: "ITU public recommendation pages"
+    entries:
+      - id: itu-x509
+        title: "ITU-T X.509 — Public-key and attribute certificate frameworks"
+        url: https://www.itu.int/rec/T-REC-X.509
+        format: html
+        phase: [P7]
+
+  # --- Open-access livres / sites auteurs (CC ou auteur-released) ---
+  - name: open-books
+    kind: books
+    license: "various CC / author free release"
+    entries:
+      - id: philosophy-software-design-ousterhout
+        title: "A Philosophy of Software Design (Ousterhout) — Stanford CS190 winter 2024 course page"
+        url: https://web.stanford.edu/~ouster/cs190-winter24/
+        format: html
+        phase: [P3, P4, P5]
+      - id: sre-book-google
+        title: "Site Reliability Engineering (Google, free online edition)"
+        url: https://sre.google/sre-book/
+        format: html
+        phase: [P8]
+      - id: sre-workbook-google
+        title: "The Site Reliability Workbook (Google, free)"
+        url: https://sre.google/workbook/
+        format: html
+        phase: [P8]
+      - id: ux-laws
+        title: "Laws of UX (free online book, Jon Yablonski)"
+        url: https://lawsofux.com/
+        format: html
+        phase: [P0, P4]
+      - id: twelve-factor
+        title: "The Twelve-Factor App"
+        url: https://12factor.net/
+        format: html
+        phase: [P3, P7]
+      - id: fowler-microservices
+        title: "Microservices (Fowler & Lewis, canonical article)"
+        url: https://martinfowler.com/articles/microservices.html
+        format: html
+        phase: [P3, P4]
+      - id: fowler-serverless
+        title: "Serverless Architectures (Mike Roberts, canonical)"
+        url: https://martinfowler.com/articles/serverless.html
+        format: html
+        phase: [P3, P7]
+      - id: fowler-cqrs
+        title: "CQRS (Greg Young, Fowler canonical)"
+        url: https://martinfowler.com/bliki/CQRS.html
+        format: html
+        phase: [P3, P4]
+      - id: fowler-testing-microservices
+        title: "Testing Strategies in a Microservice Architecture (Fowler)"
+        url: https://martinfowler.com/articles/microservice-testing/
+        format: html
+        phase: [P6]
+
+  # --- Open-access livres universitaires (CC) ------------------------
+  - name: open-textbooks
+    kind: books
+    license: "various CC"
+    entries:
+      - id: mml-book-deisenroth
+        title: "Mathematics for Machine Learning (Deisenroth, Faisal, Ong)"
+        url: https://mml-book.github.io/
+        format: html
+        phase: [P5]
+      - id: think-python-downey
+        title: "Think Python, 2e (Downey)"
+        url: https://greenteapress.com/wp/think-python-2e/
+        format: html
+        phase: [P5]
+      - id: tlcl-shotts
+        title: "The Linux Command Line (Shotts)"
+        url: http://linuxcommand.org/tlcl.php
+        format: html
+        phase: [P5, P7, P8]
+      - id: convex-opt-boyd
+        title: "Convex Optimization (Boyd & Vandenberghe)"
+        url: https://stanford.edu/~boyd/cvxbook/
+        format: html
+        phase: [P5, P6, P8]
+      - id: rl-sutton-barto
+        title: "Reinforcement Learning (Sutton & Barto, 2e draft)"
+        url: http://incompleteideas.net/book/the-book-2nd.html
+        format: html
+        phase: [P5, P8]
+      - id: slp-jurafsky
+        title: "Speech and Language Processing, 3e draft (Jurafsky & Martin)"
+        url: https://web.stanford.edu/~jurafsky/slp3/
+        format: html
+        phase: [P5, P8]
+      - id: prob-ml-murphy-1
+        title: "Probabilistic Machine Learning: An Introduction (Murphy, draft)"
+        url: https://github.com/probml/pml-book
+        format: html
+        phase: [P5]
+      - id: prob-ml-murphy-2
+        title: "Probabilistic Machine Learning: Advanced Topics (Murphy, draft)"
+        url: https://github.com/probml/pml2-book
+        format: html
+        phase: [P5, P8]
+      - id: mmds-leskovec
+        title: "Mining of Massive Datasets (Leskovec, Rajaraman, Ullman)"
+        url: http://www.mmds.org/
+        format: html
+        phase: [P5]
+      - id: info-theory-mackay
+        title: "Information Theory, Inference, and Learning Algorithms (MacKay)"
+        url: http://www.inference.org.uk/itprnn/book.html
+        format: html
+        phase: [P5, P8]
+      - id: ir-book
+        title: "Introduction to Information Retrieval (Manning et al.)"
+        url: https://nlp.stanford.edu/IR-book/
+        format: html
+        phase: [P3, P5]
+      - id: cs229-notes
+        title: "Stanford CS229 Lecture Notes (machine learning)"
+        url: https://cs229.stanford.edu/
+        format: html
+        phase: [P5]
+      - id: cs224n-notes
+        title: "Stanford CS224N Lecture Notes (NLP with deep learning)"
+        url: http://web.stanford.edu/class/cs224n/
+        format: html
+        phase: [P5]
+      - id: deep-learning-book
+        title: "Deep Learning (Goodfellow, Bengio, Courville — free HTML)"
+        url: https://www.deeplearningbook.org/
+        format: html
+        phase: [P5]
+      - id: d2l-en
+        title: "Dive into Deep Learning (Mu Li et al., CC BY-SA 4.0)"
+        url: https://d2l.ai/
+        format: html
+        phase: [P5]
+      - id: algorithms-sedgewick
+        title: "Algorithms, 4th ed. — Online textbook site (Sedgewick/Wayne)"
+        url: https://algs4.cs.princeton.edu/home/
+        format: html
+        phase: [P5]
+      - id: sicp-html
+        title: "Structure and Interpretation of Computer Programs (HTML edition, CC BY-NC-SA 4.0)"
+        # The official MIT Press URL is now 403; the canonical community
+        # HTML mirror is sarabander.github.io/sicp/.
+        url: https://sarabander.github.io/sicp/
+        format: html
+        phase: [P5]
+      - id: ostep
+        title: "Operating Systems: Three Easy Pieces (Arpaci-Dusseau, CC BY-NC-SA)"
+        url: https://pages.cs.wisc.edu/~remzi/OSTEP/
+        format: html
+        phase: [P5, P8]
+      - id: craft-of-research
+        title: "The Craft of Research (free excerpts, U Chicago Press)"
+        url: https://www.press.uchicago.edu/ucp/books/book/chicago/C/bo3624064.html
+        format: html
+        phase: [P0, P1]
+
+  # --- Pragmatic Bookshelf — official landing pages (HTML)
+  - name: pragprog-landing
+    kind: book-landing
+    license: "publisher official page (free preview metadata)"
+    entries:
+      - id: pragprog-pragmatic-programmer-20th
+        title: "The Pragmatic Programmer, 20th Anniversary — landing page"
+        url: https://pragprog.com/titles/tpp20/the-pragmatic-programmer-20th-anniversary-edition/
+        format: html
+        phase: [P5]
+      - id: pragprog-release-it-2e
+        title: "Release It!, 2nd ed. — landing page"
+        url: https://pragprog.com/titles/mnee2/release-it-second-edition/
+        format: html
+        phase: [P7, P8]
+      # Beyond Legacy Code is no longer on pragprog.com; it has been
+      # delisted. The free chapter PDF (https://media.pragprog.com/titles/dbernstein/belc.pdf)
+      # is also 404. To grab the sample, copy the ISBN 9781680500790 to
+      # the IA borrow plan in script_only_sources.
+
+  # --- Papers fondateurs (open mirrors, author preprints) -----------
+  - name: founder-papers
+    kind: papers
+    license: "varies (author preprints / open mirrors)"
+    entries:
+      - id: parnas-1972
+        title: "On the Criteria To Be Used in Decomposing Systems into Modules (Parnas 1972)"
+        url: https://www.win.tue.nl/~wstomv/edu/2ip30/references/criteria_for_modularization.pdf
+        phase: [P3, P5]
+      - id: brooks-1986
+        title: "No Silver Bullet (Brooks 1986)"
+        # UNC tech report is 86-020, not 86-031 (the latter was an early
+        # draft that has been replaced).
+        url: https://www.cs.unc.edu/techreports/86-020.pdf
+        phase: [P0, P1]
+      - id: naur-1985
+        title: "Programming as Theory Building (Naur 1985)"
+        url: http://pages.cs.wisc.edu/~remzi/Naur.pdf
+        phase: [P5]
+      - id: moseley-marks-2006
+        title: "Out of the Tar Pit (Moseley & Marks 2006)"
+        url: https://curtclifton.net/stuff/marks-moseley-2006.pdf
+        phase: [P3, P4]
+      # Michael Jackson's essays were hosted at michael-jackson.org,
+      # which is now squatted (redirects to the singer's site). His
+      # papers are not currently mirrored at a URL we can reach with
+      # a polite crawler. To get the text, browse the Wayback Machine
+      # at https://web.archive.org/web/*/michael-jackson.org/* and
+      # save the relevant PDF manually.
+      - id: jackson-1995
+        title: "Some Notes on Software Engineering (Michael Jackson 1995) — UNREACHABLE"
+        url: http://www.michael-jackson.org/resources/mj_notes.pdf
+        phase: [P2, P3]
+        broken: true
+      - id: jacks-2007
+        title: "Well-Founded Software (Jackson, 2007 essay collection) — UNREACHABLE"
+        url: http://www.michael-jackson.org/wellFounded.pdf
+        phase: [P3, P4]
+        broken: true
+      - id: chen-1976
+        title: "The Entity-Relationship Model (Chen 1976) — bibliographic reference only"
+        # The original paper is gated by ACM. The cs.uh.edu mirror
+        # certificate is broken and the redirect target (uh.edu) returns
+        # 404. CiteSeerX (which has the PDF) is also SSL-broken. The
+        # bibliographic metadata is captured here for reference; the
+        # full text is unavailable in any open mirror that we can
+        # reach with a polite crawler.
+        url: https://www.csc.lsu.edu/~chen/papers.html
+        format: html
+        phase: [P2, P3]
+
+  # --- CNCF / OCI / Kubernetes (open governance) ---------------------
+  - name: cncf-specs
+    kind: standards
+    license: "Apache 2.0 / CC BY 4.0 / OCI charter"
+    entries:
+      - id: cncf-tag-security
+        title: "CNCF TAG Security repository (whitepapers, assessments)"
+        url: https://github.com/cncf/tag-security
+        format: html
+        phase: [P7, P8]
+      - id: oci-image-spec
+        title: "OCI Image Format Specification"
+        url: https://github.com/opencontainers/image-spec/raw/main/spec.md
+        format: md
+        phase: [P7]
+      - id: oci-runtime-spec
+        title: "OCI Runtime Specification"
+        url: https://github.com/opencontainers/runtime-spec/raw/main/spec.md
+        format: md
+        phase: [P7]
+      - id: cncf-glossary
+        title: "CNCF Cloud Native Glossary (interactive HTML)"
+        url: https://glossary.cncf.io/
+        format: html
+        phase: [P3, P7, P8]
+      - id: cncf-cmmf
+        title: "CNCF Cloud Native Maturity Model"
+        url: https://maturitymodel.cncf.io/
+        format: html
+        phase: [P3, P7]
+      - id: argocd-docs
+        title: "Argo CD — open documentation"
+        url: https://argo-cd.readthedocs.io/
+        format: html
+        phase: [P7, P8]
+      - id: flux-docs
+        title: "Flux CD — open documentation"
+        url: https://fluxcd.io/flux/
+        format: html
+        phase: [P7, P8]
+      - id: kubernetes-docs
+        title: "Kubernetes documentation (open)"
+        url: https://kubernetes.io/docs/
+        format: html
+        phase: [P7, P8]
+
+  # --- ENISA / Cloud Security Alliance / SafeCode / ITU / ISO / IEEE
+  - name: gov-publications
+    kind: standards
+    license: "public EU / US / international policy docs"
+    entries:
+      - id: enisa-threat-landscape-2024
+        title: "ENISA Threat Landscape 2024"
+        url: https://www.enisa.europa.eu/publications/enisa-threat-landscape-2024
+        format: html
+        phase: [P7, P8]
+      - id: csa-artifacts
+        title: "Cloud Security Alliance — research artifacts"
+        url: https://cloudsecurityalliance.org/research/artifacts/
+        format: html
+        phase: [P7, P8]
+      # SAFECode's main publications page is gated by Cloudflare and
+      # returns 403 to non-browser UAs. The individual publications are
+      # PDF files served from the same origin (allowed by robots.txt).
+      # To grab specific PDFs, the user can paste direct PDF URLs into
+      # the resolved_url field after browsing
+      # https://safecode.org/publications/ in a browser.
+      - id: iso-iec-ieee-42010
+        title: "ISO/IEC/IEEE 42010:2011 — Architecture description (abstract / listing)"
+        url: https://www.iso.org/standard/50508.html
+        format: html
+        phase: [P3]
+      - id: iso-27001
+        title: "ISO/IEC 27001:2022 (abstract / listing)"
+        url: https://www.iso.org/standard/27001
+        format: html
+        phase: [P7]
+      - id: iso-27002
+        title: "ISO/IEC 27002:2022 (abstract / listing)"
+        url: https://www.iso.org/standard/82846.html
+        format: html
+        phase: [P7]
+      - id: iso-iec-12207
+        title: "ISO/IEC/IEEE 12207:2017 — Systems and software engineering — Software life cycle processes (listing)"
+        url: https://www.iso.org/standard/63534.html
+        format: html
+        phase: [P0, P1]
+
+# ---------------------------------------------------------------------------
+# Sources SCRIPTS — ces URLs ne pointent pas directement sur un PDF
+# mais sur une page qu'un script dédié doit interroger avec credentials.
+# Le crawler refuse de tenter l'URL HTTP direct.
+# ---------------------------------------------------------------------------
+script_only_sources:
+  - name: internet-archive-borrow
+    description: |
+      Internet Archive lending library. Requires user login (IA account +
+      loan token). The script scripts/ia_borrow.py handles authentication
+      and the 14-day loan cycle. Resulting PDFs are stored under
+      downloads/ia-borrow/<identifier>.pdf.
+    script: scripts/ia_borrow.py
+    candidates:
+      - isbn: 9780132350884
+        title: "Clean Code"
+        author: "Robert C. Martin"
+      - isbn: 9780134494166
+        title: "Clean Architecture"
+        author: "Robert C. Martin"
+      - isbn: 9780135957059
+        title: "The Pragmatic Programmer, 20th Anniversary"
+        author: "Hunt & Thomas"
+      - isbn: 9780321125217
+        title: "Domain-Driven Design"
+        author: "Eric Evans"
+      - isbn: 9780321127426
+        title: "Patterns of Enterprise Application Architecture"
+        author: "Martin Fowler"
+      - isbn: 9780321200686
+        title: "Enterprise Integration Patterns"
+        author: "Hohpe/Woolf"
+      - isbn: 9780131177055
+        title: "Working Effectively with Legacy Code"
+        author: "Michael Feathers"
+      - isbn: 9780134757599
+        title: "Refactoring, 2nd ed."
+        author: "Martin Fowler"
+      - isbn: 9780201835953
+        title: "The Mythical Man-Month, Anniversary"
+        author: "Fred Brooks"
+      - isbn: 9780321934113
+        title: "Peopleware, 3rd ed."
+        author: "DeMarco/Lister"
+      - isbn: 9780321601912
+        title: "Continuous Delivery"
+        author: "Humble/Farley"
+      - isbn: 9781680502398
+        title: "Release It!, 2nd ed."
+        author: "Michael Nygard"
+      - isbn: 9780735619678
+        title: "Code Complete, 2nd ed."
+        author: "Steve McConnell"
+      - isbn: 9781492082798
+        title: "Software Engineering at Google"
+        author: "Winters et al."
+      - isbn: 9780137314911
+        title: "Modern Software Engineering"
+        author: "David Farley"
+
+  - name: open-library-metadata
+    description: |
+      Open Library bibliographic metadata + cover art. Pure public API,
+      no auth. Used to enrich the index with citation-grade metadata.
+    script: scripts/openlibrary_meta.py
+    endpoint: https://openlibrary.org/api/books
+
+  - name: project-gutenberg
+    description: |
+      Project Gutenberg public-domain catalog. Useful for very old
+      foundational texts (Weinberg pre-1990, Turing, classical CS) and
+      for 19th-c. logic/philosophy works cited by software engineering
+      writing. Most modern SE books are NOT in PG.
+    script: scripts/gutenberg_fetch.py
+    endpoint: https://www.gutenberg.org/ebooks/search/
+
+# ---------------------------------------------------------------------------
+# Ingestion pour livres de l'ACQUISITION_MANIFEST.md — chapitre gratuit
+# officiel quand l'éditeur le met à disposition. La politique est : ne
+# jamais scraper la page payante, ne jamais bypasser un paywall. Si
+# l'éditeur ne fournit pas un PDF libre, on saute l'entrée.
+# ---------------------------------------------------------------------------
+manifest_grab:
+  description: |
+    Reads audit/corpus-references/ACQUISITION_MANIFEST.md and, for every
+    entry that has a "Free chapter" or "Sample" link, downloads ONLY that
+    free chapter (typically 10-30 pages). The full book is never
+    requested.
+  script: scripts/manifest_grab.py
+  manifest: ../corpus-references/ACQUISITION_MANIFEST.md
+  output_dir: downloads/manifest-chapters/

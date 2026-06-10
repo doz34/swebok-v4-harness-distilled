@@ -113,7 +113,7 @@
 ### 3.4 Verdict
 - [x] 🟢
 
-**Note v2** : Inputs depuis P9 (EOL decision Q4) + P8 (incident systémique) + P2-P4 (data inventory) + P2-P7 (user list) + P3 (dependency map) + P2/P3 (compliance requirements) + P0-P9 cumul (knowledge artifacts). Couverture corpus 0% documentée, action P10-2 prioritaire. Verdict 🟢.
+  - Couverture corpus : **60%** (post-traitement P10, 2026-06-09) — cf. §41 du corpus-references/SWEBOK_CORPUS_BOOKS_REFERENCE.md et audit/corpus-references/p10-retirement-resources/
 
 ---
 

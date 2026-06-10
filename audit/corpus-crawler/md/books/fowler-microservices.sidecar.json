@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/fowler-microservices.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/fowler-microservices.md",
+  "title": "Microservices",
+  "engine_used": "bs4-handrolled",
+  "char_count": 48367,
+  "heading_count": 18,
+  "sha256": "233a8191fa608095d40dbf461497b8f23601cdec9b1b7f08639e8b085abea7b0",
+  "source_url": "https://martinfowler.com/articles/microservices.html",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.029558+00:00"
+}

@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/deep-learning-book.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/deep-learning-book.md",
+  "title": "Deep Learning",
+  "engine_used": "bs4-handrolled",
+  "char_count": 2808,
+  "heading_count": 6,
+  "sha256": "913a461983b8872994a9d2512f2d72dd31aa232940982acd79fe92e9647f83d2",
+  "source_url": "https://www.deeplearningbook.org/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:57.977347+00:00"
+}

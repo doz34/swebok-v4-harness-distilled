@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/book-landing/pragprog-release-it-2e.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/book-landing/pragprog-release-it-2e.md",
+  "title": "Release It! Second Edition: Design and Deploy Production-Ready Software by Michael Nygard",
+  "engine_used": "bs4-handrolled",
+  "char_count": 7516,
+  "heading_count": 15,
+  "sha256": "1a94613f693d7b452435197ea1d3a4bf15be8a506aab380c5ce5aaa305e5f714",
+  "source_url": "https://pragprog.com/titles/mnee2/release-it-second-edition/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:57.683531+00:00"
+}

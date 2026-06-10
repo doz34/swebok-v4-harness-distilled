@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/omg-bpmn-2.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/omg-bpmn-2.md",
+  "title": "About the Business Process Model And Notation Specification Version 2.0",
+  "engine_used": "bs4-handrolled",
+  "char_count": 11042,
+  "heading_count": 11,
+  "sha256": "8f51f061b8213e5b5814109d707dfc31b34fb052d3c85759b9104f9e80a5726b",
+  "source_url": "https://www.omg.org/spec/BPMN/2.0/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:59.448249+00:00"
+}

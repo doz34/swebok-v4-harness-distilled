@@ -1,0 +1,13 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/nist-csf-2.0.pdf",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/nist-csf-2.0.md",
+  "engine_used": "pdfplumber",
+  "page_count": 32,
+  "char_count": 68793,
+  "is_image_only": false,
+  "sha256": "3c31f46fee98cac0c4323453e5109291a213b4de7fef8c058af9bf67f717433c",
+  "source_url": "https://nvlpubs.nist.gov/nistpubs/CSWP/NIST.CSWP.29.pdf",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:57.633393+00:00",
+  "image_only_note": ""
+}

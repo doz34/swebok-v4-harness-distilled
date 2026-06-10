@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/ux-laws.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/ux-laws.md",
+  "title": "Home | Laws of UX",
+  "engine_used": "bs4-handrolled",
+  "char_count": 5280,
+  "heading_count": 0,
+  "sha256": "830b08c60feaa6ef767409d4288a0caa26328e80561b0ce66718a4f8ce658846",
+  "source_url": "https://lawsofux.com/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.546268+00:00"
+}

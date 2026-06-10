@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/mmds-leskovec.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/mmds-leskovec.md",
+  "title": "Mining of Massive Datasets",
+  "engine_used": "bs4-handrolled",
+  "char_count": 63143,
+  "heading_count": 12,
+  "sha256": "87bcd4270904bf53fae19e320280645f063231732898072cbc7f98eee793efba",
+  "source_url": "http://www.mmds.org/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.197910+00:00"
+}

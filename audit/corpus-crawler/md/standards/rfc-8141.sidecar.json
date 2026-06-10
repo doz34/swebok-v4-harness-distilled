@@ -1,0 +1,11 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/rfc-8141.txt",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/rfc-8141.md",
+  "title": "Internet Engineering Task Force (IETF)                    P. Saint-Andre",
+  "engine_used": "passthrough",
+  "char_count": 92807,
+  "sha256": "9e3296eaac5641d356f580696894878dddc525124436d1da7005f0748035d41e",
+  "source_url": "https://www.rfc-editor.org/rfc/rfc8141.txt",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:26:06.827847+00:00"
+}

@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/owasp-mobile-top10.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/owasp-mobile-top10.md",
+  "title": "OWASP Mobile Top 10 | OWASP Foundation",
+  "engine_used": "bs4-handrolled",
+  "char_count": 466,
+  "heading_count": 0,
+  "sha256": "485a9ed53b8242057bd7bce49d095bac230261cb467adcb6889f534adf6bb389",
+  "source_url": "https://owasp.org/www-project-mobile-top-10/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:59.687785+00:00"
+}

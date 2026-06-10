@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/sre-book-google.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/sre-book-google.md",
+  "title": "Google SRE - IT Service Management: Automate Operations",
+  "engine_used": "bs4-handrolled",
+  "char_count": 25813,
+  "heading_count": 14,
+  "sha256": "bc09e0692e8137adff28cc2c652b5916970556cad57c69c3f3a435177ba01bf4",
+  "source_url": "https://sre.google/sre-book/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.456233+00:00"
+}

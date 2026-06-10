@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/iso-iec-ieee-42010.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/iso-iec-ieee-42010.md",
+  "title": "ISO/IEC/IEEE 42010:2011 - Systems and software engineering \u2014 Architecture description",
+  "engine_used": "bs4-handrolled",
+  "char_count": 1578,
+  "heading_count": 4,
+  "sha256": "306a476bf09407503ca502716ad63ce93c3ef6cc7e708c8a2fa765cec8819eb2",
+  "source_url": "https://www.iso.org/standard/50508.html",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:59.036483+00:00"
+}

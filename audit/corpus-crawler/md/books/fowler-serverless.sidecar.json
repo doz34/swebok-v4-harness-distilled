@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/fowler-serverless.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/fowler-serverless.md",
+  "title": "Serverless Architectures",
+  "engine_used": "bs4-handrolled",
+  "char_count": 88830,
+  "heading_count": 69,
+  "sha256": "b1f570254cc69e2592a86daa797aa254eb51baa031e4c61e1ae69c14e0ec9835",
+  "source_url": "https://martinfowler.com/articles/serverless.html",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.093134+00:00"
+}

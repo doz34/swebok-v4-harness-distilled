@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/rl-sutton-barto.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/rl-sutton-barto.md",
+  "title": "Sutton & Barto Book: Reinforcement Learning: An\nIntroduction",
+  "engine_used": "bs4-handrolled",
+  "char_count": 1078,
+  "heading_count": 3,
+  "sha256": "ffca0965b61b00eff222a6aa4e8023064cc4e89d49e95ce911ace889f903bfee",
+  "source_url": "http://incompleteideas.net/book/the-book-2nd.html",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.420965+00:00"
+}

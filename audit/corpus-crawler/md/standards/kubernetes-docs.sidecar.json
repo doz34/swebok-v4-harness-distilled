@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/kubernetes-docs.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/kubernetes-docs.md",
+  "title": "Kubernetes Documentation | Kubernetes",
+  "engine_used": "bs4-handrolled",
+  "char_count": 4685,
+  "heading_count": 9,
+  "sha256": "93b1ee81d567af125d7f2c5469a6e447fc4d2040d0e550107eac942c4510a1ed",
+  "source_url": "https://kubernetes.io/docs/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:59.252449+00:00"
+}

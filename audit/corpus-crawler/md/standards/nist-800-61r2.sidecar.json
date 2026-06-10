@@ -1,0 +1,13 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/nist-800-61r2.pdf",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/nist-800-61r2.md",
+  "engine_used": "pdfplumber",
+  "page_count": 80,
+  "char_count": 227870,
+  "is_image_only": false,
+  "sha256": "b1c5ead0632dcfb979c59d8c462b094ad2465ddaf62d5c246289d6d9b4419df1",
+  "source_url": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-61r2.pdf",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:49.346792+00:00",
+  "image_only_note": ""
+}

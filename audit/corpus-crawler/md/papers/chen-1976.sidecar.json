@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/papers/chen-1976.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/papers/chen-1976.md",
+  "title": "Papers Online",
+  "engine_used": "bs4-handrolled",
+  "char_count": 3406,
+  "heading_count": 2,
+  "sha256": "cd81395db082d9a172a4a21cc972e0e5cdf6a80d8077c9a10351d0b814a8e0c0",
+  "source_url": "https://www.csc.lsu.edu/~chen/papers.html",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.587440+00:00"
+}

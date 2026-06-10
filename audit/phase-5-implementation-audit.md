@@ -9,6 +9,7 @@
 - Spec existante : `specs/workflows/by-phase/phase-5-implementation.md` (v2 — validé 2026-06-07)
 - Date de l'audit : 2026-06-07
 - Auditeur : mainteneur (audit clos via grille offline + 4 questions AskUserQuestion vague 1)
+- Couverture corpus : **87%** (post-vague 8, 2026-06-09) — cf. §39 du corpus-references/SWEBOK_CORPUS_BOOKS_REFERENCE.md
 
 ---
 

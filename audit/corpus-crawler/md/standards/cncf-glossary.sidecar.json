@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/cncf-glossary.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/cncf-glossary.md",
+  "title": "Cloud Native Glossary",
+  "engine_used": "bs4-handrolled",
+  "char_count": 2898,
+  "heading_count": 4,
+  "sha256": "1a590601274c4d2a58b52b37c389441fbe36622834a46cabea08911ad4471543",
+  "source_url": "https://glossary.cncf.io/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.621983+00:00"
+}

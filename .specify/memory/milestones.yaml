@@ -1,0 +1,184 @@
+milestones:
+  plan: antidrift-auto-trigger
+  version: 1.0
+  total_milestones: 6
+
+  - id: M0
+    name: Quick Wins Complete
+    target_time: T+0:15 (15 min from start)
+    phase_completed: Phase 0
+    tasks_included: [T-001]
+    definition_of_done:
+      - 3 S1+S2+S3 commits pushed to origin/master
+      - 12 audit files MODIFIED committed
+      - .git/hooks/pre-commit symlink installed (chmod +x)
+      - .swebok_steering_state.db size > 0 (seeded via bin/adv-loop 0)
+      - git status clean
+    audit_gaps_closed: [G8, G2, G4]
+    verification_command: "git status; ls -la .git/hooks/pre-commit; ls -la .swebok_steering_state.db"
+    rollback: "git reset HEAD~1 (if needed)"
+
+  - id: M1
+    name: State Schema Foundation
+    target_time: T+0:30 (30 min)
+    phase_completed: Phase 1
+    tasks_included: [T-002]
+    definition_of_done:
+      - lib/state_engine.py supports new keys (intent.*, edits_since_council, council.last_at, phase_history[])
+      - 5 unit tests pass for state_engine extensions
+      - 20 existing self-tests still pass (regression check)
+      - get/set/incr/list_append work for all new keys
+    spec_refs: [FR-12, FR-13, FR-14]
+    verification_command: "bin/adv-loop test 2>&1 | tail -3; pytest tests/test_state_engine.py -v"
+    rollback: "git revert HEAD (if state engine breaks)"
+
+  - id: M2
+    name: G1 Intent Detection Functional
+    target_time: T+2:45 (2h45)
+    phase_completed: Phase 2
+    tasks_included: [T-003, T-004, T-005, T-006, T-007]
+    definition_of_done:
+      - lib/auto_trigger.py created (~300 LOC) with 4 layers
+      - pre-tool-use/auto-trigger-hook.sh created (~40 LOC)
+      - settings.json + template have UserPromptSubmit matcher
+      - bin/adv-loop auto-trigger <prompt> works
+      - 10 acceptance tests T1-T10 PASS
+      - 30 total tests PASS (20 existing + 10 new)
+      - UserPromptSubmit latency < 100ms p95 (cache hit >80%)
+    spec_refs: [FR-1, FR-2, FR-15, FR-16]
+    user_stories_covered: [US-1]
+    audit_gaps_closed: [G1]
+    verification_command: "bin/adv-loop auto-trigger 'Write tests for the user model'; pytest tests/test_auto_trigger.py -v"
+    rollback: "git revert HEAD~5 (entire Phase 2)"
+
+  - id: M3
+    name: G3 Phase Change Detection Functional
+    target_time: T+4:00 (4h)
+    phase_completed: Phase 3
+    tasks_included: [T-008, T-009]
+    definition_of_done:
+      - pre-tool-use/phase-guard.sh detects intent.phase diff
+      - On diff, emits <MULTIAGENT_LAUNCH> envelope to adversarial-gate
+      - phase_history[] FIFO max 10 enforced
+      - Fail-secure on state DB error
+      - 5 tests T11-T15 PASS
+      - 35 total tests PASS
+    spec_refs: [FR-3, FR-4, FR-13]
+    user_stories_covered: [US-2]
+    audit_gaps_closed: [G3]
+    verification_command: "pytest tests/test_phase_guard.py -v; bin/adv-loop test 2>&1 | tail -3"
+    rollback: "git revert HEAD~2 (Phase 3)"
+
+  - id: M4
+    name: G5 Council Scheduler Functional
+    target_time: T+5:30 (5h30)
+    phase_completed: Phase 4
+    tasks_included: [T-010, T-011, T-012, T-013]
+    definition_of_done:
+      - lib/adv-loop/council_scheduler.py created with counter + threshold + cooldown
+      - post-tool-use/auto-verify.sh calls scheduler
+      - bin/adv-loop council-status shows counter + last_at
+      - 5 tests T16-T20 PASS
+      - 40 total tests PASS
+      - Cooldown 1h enforced
+      - Whitelist *.md/*.json/tests/* skips counter
+    spec_refs: [FR-5, FR-6, FR-9, FR-17]
+    user_stories_covered: [US-3]
+    verification_command: "pytest tests/test_council_scheduler.py -v; bin/adv-loop council-status"
+    rollback: "git revert HEAD~4 (Phase 4)"
+
+  - id: M5
+    name: G6 Mini-Council Functional
+    target_time: T+6:35 (6h35)
+    phase_completed: Phase 5
+    tasks_included: [T-014, T-015, T-016]
+    definition_of_done:
+      - lib/adv-loop/mini_council.py created (~120 LOC) with Haiku 4.5
+      - post-tool-use/auto-verify.sh calls mini_council after lint
+      - 5 tests T21-T25 PASS
+      - 45 total tests PASS
+      - Mini-council < 2s p95
+      - Fail-open on Haiku indispo
+      - 1 finding/3 edits → escalate (FR-10)
+    spec_refs: [FR-7, FR-8, FR-10]
+    user_stories_covered: [US-4]
+    verification_command: "pytest tests/test_mini_council.py -v; time python3 lib/adv-loop/mini_council.py src/foo.py"
+    rollback: "git revert HEAD~3 (Phase 5)"
+
+  - id: M5.5
+    name: Kill-Switch + Doc
+    target_time: T+7:00 (7h)
+    phase_completed: Phase 6
+    tasks_included: [T-017, T-018]
+    definition_of_done:
+      - HARNESS_AUTO_TRIGGER=0 disables 4 features globally
+      - 3 hooks (auto-trigger, phase-guard, auto-verify) check env var
+      - CLAUDE.md mentions KILL-SWITCH law + env var
+      - 50 total tests PASS (with 5 cross-cutting)
+    spec_refs: [FR-11, NFR-M5, NFR-S4]
+    user_stories_covered: [US-5]
+    verification_command: "HARNESS_AUTO_TRIGGER=0 bash pre-tool-use/auto-trigger-hook.sh; echo $?; rg 'KILL-SWITCH' CLAUDE.md"
+    rollback: "git revert HEAD~2 (Phase 6)"
+
+  - id: M6
+    name: Sprint Shipped
+    target_time: T+7:30 (7h30)
+    phase_completed: Phase 7
+    tasks_included: [T-019, T-020, T-021]
+    definition_of_done:
+      - 50/50 tests PASS (bin/adv-loop test + pytest)
+      - Live validation: 5 prompts → 5 correct phase assignments
+      - 10 edits on src/ → Council fire at 5th, mini-council on each
+      - CHANGELOG.md v1.6.0 entry added
+      - Commit feat(antidrift): G1+G3+G5+G6+G8 auto-trigger sprint
+      - Pushed to origin/master
+    spec_refs: [SM-1, SM-2, SM-3, SM-4, SM-5, SM-6, SM-7]
+    audit_gaps_closed: [G1, G3, G5, G6, G8]
+    verification_command: "bin/adv-loop test 2>&1 | tail -3; pytest tests/ -v 2>&1 | tail -3; git log --oneline -3"
+    rollback: "git revert HEAD (entire sprint)"
+
+# Cumulative metrics per milestone
+cumulative_metrics:
+  M0:
+    tests_pass: 20
+    new_files: 0
+    modified_files: 12
+  M1:
+    tests_pass: 25
+    new_files: 0
+    modified_files: 1
+  M2:
+    tests_pass: 30
+    new_files: 3  # lib/auto_trigger.py, pre-tool-use/auto-trigger-hook.sh, tests/test_auto_trigger.py
+    modified_files: 3  # settings.json, settings.template.json, bin/adv-loop
+  M3:
+    tests_pass: 35
+    new_files: 0
+    modified_files: 1  # pre-tool-use/phase-guard.sh
+  M4:
+    tests_pass: 40
+    new_files: 2  # lib/adv-loop/council_scheduler.py, tests/test_council_scheduler.py
+    modified_files: 1  # post-tool-use/auto-verify.sh
+  M5:
+    tests_pass: 45
+    new_files: 1  # lib/adv-loop/mini_council.py, tests/test_mini_council.py
+    modified_files: 1  # post-tool-use/auto-verify.sh
+  M5.5:
+    tests_pass: 50
+    new_files: 0
+    modified_files: 4  # 3 hooks + CLAUDE.md
+  M6:
+    tests_pass: 50
+    new_files: 0
+    modified_files: 2  # CHANGELOG.md + 1 commit
+
+# Sprint goal hook closure
+goal_hook_closure:
+  condition: "se trigger automatiquement à chaque étape d'évolution/feature + dimension adversariale très poussée"
+  closed_by:
+    - M2 (G1: UserPromptSubmit auto-trigger) — "se trigger automatiquement" ✓
+    - M3 (G3: phase change fires gate) — "à chaque étape d'évolution" ✓
+    - M4 (G5: Council every 5 edits) — "dimension adversariale très poussée" ✓
+    - M5 (G6: mini-council per edit) — "dimension adversariale très poussée" ✓
+    - M5.5 (kill-switch) — safety net ✓
+  fully_closed_at: M6

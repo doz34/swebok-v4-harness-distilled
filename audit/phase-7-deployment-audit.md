@@ -102,7 +102,7 @@
 
 ### 3.3 Depuis sources externes
 
-> **Couverture corpus à 73%** — P7 = phase la mieux couverte des phases restantes (après P5 100% et P3 100%).
+  - Couverture corpus : **95%** (post-vague 8, 2026-06-09) — cf. §39 du corpus-references/SWEBOK_CORPUS_BOOKS_REFERENCE.md
 
 **Mac Studio** (8 livres) : Security Architecture for Hybrid Cloud, Serverless Development on AWS, Security and Microservice Architecture on AWS, Continuous Deployment (Servile), Practical Cloud Security, Cloud Native Security Cookbook, etc.
 

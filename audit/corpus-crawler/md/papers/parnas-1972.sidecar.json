@@ -1,0 +1,13 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/papers/parnas-1972.pdf",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/papers/parnas-1972.md",
+  "engine_used": "pdfplumber",
+  "page_count": 6,
+  "char_count": 28136,
+  "is_image_only": false,
+  "sha256": "7008fd6abc833ded750e52dbac4968e8eda339f66b462ca4427f1953f98df9c4",
+  "source_url": "https://www.win.tue.nl/~wstomv/edu/2ip30/references/criteria_for_modularization.pdf",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:22:51.334387+00:00",
+  "image_only_note": ""
+}

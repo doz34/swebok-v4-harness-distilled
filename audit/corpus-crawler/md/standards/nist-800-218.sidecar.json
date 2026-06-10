@@ -1,0 +1,13 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/nist-800-218.pdf",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/nist-800-218.md",
+  "engine_used": "pdfplumber",
+  "page_count": 36,
+  "char_count": 105802,
+  "is_image_only": false,
+  "sha256": "617746e553a9e2da49bfbd4eef0dfc3094758a39b869314e4173ac36605cde22",
+  "source_url": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218.pdf",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:23:06.896590+00:00",
+  "image_only_note": ""
+}

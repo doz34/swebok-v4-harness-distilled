@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/w3c-html-latest.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/w3c-html-latest.md",
+  "title": "HTML Standard",
+  "engine_used": "bs4-handrolled",
+  "char_count": 96594,
+  "heading_count": 3,
+  "sha256": "ccc4f072ec854546c944637e90859c770c799b0849979b3fa5c079513c2747e8",
+  "source_url": "https://www.w3.org/TR/html/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:26:00.029990+00:00"
+}

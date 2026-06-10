@@ -10,7 +10,7 @@
 - Date de l'audit : 04/06/2026 (révisé 2026-06-06 post-corpus)
 - Auditeur : mainteneur
 - Corpus-aligned : OUI — voir `corpus-references/SWEBOK_CORPUS_BOOKS_REFERENCE.md`
-- Couverture corpus : **40%** (6/15) — Mac Studio 0 + New Books 6 + Standards 1
+  - Couverture corpus : **78%** (post-vague 8, 2026-06-09) — cf. §39 du corpus-references/SWEBOK_CORPUS_BOOKS_REFERENCE.md
 - Verdict global : 🟡 À ajuster (spec v2 validée, reste utilité à mesurer en pratique)
 
 ---

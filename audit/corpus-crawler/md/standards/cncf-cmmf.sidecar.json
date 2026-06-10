@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/cncf-cmmf.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/cncf-cmmf.md",
+  "title": "Cloud Native Maturity Model",
+  "engine_used": "bs4-handrolled",
+  "char_count": 14711,
+  "heading_count": 16,
+  "sha256": "2c18703a719e09e10632a0ede008590dea44b89c3250321b64f8ce625374f6f7",
+  "source_url": "https://maturitymodel.cncf.io/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.603801+00:00"
+}

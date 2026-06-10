@@ -1,0 +1,273 @@
+plan:
+  feature: antidrift-auto-trigger
+  version: 1.0
+  estimated_duration: 7h
+  team_size: 1
+  total_tasks: 21
+
+phases:
+  - name: Phase 0 - Quick Wins
+    duration: 15min
+    milestone: M0
+    tasks:
+      - id: T-001
+        description: git push 3 commits + commit 12 audits + symlink pre-commit + seed steering DB
+        responsible: maintainer
+        effort: 15min
+        dependencies: []
+        verification: git status clean, .git/hooks/pre-commit exists, .swebok_steering_state.db size > 0
+        closes_gaps: [G8, G2, G4]
+
+  - name: Phase 1 - State Schema Foundation
+    duration: 15min
+    milestone: M1
+    tasks:
+      - id: T-002
+        description: extend lib/state_engine.py with new keys (intent.*, edits_since_council, council.last_at, phase_history[])
+        responsible: maintainer
+        effort: 15min
+        dependencies: [T-001]
+        verification: state_engine.get('intent.phase', 'P0') returns 'P0' default
+        spec_refs: [FR-12, FR-13, FR-14]
+
+  - name: Phase 2 - G1 Intent Detection
+    duration: 2h15
+    milestone: M2
+    tasks:
+      - id: T-003
+        description: create lib/auto_trigger.py with 4 layers (cache/pattern/semantic/fallback) + subprocess call to intent-detector.py
+        responsible: maintainer
+        effort: 1h
+        dependencies: [T-002]
+        verification: bin/adv-loop auto-trigger "Write tests" returns phase=6 confidence>0.8
+        spec_refs: [FR-1, FR-2]
+        new_files: [lib/auto_trigger.py]
+
+      - id: T-004
+        description: create pre-tool-use/auto-trigger-hook.sh bash wrapper, fail-open trap
+        responsible: maintainer
+        effort: 15min
+        dependencies: [T-003]
+        verification: echo '{}' | bash pre-tool-use/auto-trigger-hook.sh exit 0 silent
+        spec_refs: [FR-1]
+        new_files: [pre-tool-use/auto-trigger-hook.sh]
+
+      - id: T-005
+        description: update settings.json + template with UserPromptSubmit matcher
+        responsible: maintainer
+        effort: 10min
+        dependencies: [T-004]
+        verification: jq '.hooks.UserPromptSubmit' settings.json returns matcher
+        spec_refs: [FR-15]
+
+      - id: T-006
+        description: add bin/adv-loop auto-trigger subcommand + help update
+        responsible: maintainer
+        effort: 15min
+        dependencies: [T-003]
+        verification: bin/adv-loop help lists "auto-trigger"
+        spec_refs: [FR-16]
+
+      - id: T-007
+        description: write tests/test_auto_trigger.py with 10 tests T1-T10
+        responsible: maintainer
+        effort: 30min
+        dependencies: [T-003]
+        verification: pytest tests/test_auto_trigger.py -v → 10 PASS
+        spec_refs: [FR-1, FR-2]
+        new_files: [tests/test_auto_trigger.py]
+
+  - name: Phase 3 - G3 Phase Change Detection
+    duration: 1h15
+    milestone: M3
+    tasks:
+      - id: T-008
+        description: extend pre-tool-use/phase-guard.sh with phase diff detect + envelope emit + phase_history append (FIFO 10)
+        responsible: maintainer
+        effort: 45min
+        dependencies: [T-005]
+        verification: mock state DB intent.phase=5 current_phase=2, Write → log contains <MULTIAGENT_LAUNCH>
+        spec_refs: [FR-3, FR-4, FR-13]
+
+      - id: T-009
+        description: write tests for G3 (T11-T15) — 5 tests
+        responsible: maintainer
+        effort: 30min
+        dependencies: [T-008]
+        verification: pytest → 5 PASS
+        spec_refs: [FR-3, FR-4, FR-13]
+
+  - name: Phase 4 - G5 Council Scheduler
+    duration: 1h30
+    milestone: M4
+    tasks:
+      - id: T-010
+        description: create lib/adv-loop/council_scheduler.py with counter + threshold + cooldown 1h + whitelist
+        responsible: maintainer
+        effort: 45min
+        dependencies: [T-002]
+        verification: should_fire(5, 1234567890, 3600) returns True
+        spec_refs: [FR-5, FR-6, FR-9]
+        new_files: [lib/adv-loop/council_scheduler.py]
+
+      - id: T-011
+        description: extend post-tool-use/auto-verify.sh with counter increment + scheduler call
+        responsible: maintainer
+        effort: 30min
+        dependencies: [T-010]
+        verification: 5 edits on src/foo.py → 5th triggers envelope
+        spec_refs: [FR-5, FR-6]
+
+      - id: T-012
+        description: add bin/adv-loop council-status subcommand, human-readable
+        responsible: maintainer
+        effort: 15min
+        dependencies: [T-010]
+        verification: bin/adv-loop council-status shows 3 lines
+        spec_refs: [FR-17, NFR-U2]
+
+      - id: T-013
+        description: write tests/test_council_scheduler.py with 5 tests T16-T20
+        responsible: maintainer
+        effort: 15min
+        dependencies: [T-011]
+        verification: pytest → 5 PASS
+        spec_refs: [FR-5, FR-6, FR-17]
+        new_files: [tests/test_council_scheduler.py]
+
+  - name: Phase 5 - G6 Mini-Council
+    duration: 1h05
+    milestone: M5
+    tasks:
+      - id: T-014
+        description: create lib/adv-loop/mini_council.py with 1 Haiku judge + DSL output + fail-open + escalation logic
+        responsible: maintainer
+        effort: 30min
+        dependencies: [T-002]
+        verification: python3 lib/adv-loop/mini_council.py src/foo.py returns DSL < 2s
+        spec_refs: [FR-7, FR-8, FR-10]
+        new_files: [lib/adv-loop/mini_council.py]
+
+      - id: T-015
+        description: extend post-tool-use/auto-verify.sh with mini-council call after lint
+        responsible: maintainer
+        effort: 20min
+        dependencies: [T-014]
+        verification: 3 edits with 1+ finding → 3rd triggers full Council
+        spec_refs: [FR-7, FR-10]
+
+      - id: T-016
+        description: write tests/test_mini_council.py with 5 tests T21-T25
+        responsible: maintainer
+        effort: 15min
+        dependencies: [T-015]
+        verification: pytest → 5 PASS
+        spec_refs: [FR-7, FR-8]
+        new_files: [tests/test_mini_council.py]
+
+  - name: Phase 6 - Kill-Switch + Doc
+    duration: 25min
+    milestone: M5.5
+    tasks:
+      - id: T-017
+        description: add HARNESS_AUTO_TRIGGER=0 check in 3 hooks (auto-trigger, phase-guard, auto-verify)
+        responsible: maintainer
+        effort: 15min
+        dependencies: [T-004, T-008, T-011, T-015]
+        verification: HARNESS_AUTO_TRIGGER=0 bash pre-tool-use/auto-trigger-hook.sh exit 0 silent
+        spec_refs: [FR-11, NFR-S4]
+
+      - id: T-018
+        description: update CLAUDE.md with KILL-SWITCH law + env var doc
+        responsible: maintainer
+        effort: 10min
+        dependencies: [T-017]
+        verification: rg "KILL-SWITCH|HARNESS_AUTO_TRIGGER" CLAUDE.md returns 2 hits
+        spec_refs: [NFR-M5]
+
+  - name: Phase 7 - Integration & Validation
+    duration: 45min
+    milestone: M6
+    tasks:
+      - id: T-019
+        description: run full test suite (bin/adv-loop test + pytest), fix regressions
+        responsible: maintainer
+        effort: 10min
+        dependencies: [T-007, T-009, T-013, T-016, T-017]
+        verification: 45/45 + 5 cross-cutting PASS
+        spec_refs: [SM-1]
+
+      - id: T-020
+        description: live validation — 1 real session, 5 varied prompts, 10 edits on src/
+        responsible: maintainer
+        effort: 30min
+        dependencies: [T-019]
+        verification: SM-2, SM-4, SM-6, SM-7 all pass
+        spec_refs: [SM-2, SM-4, SM-6, SM-7]
+
+      - id: T-021
+        description: update CHANGELOG.md v1.6.0 + commit + push
+        responsible: maintainer
+        effort: 15min
+        dependencies: [T-020]
+        verification: git log shows commit, CHANGELOG.md updated
+        spec_refs: []
+
+dependencies:
+  T-001: []
+  T-002: [T-001]
+  T-003: [T-002]
+  T-004: [T-003]
+  T-005: [T-004]
+  T-006: [T-003]
+  T-007: [T-003]
+  T-008: [T-005]
+  T-009: [T-008]
+  T-010: [T-002]
+  T-011: [T-010]
+  T-012: [T-010]
+  T-013: [T-011]
+  T-014: [T-002]
+  T-015: [T-014]
+  T-016: [T-015]
+  T-017: [T-004, T-008, T-011, T-015]
+  T-018: [T-017]
+  T-019: [T-007, T-009, T-013, T-016, T-017]
+  T-020: [T-019]
+  T-021: [T-020]
+
+parallel_workstreams:
+  - id: WS-A
+    name: State schema + G1
+    tasks: [T-002, T-003, T-004, T-005, T-006, T-007]
+  - id: WS-B
+    name: G3 phase change
+    tasks: [T-008, T-009]
+  - id: WS-C
+    name: G5 council scheduler
+    tasks: [T-010, T-011, T-012, T-013]
+  - id: WS-D
+    name: G6 mini-council
+    tasks: [T-014, T-015, T-016]
+  - id: WS-E
+    name: Kill-switch + doc
+    tasks: [T-017, T-018]
+
+# Quality gates between phases
+gates:
+  - after: T-002
+    check: 20 existing self-tests still pass
+  - after: T-007
+    check: T1-T10 + 20 existing = 30 PASS
+  - after: T-009
+    check: 35 PASS total
+  - after: T-013
+    check: 40 PASS total
+  - after: T-016
+    check: 45 PASS total
+  - after: T-018
+    check: 50 PASS total (with 5 cross-cutting)
+  - after: T-020
+    check: live validation green
+  - after: T-021
+    check: committed + pushed

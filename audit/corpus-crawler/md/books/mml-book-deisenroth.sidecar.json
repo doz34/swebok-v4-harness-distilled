@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/mml-book-deisenroth.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/mml-book-deisenroth.md",
+  "title": "Mathematics for Machine Learning | Companion webpage to the book \u201cMathematics for Machine Learning\u201d. Copyright 2020 by Marc Peter Deisenroth, A. Aldo Faisal, and Cheng Soon Ong. Published by Cambridge",
+  "engine_used": "bs4-handrolled",
+  "char_count": 5853,
+  "heading_count": 8,
+  "sha256": "7e5eaca3abc2a79a446a7b9205f36af778f284b759a61aa685f7eac419b26c09",
+  "source_url": "https://mml-book.github.io/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.205641+00:00"
+}

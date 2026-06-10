@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/w3c-xml.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/w3c-xml.md",
+  "title": "Extensible Markup Language (XML) 1.0 (Fifth Edition)",
+  "engine_used": "bs4-handrolled",
+  "char_count": 154472,
+  "heading_count": 108,
+  "sha256": "f58a4b9e1e5b8bac13fb55c4e5c7c8c5e2c176aa45ee68e2f1ab2498511927ec",
+  "source_url": "https://www.w3.org/TR/xml/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:26:01.680247+00:00"
+}

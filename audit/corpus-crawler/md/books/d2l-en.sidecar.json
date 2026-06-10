@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/d2l-en.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/d2l-en.md",
+  "title": "Dive into Deep Learning \u2014 Dive into Deep Learning 1.0.3 documentation",
+  "engine_used": "bs4-handrolled",
+  "char_count": 0,
+  "heading_count": 0,
+  "sha256": "418caf1a726b3fc0de37d5a5691668fdcbdb0fe5bcd268814b35b034a2768d88",
+  "source_url": "https://d2l.ai/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:57.971851+00:00"
+}

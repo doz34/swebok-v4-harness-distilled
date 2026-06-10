@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/sre-workbook-google.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/sre-workbook-google.md",
+  "title": "Google SRE - Site Reliability engineering",
+  "engine_used": "bs4-handrolled",
+  "char_count": 2445,
+  "heading_count": 17,
+  "sha256": "4661b438590993a90c09344220c03a24404eb4c071d3946e606bb76d12119322",
+  "source_url": "https://sre.google/workbook/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.482850+00:00"
+}

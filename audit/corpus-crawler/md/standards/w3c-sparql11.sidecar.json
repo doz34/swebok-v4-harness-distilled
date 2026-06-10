@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/w3c-sparql11.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/w3c-sparql11.md",
+  "title": "SPARQL 1.1 Query Language",
+  "engine_used": "bs4-handrolled",
+  "char_count": 2261,
+  "heading_count": 1,
+  "sha256": "93c68d597452c329908cd48f7755baf8c89752b7c4c80070556889b7f5477363",
+  "source_url": "https://www.w3.org/TR/sparql11-query/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:26:01.389865+00:00"
+}

@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5B3LMK9H');</script>
+
+  <title>Release It! Second Edition: Design and Deploy Production-Ready Software by Michael Nygard</title>
+<meta name="description" content="Design your application for maximum uptime, performance, and return on investment in the face of the harsh realities of the real world.">
+<meta name="keywords" content="devops, scalable, reliable, fault-tolerant, microservices, patterns, antipatterns, production, deploy, security">
+
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:site" content="@pragprog" />
+<meta name="twitter:image" content="https://pragprog.com/titles/mnee2/release-it-second-edition/mnee2.jpg" />
+<meta name="twitter:image:" content="Book cover image." />
+<meta name="twitter:title" content="Release It! Second Edition" />
+<meta name="twitter:description" content="Design your application for maximum uptime, performance, and return on investment in the face of the harsh realities of the real world." />
+
+
+<meta property="og:title" content="Release It! Second Edition" />
+<meta property="og:url" content="https://pragprog.com/titles/mnee2/release-it-second-edition" />
+<meta property="og:image" content="https://pragprog.com/titles/mnee2/mnee2-large.jpg" />
+<meta property="og:type" content="website" />
+<meta property="og:description" content="Design your application for maximum uptime, performance, and return on investment in the face of the harsh realities of the real world." />
+<meta property="book:author" content="Michael Nygard" />
+<meta property="book:isbn" content="9781680502398" />
+<link href="https://fonts.googleapis.com/css?family=Noto+Sans&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://pragprog.com/css/style.min.84ea731fa45bb9530036ae97137f295791f8d5368c3845ef088bd4a3f29e190a.css">
+
+<link rel="stylesheet" href="https://pragprog.com/css/balloon.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" />
+<script src="https://transactions.sendowl.com/assets/sendowl.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<script src="https://pragprog.com/js/jquery-3.5.1.min.js"></script>
+
+<script src="https://pragprog.com/js/dynamo.min.js?v=4.25.1"></script>
+<script>
+    $(document).ready(function() {
+        var sku = ('mnee2') ? 'mnee2' : '';
+        dynamo({
+            'dynamoPermalink': 'https:\/\/pragprog.com\/js\/dynamo.min.js',
+            'sku': sku,
+            
+            'slug': 'index',
+            
+        });
+    });
+</script>
+
+<script>
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+    posthog.init('phc_G886zhPw8uIs6rk1nUwZmmjRW91Bi6l7a7T0Fh3Wkgj',{api_host:'https://us.i.posthog.com', person_profiles: 'identified_only'})
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+<div class="title-container">
+  
+<header>
+  <div class="logo">
+    <a href="/" name="Home page" aria-label="return to pragprog home">
+      <div id="logo-svg-container">
+  <svg version="1.1"
+       id="logo-svg"
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     x="0px" y="0px"
+     viewBox="0 8.5 275 108.5"
+     preserveAspectRatio="xMinYMin meet"
+     xml:space="preserve">
+
+  <style type="text/css">
+   .logo_letters{fill:#e0e0f0;}
+  </style>
+
+  <g id="Trapezoid">
+    <polygon class="trapezoid" points="247,108.5 24,108.5 0,0 275,0"/>
+  </g>
+
+  <g id="The">
+    <g>
+      <g>
+	<path class="logo_letters" d="M61.3,26.4l-0.8,0.3c-0.9-1.8-2.6-3.1-4.6-3.1c-0.8,0-0.8,0.4-0.8,0.9V34c0,0.5,0,1.2,0.2,1.6
+				      c0.3,0.7,1,0.7,1.6,0.7h0.4V37h-6.5v-0.6l0.4,0c0.6,0,1.3-0.1,1.6-0.7c0.2-0.4,0.2-1.2,0.2-1.7v-9.4c0-0.7,0-1.1-0.9-1.1
+				      c-2.1,0-3.7,1.3-4.7,3.1l-0.7-0.3l1.2-3.7h12.2L61.3,26.4z"/>
+	<path class="logo_letters" d="M72.3,34.3c0,1.2,0.2,1.9,1.5,2H74V37h-5.6v-0.6h0.3c1.4-0.1,1.6-0.7,1.6-2v-4.5
+				      c0-0.5,0-1.1-0.3-1.5c-0.3-0.4-0.9-0.6-1.4-0.6c-1.2,0-2.9,0.8-3.7,1.7v5c0,1.2,0.1,2,1.4,2h0.3V37h-5.6v-0.6h0.2
+				      c1.4-0.1,1.7-0.7,1.7-2v-9c0-1.1-0.1-1.9-1.6-2l-0.3,0v-0.6c1-0.1,2.1-0.3,3-0.7h0.8v6.4c1.2-1,2.6-1.8,4.3-1.8
+				      c0.8,0,1.7,0.2,2.4,0.7c0.8,0.6,0.8,1.5,0.8,2.4v0.1V34.3z"/>
+	<path class="logo_letters" d="M77.4,30.9l0,1.1c0,1,0.4,2.1,0.9,2.9c0.6,0.9,1.6,1.3,2.7,1.3c1.4,0,2.4-0.7,3.1-1.9l0.7,0.4
+				      c-0.8,1.7-2.5,2.5-4.3,2.5c-1.4,0-2.6-0.4-3.7-1.4c-1-1-1.6-2.5-1.6-3.9c0-3,1.9-5.2,5-5.2h0c2.5,0,4.5,1.7,4.5,4.2v0.1H77.4z
+				      M82.5,30.1c0-1.6-1-2.6-2.4-2.6c-1.5,0-2.5,1.2-2.6,2.6H82.5z"/>
+      </g>
+    </g>
+  </g>
+  <g id="Pragmatic">
+    <g>
+      <g>
+	<path class="logo_letters" d="M29.9,53.7c0,0.8,0,1.8,0.3,2.4c0.5,1.1,1.7,1.2,2.7,1.3l0.7,0v1.1H23.1v-1.1l0.3,0
+				      c1-0.1,2-0.2,2.4-1.2c0.4-0.8,0.4-2,0.4-3V38.6c0-1.9-0.2-3.3-2.7-3.5l-0.5,0V34h11.8c2.1,0,4.2,0.2,6,1.3c2,1.2,3.1,3.2,3.1,5.5
+				      c0,2.1-0.9,4.1-2.6,5.4c-1.8,1.4-4.4,1.6-6.6,1.6h-5V53.7z M34.3,46.4c1.8,0,3.4-0.1,4.7-1.5c1.1-1.2,1.4-2.5,1.4-4.1
+				      c0-1.5-0.5-3.1-1.7-4.1c-1.2-1-2.8-1.3-4.3-1.3c-0.9,0-3.3,0.1-4,0.7c-0.5,0.3-0.5,1.1-0.5,1.7v8.6H34.3z"/>
+	<path class="logo_letters" d="M51.7,53.9c0.1,2.1,0.4,3.3,2.7,3.5l0.6,0v1.1h-9.9v-1.1h0.4c2.4-0.1,2.8-1.3,2.8-3.5v-7.5
+				      c0-2-0.4-3.3-2.6-3.5H45v-1.1l5.5-0.8h1.2v2.7c1.6-1.6,3.6-3.1,6-3.1c1.2,0,2.7,0.5,2.7,1.9c0,1.2-0.9,1.9-2,1.9
+				      c-1.7,0-2.1-1.2-3.2-1.2c-1.2,0-2.7,1.1-3.5,2V53.9z"/>
+	<path class="logo_letters" d="M81.3,57.6c-0.9,0.8-2.3,1.2-3.5,1.2h-0.1c-1.8,0-3.4-0.8-3.9-2.6c-2.1,1.7-4.1,2.6-6.8,2.6
+				      c-2.5,0-5.5-1.4-5.5-4.2c0-2.4,1.5-3.6,3.6-4.5c1.9-0.9,4-1.3,6-1.5l2.7-0.3v-2.6c-0.1-1.1-0.3-2.1-1.3-2.7
+				      c-0.9-0.6-2.2-0.8-3.2-0.8c-1.1,0-3.5,0.5-3.5,1.9v0.5c0,1.2-0.5,2.2-1.8,2.2c-0.9,0-1.7-0.7-1.7-1.6c0-1.5,1.7-2.8,2.9-3.4
+				      c1.5-0.6,3.5-1,5.1-1h0.1c1.5,0,3.4,0.5,4.7,1.2c1.9,1,2.1,2.4,2.1,4.4v7.1c0,1.5,0.2,3.8,2,3.8c0.5,0,1-0.3,1.5-0.5L81.3,57.6z
+				      M73.7,49.5c-2.7,0.3-8.6,1-8.6,4.6c0,1.8,1.5,2.9,3.3,2.9c1.9,0,3.9-1.2,5.4-2.4V49.5z"/>
+	<path class="logo_letters" d="M94.6,56.8c2.7,0.4,5.8,0.9,5.8,4.4c0,4.9-5.8,6-9.7,6c-2.9,0-9.1-0.7-9.1-4.6
+				      c0-2.1,2.1-3.2,3.7-3.8v-0.1c-1.4-0.4-2.6-1.3-2.6-2.9c0-2,1.7-3.3,3.5-3.7c-1.8-1-2.8-2.9-2.8-4.9v-0.2c0.1-4,3.5-6.3,7.2-6.3
+				      c1.1,0,2.2,0.2,3.3,0.6c0.9-1.7,2.5-3.2,4.5-3.2c1,0,2.1,0.4,2.1,1.5c0,0.7-0.5,1.4-1.3,1.4c-0.8,0-1.5-0.6-2.3-0.6
+				      s-1.4,0.8-1.9,1.4c1.8,1.3,3,3.1,3,5.4c0,1.7-0.9,3.5-2.2,4.5c-1.4,1.2-3.4,1.5-5.3,1.5c-1.2,0-2.2-0.2-3.2-0.6
+				      c-0.7,0.3-1.7,1.1-1.7,1.9c0,1.3,2,1.4,2.8,1.5L94.6,56.8z M86.7,59.2c-1.4,0.4-2.9,1.7-2.9,3.2c0,3.2,4.8,3.7,7.1,3.7
+				      c2.3,0,6.9-0.5,6.9-3.6c0-2-2.6-2.2-4.1-2.4L86.7,59.2z M86.9,47c0,2.7,0.7,5,3.9,5c1.2,0,2.6-0.6,3.1-1.7
+				      c0.5-0.9,0.6-2.4,0.6-3.4c0-2.6-0.6-4.9-3.7-4.9C87.8,42,86.9,44.5,86.9,47z"/>
+	<path class="logo_letters" d="M107.7,53.9c0,2,0.3,3.3,2.6,3.5h0.4v1.1h-9.2v-1.1c2.4-0.2,2.8-1.4,2.8-3.5v-7.5
+				      c0-2-0.4-3.3-2.6-3.5h-0.6v-1.1l5.5-0.8h1.2v2.5c1.6-1.7,4-2.8,6.8-2.8c2.3,0,3.9,0.6,5,2.8c1.8-1.6,4.3-2.8,6.6-2.8h0.1
+				      c1.5,0,3.1,0.5,4.1,1.8c0.8,1,0.9,2.3,0.9,3.5v7.9c0,1.9,0.3,3.3,2.7,3.5v1.1h-9.1v-1.1h0.3c2.3-0.2,2.7-1.4,2.7-3.5v-7.1
+				      c0-0.8,0-1.7-0.3-2.4c-0.4-1.1-1.4-1.8-2.6-1.8c-1.9,0-3.8,1.2-5.4,2.4v9c0,2.1,0.4,3.3,2.7,3.5h0.3v1.1H113v-1.1h0.3
+				      c2.3-0.2,2.7-1.4,2.7-3.5v-7.2c0-2-0.1-4.1-2.7-4.1c-2.1,0-4.1,1.2-5.5,2.4V53.9z"/>
+	<path class="logo_letters" d="M155.4,57.6c-0.9,0.8-2.3,1.2-3.5,1.2h-0.1c-1.8,0-3.4-0.8-3.9-2.6c-2.1,1.7-4.1,2.6-6.8,2.6
+				      c-2.5,0-5.5-1.4-5.5-4.2c0-2.4,1.5-3.6,3.6-4.5c1.9-0.9,4-1.3,6-1.5l2.7-0.3v-2.6c-0.1-1.1-0.3-2.1-1.3-2.7
+				      c-0.9-0.6-2.2-0.8-3.2-0.8c-1.1,0-3.5,0.5-3.5,1.9v0.5c0,1.2-0.5,2.2-1.8,2.2c-0.9,0-1.7-0.7-1.7-1.6c0-1.5,1.7-2.8,2.9-3.4
+				      c1.5-0.6,3.5-1,5.1-1h0.1c1.5,0,3.4,0.5,4.7,1.2c1.9,1,2.1,2.4,2.1,4.4v7.1c0,1.5,0.2,3.8,2,3.8c0.5,0,1-0.3,1.5-0.5L155.4,57.6z
+				      M147.9,49.5c-2.7,0.3-8.6,1-8.6,4.6c0,1.8,1.5,2.9,3.3,2.9c1.9,0,3.9-1.2,5.4-2.4V49.5z"/>
+	<path class="logo_letters" d="M167.5,42.2h-5.1v10.1c0,2,0,4.9,2.7,4.9c1.3,0,2.3-0.7,3.1-1.6l0.9,0.8c-1.2,1.6-3.1,2.3-5.1,2.3
+				      c-1.2,0-2.6-0.3-3.6-0.9c-1.4-0.9-1.6-2.3-1.6-3.9V42.2h-3v-1.2c4.1-0.1,4.9-3.1,4.9-6.6h1.5v6.6h5.1V42.2z"/>
+	<path class="logo_letters" d="M176.3,53.9c0,2,0.3,3.3,2.6,3.5h0.4v1.1h-9.5v-1.1h0.3c2.4-0.1,2.7-1.3,2.7-3.5v-7.5
+				      c0-2-0.4-3.3-2.6-3.5h-0.6v-1.1l5.5-0.8h1.2V53.9z M174.5,39.3c-1.3,0-2.1-1-2.1-2.2c0-1.1,1-2.1,2.2-2.1c1.3,0,2.2,1,2.2,2.2
+				      C176.7,38.4,175.7,39.3,174.5,39.3z"/>
+	<path class="logo_letters" d="M197.6,54.8c-1.8,2.8-4.4,4-7.7,4c-5.4,0-8.9-3.5-8.9-8.9c0-5.4,3.3-9.2,8.9-9.2
+				      c1.7,0,3.3,0.3,4.8,1.3c1.2,0.8,2.4,2,2.4,3.5c0,1.1-0.7,2-1.8,2c-1,0-1.8-0.7-1.8-1.7c0-0.5,0.1-0.9,0.1-1.4
+				      c0-1.6-2.3-2.3-3.6-2.3c-4.1,0-4.9,4.5-4.9,7.7v0.1c0,3.6,1.6,7.5,5.8,7.5c2.5,0,4.1-1.4,5.6-3.3L197.6,54.8z"/>
+      </g>
+    </g>
+  </g>
+  <g id="Bookshelf">
+    <g>
+      <g>
+	<path class="logo_letters" d="M68.6,86v-1.1l0.4,0c1-0.1,2.1-0.2,2.6-1.2c0.3-0.6,0.4-1.7,0.4-2.6V66.1c0-1.9-0.2-3.3-2.7-3.5
+				      l-0.6-0.1v-1.1H81c1.9,0,4.7,0.1,6.5,0.7c2.3,0.8,4,2.6,4,5.1c0,3.1-2.4,4.6-5.2,5.1v0.1c3.3,0.5,6.5,2.5,6.5,6.2
+				      c0,2.7-1.4,4.9-3.8,6.1c-2.2,1.1-5.2,1.2-7.6,1.2H68.6z M79.5,72c3.3,0,8.3,0,8.3-4.6c0-4.1-4.2-4.6-7.4-4.6c-1,0-3.3,0-4.2,0.8
+				      c-0.6,0.6-0.7,1.7-0.7,2.6V72H79.5z M75.5,80.3c0,1,0,2.6,0.6,3.3c0.8,0.8,3.1,0.9,4.2,0.9c1.8,0,4.2-0.2,5.8-1.1
+				      c1.7-1,2.6-2.8,2.6-4.8c0-2.2-1-4.2-3.3-4.8c-1.5-0.4-3.6-0.4-5.3-0.4h-4.6V80.3z"/>
+	<path class="logo_letters" d="M110.4,70.5c1.8,1.7,2.6,4.4,2.6,6.8c0,5.4-3.4,9-8.8,9c-5.3,0-8.8-3.5-8.8-8.8
+				      c0-5.4,3.1-9.3,8.7-9.3C106.4,68.2,108.8,68.9,110.4,70.5z M104.3,69.7c-4.1,0-5.1,4.4-5.1,7.7c0,3.5,1,7.5,5.3,7.5
+				      c3.9,0,4.8-4.1,4.8-7.2c0-1.7-0.1-3.7-0.9-5.3c-0.8-1.5-2.3-2.7-4-2.7H104.3z"/>
+	<path class="logo_letters" d="M130.6,70.5c1.8,1.7,2.6,4.4,2.6,6.8c0,5.4-3.4,9-8.8,9c-5.3,0-8.8-3.5-8.8-8.8
+				      c0-5.4,3.1-9.3,8.7-9.3C126.5,68.2,129,68.9,130.6,70.5z M124.5,69.7c-4.1,0-5.1,4.4-5.1,7.7c0,3.5,1,7.5,5.3,7.5
+				      c3.9,0,4.8-4.1,4.8-7.2c0-1.7-0.1-3.7-0.9-5.3c-0.8-1.5-2.3-2.7-4-2.7H124.5z"/>
+	<path class="logo_letters" d="M141.8,77l5.1-4.5c0.4-0.4,1.3-1,1.3-1.7c0-1-1.2-1.1-2-1.2v-1.1h9.6v1.1c-3.2,0.3-5.4,1.7-7.7,3.8
+				      l-0.9,0.8l5,7.3c1.2,1.7,2.6,3.1,4.8,3.4V86h-9.8v-1.1h0.4c0.7,0,1.6,0,1.6-1c0-0.8-0.8-1.8-1.2-2.4l-3.4-4.9l-2.9,2.6v2.3
+				      c0,2.1,0.2,3.4,2.5,3.5h0.6V86h-9.8v-1.1h0.4c2.4-0.1,2.8-1.2,2.8-3.5V66c0-1.9-0.2-3.3-2.7-3.5l-0.5,0v-1.1
+				      c1.8-0.2,3.5-0.5,5.2-1.2h1.4V77z"/>
+	<path class="logo_letters" d="M173,74.1h-1.2c-0.9-2.4-3.7-4.4-6.3-4.4c-1.6,0-3.7,0.7-3.7,2.6c0,1.8,2.1,2.1,3.4,2.4l4.1,1
+				      c2.7,0.6,5,1.6,5,4.8c0,4-4,5.8-7.5,5.8c-2.1,0-4.1-0.5-5.8-1.8l-0.4,1.5h-1.2l-1.3-6.4h1.3c1,3.2,4,5.2,7.3,5.2
+				      c1.8,0,4.5-0.9,4.5-3.2c0-1.8-1.6-2.2-3-2.5l-3.7-1c-2.7-0.7-5.8-1.4-5.8-4.8c0-3.3,3.7-5.1,6.6-5.1c1.8,0,3.7,0.5,5.1,1.6
+				      l0.4-1.3h1L173,74.1z"/>
+	<path class="logo_letters" d="M195.7,81.4c0,2,0.3,3.3,2.5,3.5h0.4V86H189v-1.1h0.4c2.4-0.1,2.8-1.2,2.8-3.5v-7.7
+				      c0-0.9,0-1.8-0.6-2.6c-0.6-0.7-1.5-1-2.4-1c-2.1,0-4.9,1.4-6.3,2.8v8.5c0,2,0.3,3.3,2.4,3.5h0.5V86h-9.6v-1.1h0.4
+				      c2.4-0.1,2.8-1.2,2.8-3.5V66c0-1.9-0.2-3.3-2.7-3.5l-0.5,0v-1.1c1.8-0.2,3.5-0.5,5.2-1.2h1.4v11.1c2.1-1.8,4.5-3,7.3-3
+				      c1.3,0,3,0.4,4,1.2c1.4,1.1,1.4,2.6,1.4,4.1v0.3V81.4z"/>
+	<path class="logo_letters" d="M204.4,75.6l-0.1,1.8c0,1.7,0.6,3.6,1.5,5c1,1.5,2.8,2.2,4.6,2.2c2.4,0,4.1-1.2,5.3-3.3l1.2,0.6
+				      c-1.3,2.8-4.3,4.3-7.3,4.3c-2.4,0-4.5-0.6-6.3-2.3c-1.8-1.8-2.7-4.3-2.7-6.7c0-5.2,3.3-9,8.6-9h0.1c4.2,0,7.7,2.8,7.7,7.2v0.1
+				      H204.4z M213.1,74.1c0-2.7-1.7-4.4-4.1-4.4c-2.6,0-4.2,2.1-4.5,4.4H213.1z"/>
+	<path class="logo_letters" d="M225.4,81.4c0,1.9,0.3,3.3,2.5,3.5l0.4,0V86h-9.4v-1.1h0.3c2.3-0.2,2.7-1.3,2.7-3.5V66
+				      c0-1.9-0.2-3.3-2.7-3.5l-0.5,0v-1.1c1.8-0.2,3.5-0.5,5.2-1.2h1.4V81.4z"/>
+	<path class="logo_letters" d="M239.6,69.7H236v11.7c0,2,0.3,3.3,2.5,3.5l0.5,0V86h-9.5v-1.1h0.3c2.3-0.1,2.7-1.3,2.7-3.5V69.7
+				      h-3.1v-1.2h3.1v-1.5c0-1.9,0.1-3.6,1.5-5.1c1.6-1.6,4.3-2.4,6.5-2.4c1.2,0,3.1,0.6,3.1,2.1c0,0.9-0.8,1.6-1.7,1.6
+				      c-1.7,0-1.7-2.1-3.4-2.1c-0.6,0-1.3,0.4-1.8,0.8c-0.8,0.8-0.8,1.7-0.8,2.8v3.9h3.6V69.7z"/>
+      </g>
+    </g>
+  </g>
+</svg>
+</div>
+    </a>
+  </div>
+
+  <div class="top-bar" id="top-bar">
+    <nav id="page-nav">
+      
+      <label for="hamburger">&#9776;</label>
+      <input type="checkbox" id="hamburger" />
+      <ul class="top-bar">
+        <li><a href="/">Home</a></li>
+        <li><a href="/titles">Books</a></li>
+        <li><a href="/authors">Authors</a></li>
+        <li><a href="/publish-with-us">Publish with Us</a></li>
+        <li><a href="/support">Support</a></li>
+        <li>
+          <a
+            href="https://www.giftya.com/brands/1568049/pragmatic-bookshelf"
+            target="_blank"
+          >
+            eGifts
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://www.redbubble.com/people/PragProg/shop"
+            target="_blank"
+          >
+            Swag
+          </a>
+        </li>
+        
+        <li>
+          <a href="https://transactions.sendowl.com/customer_accounts/164668">
+            My Orders
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="search-bar">
+    <div class="search-wrapper">
+      <form action="/search">
+        <div class="search">
+          <input
+            type="text"
+            class="searchTerm"
+            name="q"
+            placeholder="Search titles..."
+          />
+          <button aria-label="Search" type="submit" class="searchButton">
+            <i class="fa fa-search"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+    <span id="sendowl-hitch" class="sendowl-hitch"></span>
+    <script>
+      sendOwl.cartWidget({
+        merchantID: 164668,
+        parent: document.getElementById("sendowl-hitch"),
+      });
+      var sendowl_carter = document.getElementsByClassName("cart-icon");
+      sendowl_carter[0].alt = "Shopping cart";
+    </script>
+  </div>
+
+  <div
+    class="tag"
+    
+  >
+    <ul>
+      <li><a href="#prereqs">Prereqs</a></li>
+      <li><a href="#resources">Resources</a></li>
+      <li><a href="#extracts">Extracts</a></li>
+      <li><a href="#author">Author</a></li>
+    </ul>
+  </div>
+</header>
+
+
+  
+<div class="titlepage-left">
+  <div class="book-about book-about-cover">
+    <a href="mnee2.jpg" aria-label="book cover image">
+    <div>
+      
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<img class="bookimage book-title-image centered"  alt="" src="/titles/mnee2/release-it-second-edition/mnee2_hu_cc9098a71821461.jpg" srcset="/titles/mnee2/release-it-second-edition/mnee2_hu_cc9098a71821461.jpg 1x, /titles/mnee2/release-it-second-edition/mnee2_hu_283489a334249d0e.jpg 1.5x, /titles/mnee2/release-it-second-edition/mnee2_hu_8665d424e6358349.jpg 2x, /titles/mnee2/release-it-second-edition/mnee2_hu_42c7e067022d43b0.jpg 3x, /titles/mnee2/release-it-second-edition/mnee2_hu_3681b7bc9547db1d.jpg 4x" />
+
+
+
+
+
+
+
+
+
+    </div>
+    </a>
+
+    <p><a target="_blank" href="https://twitter.com/intent/tweet?text=Release%20It%21%20Second%20Edition%3a%20Design%20and%20Deploy%20Production-Ready%20Software%20https%3a%2f%2fpragprog.com%2ftitles%2fmnee2%2frelease-it-second-edition%2f"><img src="/img/twitter.png" width="10%" alt="" style="vertical-align: middle;"/><span class="tweet_text">Tweet this</span></a></p>
+  </div>
+
+  <div class="book-about book-about-text">
+    <h3>About This Title</h3>
+
+    <p>
+      <strong>Pages:</strong> 376<br/>
+      
+      <strong>Published:</strong> January 2018<br/>
+      
+      <strong>ISBN:</strong> 9781680502398<br/>
+      
+      In Print<br/>
+      
+      <div class="skillmeter">
+        <img src="/img/skillmeter/skill-meter-4-8.png" alt="Skill Level Meter"/>
+      </div>
+      
+    </p>
+  </div>
+</div>
+
+<div class="titlepage-main">
+  <section class="book-main" markdown="1">
+
+  <h1 class="title">Release It! Second Edition</h1>
+  <h2 class="subtitle"> Design and Deploy Production-Ready Software </h2>
+  <h2 class="author">by Michael Nygard</a></h2>
+
+  <p>
+  A single dramatic software failure can cost a company millions of
+dollars&mdash;but can be avoided with simple changes to design and
+architecture. This new edition of the best-selling industry standard
+shows you how to create systems that run longer, with fewer failures,
+and recover better when bad things happen. New coverage includes DevOps,
+microservices, and cloud-native architecture. Stability antipatterns
+have grown to include systemic problems in large-scale systems. This is
+a must-have pragmatic guide to engineering for production systems.
+  </p>
+  
+
+  
+  <iframe height="390" src="https://www.youtube.com/embed/gO30OfS1Mq8?origin=https://pragprog.com&amp;autoplay=0&amp;modestbranding=1&amp;playsinline=0&amp;fs=1&amp;rel=1" type="text/html" width="640"><a href="https://www.youtube.com/watch/gO30OfS1Mq8">See the video</a></iframe>
+  
+  <div class="buy-container-small">
+    <div class="buy-container">
+      
+<div class="buybox">
+
+
+<h3>eBook Formats:</h3>
+
+<ul class="compact">
+<li><p>PDF for desktop/tablets</p></li>
+<li><p>epub for Apple Books, e-readers</p></li>
+<li><p>mobi for Kindle readers</p></li>
+</ul>
+
+<p>
+Get all eBook formats here for <strong>$28.95</strong> (USD)
+</p>
+
+<p>
+
+<a href="https://transactions.sendowl.com/packages/750545/009603AB/add_to_cart" rel="nofollow" class="buynowbtn">Add to Cart</a><script src="https://transactions.sendowl.com/assets/sendowl.js"></script>
+<img src="/img/cclogos.png" alt="we accept visa, mastercard, amex, discover, paypal" style="padding-top: 10px;"/>
+
+</p>
+
+<p>
+
+</p>
+
+
+<hr/>
+
+<h3>Paperback Formats:</h3>
+
+<ul>
+	<li><p>
+	<a href="https://bookshop.org/a/2696//9781680502398" target="_blank">Order via Bookshop</a> <span style="font-style: italic;">(U.S. Only)</span>
+	</p></li>
+</ul>
+<p>Please support indie bookstores!<br/>
+	Find <a href="https://www.indiebound.org">indie bookstores in the U.S.</a> Find <a href="https://www.biblio.com/bookstores/">indie bookstores around the world</a>.
+</p>
+
+
+</div>
+
+      
+    </div>
+  </div>
+  <hr/>
+
+  <p>If you&rsquo;re a software developer, and you don&rsquo;t want to get alerts every
+night for the rest of your life, help is here. With a combination of
+case studies about huge losses&mdash;lost revenue, lost reputation, lost
+time, lost opportunity&mdash;and practical, down-to-earth advice that was
+all gained through painful experience, this book helps you avoid the
+pitfalls that cost companies millions of dollars in downtime and
+reputation. Eighty percent of project life-cycle cost is in production,
+yet few books address this topic.</p>
+<p>This updated edition deals with the production of today&rsquo;s
+systems&mdash;larger, more complex, and heavily virtualized&mdash;and includes
+information on chaos engineering, the discipline of applying randomness
+and deliberate stress to reveal systematic problems. Build systems that
+survive the real world, avoid downtime, implement zero-downtime upgrades
+and continuous delivery, and make cloud-native applications resilient.
+Examine ways to architect, design, and build software&mdash;particularly
+distributed systems&mdash;that stands up to the typhoon winds of a flash
+mob, a Slashdotting, or a link on Reddit. Take a hard look at software
+that failed the test and find ways to make sure your software survives.</p>
+<p>To skip the pain and get the experience&hellip;get this book.</p>
+
+
+  <h3 id="prereqs">What You Need</h3>
+
+  No requirements.
+
+
+  <h3 id="resources">Resources</h3>
+
+  <ul>
+  <li><p><a href="https://devtalk.com/books/release-it-second-edition/" rel="nofollow" target="_blank">Errata, typos, suggestions</a></p></li>
+  <li><p><a href="https://media.pragprog.com/titles/mnee2/code/mnee2-code.zip">Source Code (zip file)</a></p></li>
+  </ul>
+
+
+
+    <p>
+      <strong>Releases:</strong>
+      <div class="release-list">
+      <div class="a-release">
+        <div class="release-date">2018/01/09</div>
+        <div class="release-name">P1.0</div>
+        <div class="release-notes">First printing.</div>
+      </div>
+      <div class="a-release">
+        <div class="release-date">2017/12/19</div>
+        <div class="release-name">B6.0</div>
+        <div class="release-notes">Production is complete. Now it’s on to layout and the printer.</div>
+      </div>
+      <div class="a-release">
+        <div class="release-date">2017/11/18</div>
+        <div class="release-name">B5.0</div>
+        <div class="release-notes">This release fixes the figure problems in the mobi and epub versions of the beta.</div>
+      </div>
+      <div class="a-release">
+        <div class="release-date">2017/10/23</div>
+        <div class="release-name">B4.0</div>
+        <div class="release-notes">The book is content-complete and heading to production.</div>
+      </div>
+      </div>
+    </p>
+
+
+  <h3 id="extracts">Contents & Extracts</h3>
+
+  <ul>
+<li><strong>Introduction</strong>
+<a href="https://media.pragprog.com/titles/mnee2/intro.pdf" class="pdf-link">excerpt<img aria-label="PDF icon" class="pdf-icon" src="/img/pdf_icon.png"/></a></li>
+<li><strong>Create Stability</strong>
+<ul>
+<li>Case Study: The Exception That Grounded an Airline
+<ul>
+<li>The Change Window</li>
+<li>The Outage</li>
+<li>Consequences</li>
+<li>Postmortem</li>
+<li>Hunting for Clues</li>
+<li>The Smoking Gun</li>
+<li>An Ounce of Prevention?</li>
+</ul>
+</li>
+<li>Stabilize Your System
+<ul>
+<li>Defining Stability</li>
+<li>Extending Your Life Span</li>
+<li>Failure Modes</li>
+<li>Stopping Crack Propagation</li>
+<li>Chain of Failure</li>
+<li>Wrapping Up</li>
+</ul>
+</li>
+<li>Stability Antipatterns
+<a href="https://media.pragprog.com/titles/mnee2/antipatterns.pdf" class="pdf-link">excerpt<img aria-label="PDF icon" class="pdf-icon" src="/img/pdf_icon.png"/></a>
+<ul>
+<li>Integration Points</li>
+<li>Chain Reactions</li>
+<li>Cascading Failures</li>
+<li>Users</li>
+<li>Blocked Threads</li>
+<li>Self-Denial Attacks</li>
+<li>Scaling Effects</li>
+<li>Unbalanced Capacities</li>
+<li>Dogpile</li>
+<li>Force Multiplier</li>
+<li>Slow Responses</li>
+<li>Unbounded Result Sets</li>
+<li>Wrapping Up</li>
+</ul>
+</li>
+<li>Stability Patterns
+<ul>
+<li>Timeouts</li>
+<li>Circuit Breaker</li>
+<li>Bulkheads</li>
+<li>Steady State</li>
+<li>Fail Fast</li>
+<li>Let It Crash</li>
+<li>Handshaking</li>
+<li>Test Harnesses</li>
+<li>Decoupling Middleware</li>
+<li>Shed Load</li>
+<li>Create Back Pressure</li>
+<li>Governor</li>
+<li>Wrapping Up</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Design for Production</strong>
+<ul>
+<li>Case Study: Phenomenal Cosmic Powers, Itty-Bitty Living Space
+<ul>
+<li>Baby&rsquo;s First Christmas</li>
+<li>Taking the Pulse</li>
+<li>Thanksgiving Day</li>
+<li>Black Friday</li>
+<li>Vital Signs</li>
+<li>Diagnostic Tests</li>
+<li>Call In a Specialist</li>
+<li>Compare Treatment Options</li>
+<li>Does the Condition Respond to Treatment?</li>
+<li>Winding Down</li>
+</ul>
+</li>
+<li>Foundations
+<ul>
+<li>Networking in the Data Center and the Cloud</li>
+<li>Physical Hosts, Virtual Machines, and Containers
+<a href="https://media.pragprog.com/titles/mnee2/hosts.pdf" class="pdf-link">excerpt<img aria-label="PDF icon" class="pdf-icon" src="/img/pdf_icon.png"/></a></li>
+<li>Wrapping Up</li>
+</ul>
+</li>
+<li>Processes on Machines
+<ul>
+<li>Code</li>
+<li>Configuration</li>
+<li>Transparency</li>
+<li>Wrapping Up</li>
+</ul>
+</li>
+<li>Interconnect
+<ul>
+<li>Solutions at Different Scales</li>
+<li>DNS</li>
+<li>Load Balancing</li>
+<li>Demand Control</li>
+<li>Network Routing</li>
+<li>Discovering Services</li>
+<li>Migratory Virtual IP Addresses</li>
+<li>Wrapping Up</li>
+</ul>
+</li>
+<li>Control Plane
+<ul>
+<li>How Much Is Right for You?</li>
+<li>Mechanical Advantage</li>
+<li>Platform and Ecosystem</li>
+<li>Development Is Production</li>
+<li>System-Wide Transparency</li>
+<li>Configuration Services</li>
+<li>Provisioning and Deployment Services</li>
+<li>Command and Control</li>
+<li>The Platform Players</li>
+<li>The Shopping List</li>
+<li>Wrapping Up</li>
+</ul>
+</li>
+<li>Security
+<ul>
+<li>The OWASP Top 10</li>
+<li>The Principle of Least Privilege
+<a href="https://media.pragprog.com/titles/mnee2/security.pdf" class="pdf-link">excerpt<img aria-label="PDF icon" class="pdf-icon" src="/img/pdf_icon.png"/></a></li>
+<li>Configured Passwords</li>
+<li>Security as an Ongoing Process</li>
+<li>Wrapping Up</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Deliver Your System</strong>
+<ul>
+<li>Case Study: Waiting for Godot</li>
+<li>Design for Deployment
+<ul>
+<li>So Many Machines</li>
+<li>The Fallacy of Planned Downtime</li>
+<li>Automated Deployments</li>
+<li>Continuous Deployment</li>
+<li>Phases of Deployment</li>
+<li>Deploy Like the Pros</li>
+<li>Wrapping Up</li>
+</ul>
+</li>
+<li>Handling Versions
+<ul>
+<li>Help Others Handle Your Versions</li>
+<li>Handle Others&rsquo; Versions</li>
+<li>Wrapping Up</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Solve Systemic Problems</strong>
+<ul>
+<li>Case Study: Trampled by Your Own Customers
+<ul>
+<li>Countdown and Launch</li>
+<li>Aiming for Quality Assurance</li>
+<li>Load Testing</li>
+<li>Murder by the Masses</li>
+<li>The Testing Gap</li>
+<li>Aftermath</li>
+</ul>
+</li>
+<li>Adaptation
+<ul>
+<li>Convex Returns</li>
+<li>Process and Organization</li>
+<li>System Architecture</li>
+<li>Information Architecture</li>
+<li>Wrapping Up</li>
+</ul>
+</li>
+<li>Chaos Engineering
+<ul>
+<li>Breaking Things to Make Them Better</li>
+<li>Antecedents of Chaos Engineering</li>
+<li>The Simian Army</li>
+<li>Adopting Your Own Monkey</li>
+<li>Disaster Simulations</li>
+<li>Wrapping Up</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+
+  <h3 id="author">Author</h3>
+
+  <strong>Michael Nygard</strong> has been a professional programmer and architect for
+more than 15 years. He has delivered running systems to the U.S.
+government and to the banking, finance, agriculture, and retail
+industries. Michael is a popular speaker at technical conferences, and
+has written and co-authored several books, including <em>97 Things Every
+Software Architect Should Know</em> and the best-selling first edition of
+this book.
+
+  </section>
+</div>
+
+<div class="titlepage-right">
+  <div class="buy-container-large">
+    <div class="buy-container">
+      
+<div class="buybox">
+
+
+<h3>eBook Formats:</h3>
+
+<ul class="compact">
+<li><p>PDF for desktop/tablets</p></li>
+<li><p>epub for Apple Books, e-readers</p></li>
+<li><p>mobi for Kindle readers</p></li>
+</ul>
+
+<p>
+Get all eBook formats here for <strong>$28.95</strong> (USD)
+</p>
+
+<p>
+
+<a href="https://transactions.sendowl.com/packages/750545/009603AB/add_to_cart" rel="nofollow" class="buynowbtn">Add to Cart</a><script src="https://transactions.sendowl.com/assets/sendowl.js"></script>
+<img src="/img/cclogos.png" alt="we accept visa, mastercard, amex, discover, paypal" style="padding-top: 10px;"/>
+
+</p>
+
+<p>
+
+</p>
+
+
+<hr/>
+
+<h3>Paperback Formats:</h3>
+
+<ul>
+	<li><p>
+	<a href="https://bookshop.org/a/2696//9781680502398" target="_blank">Order via Bookshop</a> <span style="font-style: italic;">(U.S. Only)</span>
+	</p></li>
+</ul>
+<p>Please support indie bookstores!<br/>
+	Find <a href="https://www.indiebound.org">indie bookstores in the U.S.</a> Find <a href="https://www.biblio.com/bookstores/">indie bookstores around the world</a>.
+</p>
+
+
+</div>
+
+      
+    </div>
+  </div>
+
+  <section class="newsletter-container">
+    <div class="newsletterbox">
+  	    <h2>Releases, Offers &amp; More</h2>
+
+<p>
+Be the first to hear about our newest content, best promotions and upcoming events. Plus get <span style="font-weight: bold; font-size: 1.1em;">25% off</span> your next purchase.
+</p>
+
+<p>
+	<a class="loginbtn" href="/newsletter">Newsletter Sign Up</a>
+</p>
+
+    </div>
+  </section>
+
+  <section class="related-container">
+  	<div class="buybox">
+
+<h3>Related categories:</h3>
+
+<ul>
+
+	<li><p><a href="/categories/architecture-design-and-testing">Architecture, Design, and Testing</a></p></li>
+
+</ul>
+
+</div>
+  </section>
+
+  <section class="book-ads">
+  	<h3>Related Titles:</h3>
+
+<ul>
+	
+	    
+	        
+	    	
+	    	    
+
+	    		
+
+	    		
+				   <li><p><a href="/titles/fugue"><i>Scalable Cloud Ops with Fugue</i>
+				   	
+      				
+      				
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<img class="bookimage related-title-img"  alt="" src="/titles/fugue/scalable-cloud-ops-with-fugue/fugue_hu_2e582e4d3cfa54ab.jpg" srcset="/titles/fugue/scalable-cloud-ops-with-fugue/fugue_hu_2e582e4d3cfa54ab.jpg 1x, /titles/fugue/scalable-cloud-ops-with-fugue/fugue_hu_682c1765f6ad7a8.jpg 1.5x, /titles/fugue/scalable-cloud-ops-with-fugue/fugue_hu_f022e3776213452e.jpg 2x, /titles/fugue/scalable-cloud-ops-with-fugue/fugue_hu_8c86edd15a4f3a45.jpg 3x, /titles/fugue/scalable-cloud-ops-with-fugue/fugue_hu_eaa69b501f31241f.jpg 4x" />
+
+
+
+
+
+
+
+
+
+
+
+				   </a></p></li>
+				
+	    	
+	    
+	        
+	    	
+	    	    
+
+	    		
+
+	    		
+				   <li><p><a href="/titles/d-devops"><i>DevOps in Practice</i>
+				   	
+      				
+      				
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<img class="bookimage related-title-img"  alt="" src="/titles/d-devops/devops-in-practice/d-devops_hu_1d2056ce348804eb.jpg" srcset="/titles/d-devops/devops-in-practice/d-devops_hu_1d2056ce348804eb.jpg 1x, /titles/d-devops/devops-in-practice/d-devops_hu_d58cee91f48fdeff.jpg 1.5x, /titles/d-devops/devops-in-practice/d-devops_hu_5aa60b6e9f41478b.jpg 2x, /titles/d-devops/devops-in-practice/d-devops_hu_6477ca7d04ad2b7b.jpg 3x, /titles/d-devops/devops-in-practice/d-devops_hu_44945a487ec7667f.jpg 4x" />
+
+
+
+
+
+
+
+
+
+
+
+				   </a></p></li>
+				
+	    	
+	    
+	        
+	    	
+	    	    
+
+	    		
+
+	    		
+				   <li><p><a href="/titles/kdnodesec"><i>Secure Your Node.js Web Application</i>
+				   	
+      				
+      				
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<img class="bookimage related-title-img"  alt="" src="/titles/kdnodesec/secure-your-node-js-web-application/kdnodesec_hu_c881ee1b2f7eee7b.jpg" srcset="/titles/kdnodesec/secure-your-node-js-web-application/kdnodesec_hu_c881ee1b2f7eee7b.jpg 1x, /titles/kdnodesec/secure-your-node-js-web-application/kdnodesec_hu_b3e28c4eb4cf93d6.jpg 1.5x, /titles/kdnodesec/secure-your-node-js-web-application/kdnodesec_hu_82de115c9be167e8.jpg 2x, /titles/kdnodesec/secure-your-node-js-web-application/kdnodesec_hu_68b03cce53689daa.jpg 3x, /titles/kdnodesec/secure-your-node-js-web-application/kdnodesec_hu_93dde7c449cfb5e1.jpg 4x" />
+
+
+
+
+
+
+
+
+
+
+
+				   </a></p></li>
+				
+	    	
+	    
+	
+</ul>
+
+  </section>
+</div>
+
+<div class="book-about-small">
+    
+      <div class="skillmeter-small">
+        <img src="/img/skillmeter/skill-meter-4-8.png" alt="Skill Level Meter"/>
+      </div>
+      
+    <h3>About This Title</h3>
+    <p>
+      <strong>Pages:</strong> 376<br/>
+      
+      <strong>Published:</strong> January 2018<br/>
+      
+      <strong>ISBN:</strong> 9781680502398<br/>
+      <strong>Edition:</strong> 1<br/>
+      In Print<br/>
+    </p>
+</div>
+
+
+  <footer class="footer">
+  <ul style="margin-block-end: 0.5em">
+    <li><a href="/contact">Contact</a></li>
+    <li><a href="/about">About Us</a></li>
+    <li><a href="/privacy">Privacy</a></li>
+    <li><a href="/terms-of-use">Terms of Use</a></li>
+    <li><a href="/security">Security</a></li>
+    <li><a href="/newsletter">Newsletter</a></li>
+    <li><a href="https://www.giftya.com/brands/1568049/pragmatic-bookshelf" target="_blank">eGifts</a></li>
+    
+    <li><a href="/promotions">Partnerships &amp; Promotions</a></li>
+    <li><a href="/careers">Careers</a></li>
+  </ul>
+
+  <div style="font-size: 70%; color: #C2CBC2">
+    &copy; 1999-2026 The Pragmatic Programmers, LLC. All Rights Reserved.
+  </div>
+
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js" data-cfasync="false"></script>
+<script>
+window.cookieconsent.initialise({
+  "palette": {
+    "popup": {
+      "background": "#915465",
+      "text": "#ffdddd"
+    },
+    "button": {
+      "background": "#93535B"
+    }
+  },
+  "theme": "classic",
+  "content": {
+    "message": "This website uses cookies for navigation, order transactions, and general analytics. ",
+    "href": "https://pragprog.com/privacy"
+  }
+});
+</script>
+
+</div>
+</body>
+</html>

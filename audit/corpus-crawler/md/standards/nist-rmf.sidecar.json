@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/nist-rmf.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/nist-rmf.md",
+  "title": "NIST Risk Management Framework | CSRC",
+  "engine_used": "bs4-handrolled",
+  "char_count": 10836,
+  "heading_count": 15,
+  "sha256": "508644307bb5e577b07974cfa1eff6987a37e71e44069e3404634ddaa53de1e1",
+  "source_url": "https://csrc.nist.gov/projects/risk-management",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:59.405429+00:00"
+}

@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/w3c-xslt-30.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/w3c-xslt-30.md",
+  "title": "XSL Transformations (XSLT) Version 3.0",
+  "engine_used": "bs4-handrolled",
+  "char_count": 112935,
+  "heading_count": 1,
+  "sha256": "d9626241dc8e53380a30fb4c4f37a46c72ddc997548b65ee2ae641d20a350ab7",
+  "source_url": "https://www.w3.org/TR/xslt-30/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:26:06.821950+00:00"
+}

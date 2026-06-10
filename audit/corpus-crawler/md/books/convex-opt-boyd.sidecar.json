@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/convex-opt-boyd.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/convex-opt-boyd.md",
+  "title": "Convex Optimization \u2013 Boyd and Vandenberghe",
+  "engine_used": "bs4-handrolled",
+  "char_count": 2202,
+  "heading_count": 3,
+  "sha256": "df48f0a3e382d9a987e8e54ec37ff060f362d9fb1f17e8127d468c4e384bffc1",
+  "source_url": "https://stanford.edu/~boyd/cvxbook/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:57.699808+00:00"
+}

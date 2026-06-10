@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/iso-27002.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/iso-27002.md",
+  "title": "ISO 15854:2023 - Dentistry \u2014 Casting and baseplate waxes",
+  "engine_used": "bs4-handrolled",
+  "char_count": 1233,
+  "heading_count": 4,
+  "sha256": "cdf1c1ad712c1495897711ef1b5f9efed835fa4bfa9a932dc1264b1ce591396a",
+  "source_url": "https://www.iso.org/standard/82846.html",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.964310+00:00"
+}

@@ -1,0 +1,11 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/rfc-7807.txt",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/rfc-7807.md",
+  "title": "Internet Engineering Task Force (IETF)                     M. Nottingham",
+  "engine_used": "passthrough",
+  "char_count": 31210,
+  "sha256": "c6ee12b7109d42ed3e68659da5f67397bd573226d86492fecf7d954f5f6ca03e",
+  "source_url": "https://www.rfc-editor.org/rfc/rfc7807.txt",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:26:06.826906+00:00"
+}

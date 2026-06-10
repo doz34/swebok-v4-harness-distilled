@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/fowler-testing-microservices.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/fowler-testing-microservices.md",
+  "title": "Testing Strategies in a Microservice Architecture",
+  "engine_used": "bs4-handrolled",
+  "char_count": 2176,
+  "heading_count": 2,
+  "sha256": "2efa9ec3b03e3fcb3a6a81213d12fbbdd9b367ca11d7a5d02d42411fbb458450",
+  "source_url": "https://martinfowler.com/articles/microservice-testing/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.099028+00:00"
+}

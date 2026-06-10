@@ -9,6 +9,7 @@
 - Spec existante : `specs/workflows/by-phase/phase-3-architecture.md` (v2 — validé 2026-06-06)
 - Date de l'audit : 2026-06-06
 - Auditeur : Mainteneur (grille offline) + Claude (analyse + 8 questions + rédaction v2)
+- Couverture corpus : **89%** (post-vague 8, 2026-06-09) — cf. §39 du corpus-references/SWEBOK_CORPUS_BOOKS_REFERENCE.md
 - Verdict global : 🟢 OK — toutes les sections comblées (7 par projection + cohérence P0/P1/P2 v2)
 
 ---

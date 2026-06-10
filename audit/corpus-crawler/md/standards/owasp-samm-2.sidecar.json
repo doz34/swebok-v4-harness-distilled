@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/owasp-samm-2.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/owasp-samm-2.md",
+  "title": "OWASP SAMM | OWASP Foundation",
+  "engine_used": "bs4-handrolled",
+  "char_count": 457,
+  "heading_count": 0,
+  "sha256": "88bcadf628ad485ab08cc64d54083342c25a9859026adb6319fbf4871cd267c8",
+  "source_url": "https://owasp.org/www-project-samm/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:59.703878+00:00"
+}

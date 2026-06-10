@@ -1,0 +1,1 @@
+Redirecting to OWASP Top 10:2025. If not redirected, [click here](./2025/en/).

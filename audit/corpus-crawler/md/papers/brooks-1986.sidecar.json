@@ -1,0 +1,13 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/papers/brooks-1986.pdf",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/papers/brooks-1986.md",
+  "engine_used": "pdfplumber",
+  "page_count": 21,
+  "char_count": 50538,
+  "is_image_only": false,
+  "sha256": "a4a11dcb6ff7dcdfcc680e27760126d86c568cbb99a53a2bf58dc9041fbb190e",
+  "source_url": "https://www.cs.unc.edu/techreports/86-020.pdf",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:22:49.478938+00:00",
+  "image_only_note": ""
+}

@@ -9,6 +9,7 @@
 - Spec existante : `specs/workflows/by-phase/phase-4-design.md` (v2 — validé 2026-06-07)
 - Date de l'audit : 2026-06-07 (post-fix structurel, vague 1)
 - Auditeur : Mainteneur (grille offline) + Claude (analyse + 4 questions + rédaction v2)
+- Couverture corpus : **97%** (post-vague 8, 2026-06-09) — cf. §39 du corpus-references/SWEBOK_CORPUS_BOOKS_REFERENCE.md
 - Verdict global : 🟢 OK — toutes les sections comblées (7 par projection + cohérence P0/P1/P2/P3 v2, 5.5 transformée en 7 questions précises)
 
 ---

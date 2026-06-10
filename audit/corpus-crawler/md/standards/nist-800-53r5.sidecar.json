@@ -1,0 +1,13 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/nist-800-53r5.pdf",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/nist-800-53r5.md",
+  "engine_used": "pdfplumber",
+  "page_count": 492,
+  "char_count": 1560273,
+  "is_image_only": false,
+  "sha256": "fc63bcd61715d0181dd8e85998b1e6201ae3515fc6626102101cab1841e11ec6",
+  "source_url": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:33.910818+00:00",
+  "image_only_note": ""
+}

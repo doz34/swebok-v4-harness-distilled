@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/algorithms-sedgewick.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/algorithms-sedgewick.md",
+  "title": "Algorithms, 4th Edition by Robert Sedgewick and Kevin Wayne",
+  "engine_used": "bs4-handrolled",
+  "char_count": 5961,
+  "heading_count": 5,
+  "sha256": "fe907b67a5d3ac75a680ee9ea15ac3d4ba0e74b07219ba3c09bfc8f0108738ea",
+  "source_url": "https://algs4.cs.princeton.edu/home/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:57.696218+00:00"
+}

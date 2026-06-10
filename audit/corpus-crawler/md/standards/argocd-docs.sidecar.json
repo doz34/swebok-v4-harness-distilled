@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/argocd-docs.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/argocd-docs.md",
+  "title": "Argo CD - Declarative GitOps CD for Kubernetes",
+  "engine_used": "bs4-handrolled",
+  "char_count": 4241,
+  "heading_count": 10,
+  "sha256": "f70d047f9e872bbff41a208d5adb05bb662d6c7b0f16bafd0fb88267fbb296de",
+  "source_url": "https://argo-cd.readthedocs.io/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:27:41.611848+00:00"
+}

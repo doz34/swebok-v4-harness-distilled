@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/flux-docs.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/flux-docs.md",
+  "title": "Flux Documentation | Flux",
+  "engine_used": "bs4-handrolled",
+  "char_count": 8418,
+  "heading_count": 34,
+  "sha256": "4b314a1265ae1deb2a468709bf59113ffd3f5277691400e13b4907d1bae405d8",
+  "source_url": "https://fluxcd.io/flux/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.881746+00:00"
+}

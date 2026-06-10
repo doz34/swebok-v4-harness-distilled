@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/omg-uml.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/omg-uml.md",
+  "title": "About the Unified Modeling Language Specification Version 2.5.1",
+  "engine_used": "bs4-handrolled",
+  "char_count": 9965,
+  "heading_count": 11,
+  "sha256": "a7fa55ba700ae17a1e759bb30fd9ac0608341adcc4763e189e03562474537f1c",
+  "source_url": "https://www.omg.org/spec/UML",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:59.486051+00:00"
+}

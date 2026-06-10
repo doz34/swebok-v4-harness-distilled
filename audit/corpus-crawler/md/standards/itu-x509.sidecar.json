@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/itu-x509.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/itu-x509.md",
+  "title": "X.509\ufffd:\ufffdInformation technology - Open Systems Interconnection - The Directory: Public-key and attribute certificate frameworks",
+  "engine_used": "bs4-handrolled",
+  "char_count": 22437,
+  "heading_count": 0,
+  "sha256": "a149894d1d326174ea7086633e93f635bee613f2e9e53d67719ea856bcf876ad",
+  "source_url": "https://www.itu.int/rec/T-REC-X.509",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:59.065069+00:00"
+}

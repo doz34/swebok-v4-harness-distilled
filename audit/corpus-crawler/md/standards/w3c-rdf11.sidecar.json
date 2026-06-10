@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/w3c-rdf11.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/w3c-rdf11.md",
+  "title": "RDF 1.1 Concepts and Abstract Syntax",
+  "engine_used": "bs4-handrolled",
+  "char_count": 57936,
+  "heading_count": 37,
+  "sha256": "3838c992097f72ee8784b6c96194d9879f86f2e08f53ced5a05aa4031750c5ac",
+  "source_url": "https://www.w3.org/TR/rdf11-concepts/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:26:00.909754+00:00"
+}

@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/philosophy-software-design-ousterhout.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/philosophy-software-design-ousterhout.md",
+  "title": "CS 190",
+  "engine_used": "bs4-handrolled",
+  "char_count": 3167,
+  "heading_count": 7,
+  "sha256": "52d9e383fa3af2e183bb9b85886a481d27ca36b73d7a2c0b363e420cf919306b",
+  "source_url": "https://web.stanford.edu/~ouster/cs190-winter24/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.259630+00:00"
+}

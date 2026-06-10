@@ -1,0 +1,11 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/rfc-7231.txt",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/rfc-7231.md",
+  "title": "Internet Engineering Task Force (IETF)                  R. Fielding, Ed.",
+  "engine_used": "passthrough",
+  "char_count": 235053,
+  "sha256": "a83d026937f6f7929a0e53f8a9bfec4104285f0f89d6dbabd3927c4208a715b2",
+  "source_url": "https://www.rfc-editor.org/rfc/rfc7231.txt",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:26:06.826159+00:00"
+}

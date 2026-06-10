@@ -1,0 +1,11 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/rfc-6234.txt",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/rfc-6234.md",
+  "title": "Internet Engineering Task Force (IETF)                   D. Eastlake 3rd",
+  "engine_used": "passthrough",
+  "char_count": 236573,
+  "sha256": "8f39f02a57bfd1da15634706724a585766e6223f77ecdaf243cad16cd3a1aa1b",
+  "source_url": "https://www.rfc-editor.org/rfc/rfc6234.txt",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:26:06.824342+00:00"
+}

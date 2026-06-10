@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/csa-artifacts.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/csa-artifacts.md",
+  "title": "Latest Research | Cloud Security Alliance (CSA)",
+  "engine_used": "bs4-handrolled",
+  "char_count": 3679,
+  "heading_count": 3,
+  "sha256": "6b489d49ef299da1a0d81f1cd10140a6977231f15fd3e9380b2ca5111db4fbf3",
+  "source_url": "https://cloudsecurityalliance.org/research/artifacts/",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.766091+00:00"
+}

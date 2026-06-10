@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/books/prob-ml-murphy-1.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/books/prob-ml-murphy-1.md",
+  "title": "GitHub - probml/pml-book: \"Probabilistic Machine Learning\" - a book series by Kevin Murphy \u00b7 GitHub",
+  "engine_used": "bs4-handrolled",
+  "char_count": 8952,
+  "heading_count": 20,
+  "sha256": "e6665e6a3f85fae3ae875384ac92e69a3184ea5ca66324ab301d4813434076bb",
+  "source_url": "https://github.com/probml/pml-book",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.343283+00:00"
+}

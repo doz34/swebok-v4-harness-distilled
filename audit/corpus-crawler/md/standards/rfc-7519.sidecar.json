@@ -1,0 +1,11 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/rfc-7519.txt",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/rfc-7519.md",
+  "title": "Internet Engineering Task Force (IETF)                          M. Jones",
+  "engine_used": "passthrough",
+  "char_count": 63039,
+  "sha256": "fecd930e9ccf2276b95c0017c6c4ff5d09352e4bc3c7629946447894e0f97248",
+  "source_url": "https://www.rfc-editor.org/rfc/rfc7519.txt",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:26:06.826591+00:00"
+}

@@ -1,0 +1,77 @@
+# Candidate URLs to probe. Run:
+#   python3 scripts/probe_urls.py scripts/probe-candidates.txt
+# Add a URL to the config only if it shows 200 OK.
+#
+# Format: one URL per line, '#' starts a comment.
+
+# --- NIST standards that may have moved to csrc.nist.gov ---
+https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf
+https://nvlpubs.nist.gov/nistpubs/CSWP/NIST.CSWP.29.pdf
+https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf
+https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218.pdf
+https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-207.pdf
+https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-37r2.pdf
+https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-61r2.pdf
+https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-53r5.pdf
+https://nvlpubs.nist.gov/nistpubs/CSWP/NIST.CSWP.04162024.pdf
+
+# --- RFCs (use datatracker as fallback) ---
+https://datatracker.ietf.org/doc/rfc7231/
+https://datatracker.ietf.org/doc/rfc7807/
+https://datatracker.ietf.org/doc/rfc8259/
+https://datatracker.ietf.org/doc/rfc7946/
+https://datatracker.ietf.org/doc/rfc9000/
+https://datatracker.ietf.org/doc/rfc6749/
+https://datatracker.ietf.org/doc/rfc7519/
+https://datatracker.ietf.org/doc/rfc8446/
+https://datatracker.ietf.org/doc/rfc5246/
+https://datatracker.ietf.org/doc/rfc8141/
+https://datatracker.ietf.org/doc/rfc6234/
+
+# --- W3C recommendations (use /TR/ paths; latest spec redirects) ---
+https://www.w3.org/TR/html/
+https://www.w3.org/TR/html52/
+https://www.w3.org/TR/json-ld11/
+https://www.w3.org/TR/sparql11-query/
+https://www.w3.org/TR/owl2-overview/
+https://www.w3.org/TR/rdf11-concepts/
+https://www.w3.org/TR/xpath-31/
+https://www.w3.org/TR/xslt-30/
+https://www.w3.org/TR/xml/
+https://www.w3.org/TR/css-2024/
+
+# --- OWASP (github-based 200s and the surviving pdf-archive 200s) ---
+https://owasp.org/www-pdf-archive/ASVS-v5.0-en.pdf
+https://owasp.org/www-pdf-archive/OWASP_Top_10_2021_EN.pdf
+https://owasp.org/www-pdf-archive/SAMM-2.0-en.pdf
+https://owasp.org/Top10/
+https://owasp.org/www-project-application-security-verification-standard/
+https://owasp.org/www-project-mobile-top-10/
+https://owasp.org/www-project-samm/
+https://github.com/OWASP/CheatSheetSeries/raw/master/Index.md
+https://github.com/OWASP/ASVS
+https://github.com/OWASP/Top10
+https://github.com/OWASP/wstg
+
+# --- CNCF / OCI / OMG ---
+https://www.cncf.io/reports/
+https://github.com/cncf/tag-security
+https://github.com/opencontainers/image-spec/raw/main/spec.md
+https://github.com/opencontainers/runtime-spec/raw/main/spec.md
+https://www.omg.org/spec/UML
+https://www.omg.org/spec/BPMN/2.0/
+
+# --- ENISA / ISO / ITU / Cloud Security Alliance ---
+https://www.enisa.europa.eu/publications/enisa-threat-landscape-2024
+https://www.itu.int/rec/T-REC-X.509
+https://www.iso.org/standard/50508.html
+https://www.iso.org/standard/63534.html
+https://www.iso.org/standard/27001
+https://www.iso.org/standard/82846.html
+https://safecode.org/publications/
+https://cloudsecurityalliance.org/research/artifacts/
+
+# --- CSRC glossary and projects (HTML, valid) ---
+https://csrc.nist.gov/glossary
+https://csrc.nist.gov/projects/risk-management
+https://www.nist.gov/itl/ai-risk-management-framework

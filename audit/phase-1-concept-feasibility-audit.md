@@ -385,7 +385,7 @@ Stockés dans `.swebok_state.db` (table `udl_p1`) et consultables via Consultati
 8. ✅ Nexus-DevOps 5e agent optionnel clarifié (PoC infra complexe, à arbitrage mainteneur)
 9. ✅ Format go-no-go-decision = md+json (vs md seul en v1)
 10. ✅ Cap 35 min strict (vs ajustable en v1)
-11. ✅ Couverture corpus 20% acceptée explicitement (section "Couverture corpus" ajoutée à spec v2)
+  - Couverture corpus : **73%** (post-vague 8, 2026-06-09) — cf. §39 du corpus-references/SWEBOK_CORPUS_BOOKS_REFERENCE.md
 12. ✅ 7 décisions tranchées via grille offline (cf. "Décisions d'audit" ci-dessous)
 
 **🟢 P3 — nice-to-have (à fermer post-v2)** :
@@ -401,7 +401,6 @@ Stockés dans `.swebok_state.db` (table `udl_p1`) et consultables via Consultati
 4. **PoC technique** : reste conditionnel ("si applicable" comme spec v1). Pas systématique.
 5. **Format go/no-go** : md + json (les deux). md pour humain, json pour state engine.
 6. **Cap 35 min** : strict (spec v1). Si dépassé, critère d'abandon #4 s'applique. Action P2-9 fermée.
-7. **Couverture corpus 20%** : laisser tel quel. Pas d'achat Cohn 2005 maintenant. Batch ultérieur avec P2.
 
 ## Notes libres
 > Phase 1 Concept/Feasibility = v2 validée 2026-06-06 par le mainteneur. Spec v1 créée 2026-06-05, spec v2 créée 2026-06-06 post-audit.

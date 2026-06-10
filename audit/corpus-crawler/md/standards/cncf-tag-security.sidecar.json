@@ -1,0 +1,12 @@
+{
+  "input_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/downloads/standards/cncf-tag-security.html",
+  "output_path": "/home/doz/swebok-v4-harness-distilled/audit/corpus-crawler/md/standards/cncf-tag-security.md",
+  "title": "GitHub - cncf/tag-security: \ud83d\udd10CNCF Security Technical Advisory Group -- secure access, policy control, privacy, auditing, explainability and more! \u00b7 GitHub",
+  "engine_used": "bs4-handrolled",
+  "char_count": 8566,
+  "heading_count": 15,
+  "sha256": "84ae7a3de1433f794081a6db29e98b4aa30fd1ab90ed326bcfb460835b4675cc",
+  "source_url": "https://github.com/cncf/tag-security",
+  "license_hint": "",
+  "timestamp": "2026-06-09T07:25:58.714023+00:00"
+}
