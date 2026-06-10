@@ -643,7 +643,10 @@ case "${1:-help}" in
     WORK_ARG="${3:-}"
     COUNCIL_FLAG=1
     ;;
-  steer)
+  steer|steering)
+    # Alias: 'steering' redirects to 'steer' (the subcommand name).
+    # Why: S3 module is lib/adv-loop/steering.py but CLI subcommand is 'steer'
+    # for terseness. The alias preserves discoverability (users search 'steering').
     PHASE_STEER="${2:-0}"
     THRESHOLD="${3:-3}"
     python3 -c "
@@ -699,6 +702,124 @@ n = clear_history(default_db_path('.'), int('$P_ARG') if '$P_ARG' else None)
 print(f'cleared {n} runs')
 "
     exit 0
+    ;;
+  health)
+    # Aggregated health check — single entry point for "is the harness OK?".
+    # Returns DSL: key=value;;key=value
+    # Exit codes: 0 healthy, 1 degraded (MED SLO violated), 2 broken (CRIT/HMAC)
+    # See docs/v2-plan/10-devops-slo.md §6.
+    HARNESS_DIR="$PROJECT_ROOT" python3 <<'HEALTHEOF'
+import sqlite3, json, sys, os
+from pathlib import Path
+
+HARNESS_DIR = Path(os.environ['HARNESS_DIR'])
+db_path = HARNESS_DIR / '.swebok_state.db'
+
+verdict = '🟢 OK'
+exit_code = 0
+degraded = 0
+broken = 0
+
+# 1. State DB exists?
+if not db_path.exists():
+    print(f"health:state_db=missing;;health:verdict=🔴 BROKEN")
+    sys.exit(2)
+
+# 2. HMAC chain integrity (use state_engine's check)
+try:
+    sys.path.insert(0, str(HARNESS_DIR / 'lib'))
+    import state_engine
+    hmac_ok = True
+    for tbl in ('adversarial_log', 'log_events', 'state_events', 'circuit_breaker_events'):
+        ok, _ = state_engine.verify_audit_chain(tbl)
+        if not ok:
+            hmac_ok = False
+            break
+except Exception as e:
+    hmac_ok = False
+    print(f"health:hmac_chain=error:{type(e).__name__};;", end='')
+    broken += 1
+    exit_code = 2
+    verdict = '🔴 BROKEN'
+
+# 3. Hooks wired
+hooks_wired = 0
+try:
+    import json
+    s = json.load(open(HARNESS_DIR / 'settings.json'))
+    for phase in s.get('hooks', {}).values():
+        for h in phase:
+            hooks_wired += len(h.get('hooks', []))
+except Exception:
+    pass
+
+# 4. Circuit breaker
+cb_clean = 'unknown'
+try:
+    con = sqlite3.connect(str(db_path))
+    con.row_factory = sqlite3.Row
+    cb = con.execute("SELECT value FROM state WHERE key='circuit_breaker'").fetchone()
+    if cb:
+        cb_data = json.loads(cb['value'])
+        if cb_data.get('blocked_attempts', 0) > 100:
+            cb_clean = 'tripped'
+            degraded += 1
+            if exit_code == 0: exit_code = 1
+            if verdict == '🟢 OK': verdict = '🟡 DEGRADED'
+        elif cb_data.get('override_active'):
+            cb_clean = 'override'
+            degraded += 1
+            if exit_code == 0: exit_code = 1
+            if verdict == '🟢 OK': verdict = '🟡 DEGRADED'
+        else:
+            cb_clean = 'clean'
+    con.close()
+except Exception:
+    pass
+
+# 5. Edits counter (G5)
+edits_counter = '0/5'
+try:
+    con = sqlite3.connect(str(db_path))
+    r = con.execute("SELECT value FROM state WHERE key='edits.counter'").fetchone()
+    if r:
+        edits_counter = f"{r[0]}/5"
+    con.close()
+except Exception:
+    pass
+
+# 6. Intent phase (stored under 'intent' key as JSON dict {phase, confidence, timestamp})
+intent_phase = 'unknown'
+try:
+    con = sqlite3.connect(str(db_path))
+    r = con.execute("SELECT value FROM state WHERE key='intent'").fetchone()
+    if r:
+        v = json.loads(r[0])
+        if isinstance(v, dict):
+            intent_phase = v.get('phase', 'unknown')
+        else:
+            intent_phase = str(v)
+    con.close()
+except Exception:
+    pass
+
+# 7. Gates validated
+gates = 'none'
+try:
+    con = sqlite3.connect(str(db_path))
+    r = con.execute("SELECT value FROM state WHERE key='gates_validated'").fetchone()
+    if r:
+        v = json.loads(r[0])
+        if v:
+            gates = ','.join(v)
+    con.close()
+except Exception:
+    pass
+
+print(f"health:state_db=ok;;health:hmac_chain={'ok' if hmac_ok else 'BROKEN'};;health:circuit_breaker={cb_clean};;health:edits_since_council={edits_counter};;health:intent_phase={intent_phase};;health:gates_validated={gates};;health:hooks_wired={hooks_wired};;health:degraded={degraded};;health:broken={broken};;health:verdict={verdict}")
+sys.exit(exit_code)
+HEALTHEOF
+    exit $?  # pass through exit code from heredoc
     ;;
   corpus)
     CORPUS_ARG="${2:-specs/adversarial-corpus/corpus-v1.json}"

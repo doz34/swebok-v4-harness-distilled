@@ -1,5 +1,15 @@
 # SWEBOK v4 HARNESS DISPATCHER
 
+## Path Convention (scripts/* = canonical alias for lib/* and root scripts)
+
+The repo exposes two parallel paths for the same files:
+- `lib/state_engine.py` ← canonical, used by hooks and Python imports
+- `scripts/lib/state_engine.py` ← symlink → `lib/`, used by bash scripts and CI
+
+Both refer to the same on-disk file. The `scripts/` namespace is a **stable alias** so existing bash scripts and CI workflows that hardcoded `scripts/lib/...` paths continue to work after the lib/ refactor. Same for `scripts/adversarial-gate.sh` and `scripts/multiagent-launcher.sh` (both symlinks to root files).
+
+**Authoring rule**: new code should import from `lib/` (Python) or call from root (bash). The `scripts/*` aliases exist for legacy callers — do not duplicate, always use the symlink.
+
 ## Laws
 1. **HOT_PATH** - intent=micro_task → execute + --lite
 2. **STATE-DRIVEN** - read .swebok_state.db via `python3 lib/state_engine.py get <key>` (SQLite ONLY)
