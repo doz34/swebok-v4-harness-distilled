@@ -20,6 +20,11 @@
 #   4  — STATE_ENGINE_DISK_FULL
 #   5  — STATE_ENGINE_INTEGRITY_FAIL
 #   6  — STATE_ENGINE_SCHEMA_DOWNGRADE / HARNESS_DIR_INVALID
+#
+# Module size: 1700 LOC across 12 sections. The Council (2026-06-10) flagged
+# this as "approaching god-class". The acknowledged refactor plan is in
+# docs/v2-plan/ADR-004-state-engine-refactor.md: Strategy B (keep monolith
+# + add structural doc) for v2.6.0, incremental extraction in v2.7.0+.
 
 import sqlite3
 import os

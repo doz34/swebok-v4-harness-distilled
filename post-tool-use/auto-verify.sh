@@ -12,7 +12,7 @@ set -euo pipefail
 # FAIL-SECURE: block on any internal error (lint failures alone do not trigger this)
 trap 'echo "WARN:HOOK_INTERNAL_ERROR: Blocking action due to script crash"; exit 1' ERR
 
-HARNESS_DIR="${HARNESS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+HARNESS_DIR="${HARNESS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 STATE_ENGINE="$HARNESS_DIR/scripts/lib/state_engine.py"
 # State of truth: .swebok_state.db. STATE_FILE is NOT read.
 

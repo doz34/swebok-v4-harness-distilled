@@ -20,35 +20,36 @@
     ],
     "deny": []
   },
+  "_hook_path_resolution_note": "All hook paths use ${HARNESS_DIR} expansion or relative-to-project. The distilled fork no longer references /home/doz/swebok-v4-harness/ — the 3 upstream scripts (phase-guard, bash-guard, auto-verify) are vendored at pre-tool-use/ and post-tool-use/ as of 2026-06-10 (closes Council finding #4 'settings.json fork coupling').",
   "hooks": {
     "PreToolUse": [
       {
         "matcher": "Write|Edit|MultiEdit|NotebookEdit",
         "hooks": [
-          "bash /home/doz/swebok-v4-harness/hooks/pre-tool-use/phase-guard.sh",
-          "bash /home/doz/swebok-v4-harness-distilled/pre-tool-use/token-counter.sh",
-          "bash /home/doz/swebok-v4-harness-distilled/pre-tool-use/phase-change-detector.sh"
+          "bash ${HARNESS_DIR}/pre-tool-use/phase-guard.sh",
+          "bash ${HARNESS_DIR}/pre-tool-use/token-counter.sh",
+          "bash ${HARNESS_DIR}/pre-tool-use/phase-change-detector.sh"
         ]
       },
       {
         "matcher": "Bash",
         "hooks": [
-          "bash /home/doz/swebok-v4-harness/hooks/pre-tool-use/bash-guard.sh",
-          "bash /home/doz/swebok-v4-harness-distilled/pre-tool-use/token-counter.sh"
+          "bash ${HARNESS_DIR}/pre-tool-use/bash-guard.sh",
+          "bash ${HARNESS_DIR}/pre-tool-use/token-counter.sh"
         ]
       },
       {
         "matcher": "Skill|Task|Agent|WebFetch|WebSearch",
         "hooks": [
-          "bash /home/doz/swebok-v4-harness/hooks/pre-tool-use/phase-guard.sh",
-          "bash /home/doz/swebok-v4-harness-distilled/pre-tool-use/token-counter.sh"
+          "bash ${HARNESS_DIR}/pre-tool-use/phase-guard.sh",
+          "bash ${HARNESS_DIR}/pre-tool-use/token-counter.sh"
         ]
       },
       {
         "matcher": "mcp__.*|Glob|Grep|LS|TodoWrite|NotebookRead|ExitPlanMode",
         "hooks": [
-          "bash /home/doz/swebok-v4-harness/hooks/pre-tool-use/phase-guard.sh",
-          "bash /home/doz/swebok-v4-harness-distilled/pre-tool-use/token-counter.sh"
+          "bash ${HARNESS_DIR}/pre-tool-use/phase-guard.sh",
+          "bash ${HARNESS_DIR}/pre-tool-use/token-counter.sh"
         ]
       }
     ],
@@ -56,25 +57,25 @@
       {
         "matcher": "Write|Edit|MultiEdit|NotebookEdit",
         "hooks": [
-          "bash /home/doz/swebok-v4-harness/hooks/post-tool-use/auto-verify.sh",
-          "bash /home/doz/swebok-v4-harness-distilled/post-tool-use/council-scheduler-hook.sh",
-          "bash /home/doz/swebok-v4-harness-distilled/post-tool-use/mini-council-hook.sh"
+          "bash ${HARNESS_DIR}/post-tool-use/auto-verify.sh",
+          "bash ${HARNESS_DIR}/post-tool-use/council-scheduler-hook.sh",
+          "bash ${HARNESS_DIR}/post-tool-use/mini-council-hook.sh"
         ]
       },
       {
         "matcher": "Skill|Task|Agent|WebFetch|WebSearch",
-        "hooks": ["bash /home/doz/swebok-v4-harness/hooks/post-tool-use/auto-verify.sh"]
+        "hooks": ["bash ${HARNESS_DIR}/post-tool-use/auto-verify.sh"]
       },
       {
         "matcher": "Read",
-        "hooks": ["bash /home/doz/swebok-v4-harness/hooks/post-tool-use/auto-verify.sh"]
+        "hooks": ["bash ${HARNESS_DIR}/post-tool-use/auto-verify.sh"]
       }
     ],
     "UserPromptSubmit": [
       {
         "matcher": ".*",
         "hooks": [
-          "bash /home/doz/swebok-v4-harness-distilled/pre-tool-use/auto-trigger-hook.sh"
+          "bash ${HARNESS_DIR}/pre-tool-use/auto-trigger-hook.sh"
         ]
       }
     ]
@@ -82,6 +83,6 @@
   "mounts": {},
   "goals": {},
   "env": {
-    "HARNESS_DIR": "/home/doz/swebok-v4-harness"
+    "HARNESS_DIR": "${PWD}"
   }
 }

@@ -1,1 +1,1 @@
-/home/doz/swebok-v4-harness-distilled/adversarial-gate.sh
+../adversarial-gate.sh

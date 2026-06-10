@@ -13,7 +13,7 @@ set -euo pipefail
 # FAIL-SECURE: Block on internal errors (crash, missing deps, etc.)
 trap 'echo "WARN:HOOK_INTERNAL_ERROR: Blocking action due to script crash"; exit 1' ERR
 
-HARNESS_DIR="${HARNESS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+HARNESS_DIR="${HARNESS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 # H8: refuse to run against a non-harness HARNESS_DIR
 if [[ ! -d "$HARNESS_DIR" ]] || [[ ! -d "$HARNESS_DIR/scripts/lib" ]]; then
     echo "[BASH-GUARD] FATAL: HARNESS_DIR=$HARNESS_DIR is not a SWEBOK harness checkout."

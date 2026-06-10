@@ -16,7 +16,7 @@ set -euo pipefail
 # FAIL-SECURE: block on any internal error (crash, missing deps, etc.)
 trap 'echo "WARN:HOOK_INTERNAL_ERROR: Blocking action due to script crash"; exit 1' ERR
 
-HARNESS_DIR="${HARNESS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+HARNESS_DIR="${HARNESS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 # H8: refuse to run against a non-harness HARNESS_DIR
 if [[ ! -d "$HARNESS_DIR" ]] || [[ ! -d "$HARNESS_DIR/scripts/lib" ]]; then
     echo "[PHASE-GUARD] FATAL: HARNESS_DIR=$HARNESS_DIR is not a SWEBOK harness checkout."
@@ -25,47 +25,7 @@ fi
 STATE_ENGINE="$HARNESS_DIR/scripts/lib/state_engine.py"
 BASH_SCANNER="$HARNESS_DIR/scripts/lib/bash_scanner.py"
 STATE_DB="$HARNESS_DIR/.swebok_state.db"
-PHASE_RULES_FILE="$HARNESS_DIR/distilled/phase_rules.json"
 MAX_STDIN_BYTES=1048576  # H7: 1 MiB
-
-# v1.5.11 (HIGH-9 fix): load canonical phase rules from JSON. This file
-# is the SINGLE source of truth for P1-P9 block rules; bash_scanner.py
-# also reads it. The hardcoded rules below are kept as a FALLBACK if
-# the JSON is missing (fail-open rather than fail-closed, since the
-# hook has its own defense-in-depth).
-PHASE_RULES_P1_P2_REGEX=""
-PHASE_RULES_P3_P4_REGEX=""
-PHASE_RULES_P6_REGEX=""
-if [[ -f "$PHASE_RULES_FILE" ]] && command -v python3 >/dev/null 2>&1; then
-    PHASE_RULES_P1_P2_REGEX=$(python3 -c "
-import json
-d = json.load(open('$PHASE_RULES_FILE'))
-parts = []
-for pn in ('1', '2'):
-    parts.extend(d['phases'][pn].get('block_paths', []))
-print('|'.join(parts))
-" 2>/dev/null || echo "")
-    PHASE_RULES_P3_P4_REGEX=$(python3 -c "
-import json
-d = json.load(open('$PHASE_RULES_FILE'))
-parts = []
-for pn in ('3', '4'):
-    parts.extend(d['phases'][pn].get('block_paths', []))
-print('|'.join(parts))
-" 2>/dev/null || echo "")
-    PHASE_RULES_P6_REGEX=$(python3 -c "
-import json
-d = json.load(open('$PHASE_RULES_FILE'))
-parts = []
-for pn in ('6',):
-    parts.extend(d['phases'][pn].get('block_paths', []))
-print('|'.join(parts))
-" 2>/dev/null || echo "")
-fi
-# Fallback if JSON load failed
-PHASE_RULES_P1_P2_REGEX="${PHASE_RULES_P1_P2_REGEX:-src/|lib/|impl/|implementations/|app/}"
-PHASE_RULES_P3_P4_REGEX="${PHASE_RULES_P3_P4_REGEX:-src/|impl/|implementations/}"
-PHASE_RULES_P6_REGEX="${PHASE_RULES_P6_REGEX:-src/}"
 
 # === FAIL-SECURE BOOTSTRAP ===
 # If state DB is missing (fresh clone), auto-bootstrap before proceeding.
@@ -334,7 +294,7 @@ main() {
     # === P3/P4: No implementation allowed ===
     if [[ "$PHASE_NUM" =~ ^[34]$ ]]; then
         if [[ "$TOOL_NAME" =~ ^(write|edit|multiedit|notebookedit)$ ]]; then
-            if [[ "$FILE_PATH" =~ ($PHASE_RULES_P3_P4_REGEX) ]]; then
+            if [[ "$FILE_PATH" =~ (/src/|/impl/|/implementations/|src/|impl/|implementations/) ]]; then
                 SHOULD_BLOCK="true"
                 BLOCK_REASON="Phase=$CURRENT. Implementation forbidden. Design phase."
             elif [[ "$FILE_PATH" =~ (_impl\.|_implementation\.|\.impl\.) ]]; then
@@ -347,7 +307,7 @@ main() {
     # === P6: Testing only - no new implementation ===
     if [[ "$PHASE_NUM" == "6" ]]; then
         if [[ "$TOOL_NAME" =~ ^(write|edit|multiedit|notebookedit)$ ]]; then
-            if [[ "$FILE_PATH" =~ ($PHASE_RULES_P6_REGEX) ]] && [[ ! "$FILE_PATH" =~ (test|spec|__tests__|tests?/) ]]; then
+            if [[ "$FILE_PATH" =~ (/src/|^src/) ]] && [[ ! "$FILE_PATH" =~ (test|spec|__tests__|tests?/) ]]; then
                 SHOULD_BLOCK="true"
                 BLOCK_REASON="Phase=P6. New implementation forbidden. QA phase."
             fi
@@ -357,14 +317,7 @@ main() {
     # === P9: Retirement phase - only /archived/ or /docs/ allowed ===
     if [[ "$PHASE_NUM" == "9" ]]; then
         if [[ "$TOOL_NAME" =~ ^(write|edit|multiedit|notebookedit)$ ]]; then
-            # v1.5.11: load P9 paths from canonical JSON
-            local P9_REGEX
-            P9_REGEX=$(python3 -c "
-import json
-d = json.load(open('$PHASE_RULES_FILE'))
-print('|'.join(d['phases']['9'].get('block_paths', ['/src/','/lib/'])))
-" 2>/dev/null || echo "/src/|/lib/")
-            if [[ "$FILE_PATH" =~ ($P9_REGEX) ]] && [[ ! "$FILE_PATH" =~ (/archived/|/docs/) ]]; then
+            if [[ "$FILE_PATH" =~ (/src/|/lib/) ]] && [[ ! "$FILE_PATH" =~ (/archived/|/docs/) ]]; then
                 SHOULD_BLOCK="true"
                 BLOCK_REASON="Phase=P9. Only /archived/ or /docs/ allowed. Retirement phase."
             fi

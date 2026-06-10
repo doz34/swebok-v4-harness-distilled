@@ -1,1 +1,1 @@
-/home/doz/swebok-v4-harness-distilled/multiagent-launcher.sh
+../multiagent-launcher.sh
