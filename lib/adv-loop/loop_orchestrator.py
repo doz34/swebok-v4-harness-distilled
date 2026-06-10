@@ -7,7 +7,10 @@ Per Fowler "Harness engineering" + dev.to "Adversarial Planning":
 - DSL output for swebok audit trail
 - No Docker, no external deps — pure Python stdlib
 
-Output: KEY:VALUE;;KEY:VALUE (swebok DSL)
+S2 (2026-06-10) — Council Bridge:
+- Add --council flag to spawn 4 LLM-judge agents (ciso, qa-lead, architect, devops-lead)
+- Add --verify-result <path> flag to ingest aggregated DSL and finalize verdict
+- Output: KEY:VALUE;;KEY:VALUE (swebok DSL)
 """
 from pathlib import Path
 from typing import List, Optional
@@ -30,6 +33,12 @@ from feedback import (
     lint_cross_phase_consistency, lint_dsl_format,
     run_all_feedback_sensors,
 )
+from council import (
+    emit_council_envelope,
+    load_verify_result,
+    aggregate_council_results,
+    council_severity_to_dsl,
+)
 
 
 def severity_from_findings(findings: List) -> str:
@@ -47,6 +56,7 @@ def run_phase_adversarial_loop(
     work_dir: str = ".",
     max_iterations: int = 3,
     verbose: bool = False,
+    council_dsl: str = "",
 ) -> str:
     """Run the full adversarial loop for a phase.
     Returns swebok DSL output (KEY:VALUE;;KEY:VALUE).
@@ -55,7 +65,8 @@ def run_phase_adversarial_loop(
     1. Run feedforward controls (guides) — pre-check spec & work
     2. Run feedback sensors (sensors) — post-check content
     3. Aggregate findings, apply stop conditions
-    4. If stop condition met, exit; else iterate (with bounded pressure)
+    4. (Optional) If council_dsl is provided, integrate council verdict
+    5. If stop condition met, exit; else iterate (with bounded pressure)
     """
     if phase not in PHASE_FEEDFORWARDS:
         return f"adv_loop:error=unknown_phase_{phase};;adv_loop:verdict=🔴"
@@ -105,8 +116,41 @@ def run_phase_adversarial_loop(
                 print(f"[stop] {stop_reason}")
             break
 
-    # 5. Emit DSL
-    return stop.to_dsl() + f";;adv_loop:verdict={stop.verdict()}"
+    # 5. Build base DSL
+    base_dsl = stop.to_dsl()
+
+    # 6. Integrate council verdict if provided (S2)
+    council_fragment = ""
+    if council_dsl:
+        try:
+            import json as _json
+            payload = _json.loads(council_dsl)
+            red_lines = payload.get("red_lines", [])
+            blue_lines = payload.get("blue_lines", [])
+            agg = aggregate_council_results(red_lines, blue_lines)
+            council_fragment = council_severity_to_dsl(agg)
+            # Council severity can raise the overall verdict
+            stop.add_finding(AdversarialFinding(
+                severity=agg["council_severity"],
+                category="council",
+                message=f"Council verdict: {agg['council_severity']} "
+                        f"(RED={agg['red_count']}, BLUE={agg['blue_count']})",
+                fix_suggestion=None,
+            ))
+        except Exception as e:
+            council_fragment = f"council:error={e};;council:severity=LOW"
+
+    final_verdict = stop.verdict()
+    return base_dsl + (";;" + council_fragment if council_fragment else "") + f";;adv_loop:verdict={final_verdict}"
+
+
+def emit_council_envelope_and_signal(phase: int, spec_path: str, work_path: str = "") -> str:
+    """Emit the <MULTIAGENT_LAUNCH> envelope and return signal code 99.
+
+    The orchestrator caller (bin/adv-loop) should print the envelope
+    and exit 99 to signal the dispatcher to spawn agents and re-invoke.
+    """
+    return emit_council_envelope(phase, spec_path, work_path)
 
 
 def run_phase_adversarial_loop_from_files(
@@ -114,27 +158,56 @@ def run_phase_adversarial_loop_from_files(
     spec_path: str,
     work_path: Optional[str] = None,
     work_dir: str = ".",
+    council_dsl_path: Optional[str] = None,
 ) -> str:
     """Convenience: read files, run loop."""
     spec_content = Path(spec_path).read_text(encoding="utf-8", errors="ignore")
     work_content = ""
     if work_path:
         work_content = Path(work_path).read_text(encoding="utf-8", errors="ignore")
+    council_dsl = ""
+    if council_dsl_path:
+        with open(council_dsl_path, encoding="utf-8") as f:
+            council_dsl = f.read()
     return run_phase_adversarial_loop(
         phase=phase,
         spec_content=spec_content,
         work_content=work_content,
         work_dir=work_dir,
+        council_dsl=council_dsl,
     )
 
 
 if __name__ == "__main__":
-    # CLI: python3 -m adv-loop.loop_orchestrator <phase> <spec_path> [work_path]
+    # CLI: python3 -m adv-loop.loop_orchestrator <phase> <spec_path> [work_path] [--council] [--verify-result <path>]
     if len(sys.argv) < 3:
-        print("Usage: python3 -m adv-loop.loop_orchestrator <phase> <spec_path> [work_path]")
+        print("Usage: python3 -m adv-loop.loop_orchestrator <phase> <spec_path> [work_path] [--council] [--verify-result <path>]")
         sys.exit(1)
     phase = int(sys.argv[1])
     spec = sys.argv[2]
-    work = sys.argv[3] if len(sys.argv) > 3 else None
-    result = run_phase_adversarial_loop_from_files(phase, spec, work)
-    print(result)
+    work = None
+    council_mode = False
+    verify_result = None
+    i = 3
+    while i < len(sys.argv):
+        a = sys.argv[i]
+        if a == "--council":
+            council_mode = True
+            i += 1
+        elif a == "--verify-result":
+            verify_result = sys.argv[i + 1]
+            i += 2
+        else:
+            work = a
+            i += 1
+
+    if council_mode and not verify_result:
+        # Emit envelope, dispatcher (Claude Code) must spawn agents and re-invoke
+        envelope = emit_council_envelope_and_signal(phase, spec, work or "")
+        print(envelope)
+        sys.exit(99)
+    else:
+        result = run_phase_adversarial_loop_from_files(
+            phase, spec, work, work_dir=".", council_dsl_path=verify_result,
+        )
+        print(result)

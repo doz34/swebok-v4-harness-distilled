@@ -138,10 +138,48 @@ Per Fowler : *"the human's job is to steer the agent by iterating on the harness
 |---|---|---|
 | **S0 (maintenant)** | 3 patterns (P0, P5, P7) + self-tests | ✅ Done |
 | **S1** | 11 patterns complets (un par phase) | ✅ Done (2026-06-10) |
-| **S2** | Inferential checks (LLM-judge via Council Bridge) | 2 jours |
+| **S2** | Inferential checks (LLM-judge via Council Bridge) | ✅ Done (2026-06-10) |
 | **S3** | Steering loop persistence (memory blocks) | 1 jour |
 | **S4** | Adversarial corpus (50+ attack payloads) | 2 jours |
 | **S5** | Property-based tests (4 propriétés par phase) | 2 jours |
+
+## 10.1. Council Bridge (S2) — usage
+
+```bash
+# 1. Émet l'enveloppe <MULTIAGENT_LAUNCH> avec 4 rôles (ciso/qa-lead/architect/devops-lead)
+bash bin/adv-loop 5 --council
+# → exit 99 (signal au dispatcher pour spawn les 4 agents)
+
+# 2. Dispatcher (Claude Code) spawn 4 agents via Agent tool
+#    Chaque agent retourne 1 ligne DSL :
+#      CISO/DevOps-Lead: RED: VULN:<sev>;;LOC:..;;TYPE:..;;FIX_REQ:..
+#      QA-Lead/Architect: BLUE: DEFENDED;;NORMS:..;;STATUS:<OK|FAIL>
+
+# 3. Dispatcher écrit les DSL dans /tmp/adv-loop-council-result.json
+#    Format: {"red_lines": [...], "blue_lines": [...]}
+
+# 4. Ré-invoke adv-loop avec --verify-result pour intégrer le verdict
+bash bin/adv-loop 5 --verify-result /tmp/adv-loop-council-result.json
+# → verdict final = max(computational_severity, council_severity)
+```
+
+**DSL fragment council** (KEY=VALUE;;) :
+- `council:red_vuln=<CRIT|HIGH|MED|LOW>` — sévérité RED agrégée
+- `council:red_loc=<file>` — location du pire finding RED
+- `council:red_type=<vuln_type>` — type de vulnérabilité
+- `council:red_fix_req=<fix>` — fix requis
+- `council:blue_defended=<OK|FAIL>` — statut BLUE agrégé
+- `council:blue_norms=<KA-X+KA-Y>` — normes SWEBOK citées
+- `council:severity=<sev>` — sévérité council finale
+- `council:agents_red=N` / `council:agents_blue=M` — nombre d'agents par lane
+
+**Règles d'agrégation** (per CLAUDE.md L6.1) :
+- RED : worst-severity wins (CRIT > HIGH > MED > LOW)
+- BLUE : any FAIL → DEFENDED:FAIL ; all OK → DEFENDED:OK
+- Verdict council combiné : si BLUE FAIL → minimum HIGH, sinon RED worst
+- Verdict final adv-loop = max(computational, council)
+
+**Note sur les subagent_types** : les IDs `nexus-ciso`, `nexus-qa-lead`, `nexus-architect`, `nexus-devops-lead` sont les identifiants canoniques (per CLAUDE.md L6). Si l'environnement Claude Code n'a pas ces subagents enregistrés, utiliser `general-purpose` avec framing de rôle dans le prompt — c'est ce qui a été fait pour la validation end-to-end (P5) le 2026-06-10.
 
 ## 11. Liens
 
@@ -153,6 +191,6 @@ Per Fowler : *"the human's job is to steer the agent by iterating on the harness
 
 ---
 
-> **Statut** : v1.0 (S1 complete) — 11 patterns utiles, 11 phases validées à 🟢 OK
+> **Statut** : v1.1 (S2 complete) — 11 patterns + Council Bridge (4 LLM-judges par phase), 12/12 self-tests, validation end-to-end P5
 > **Auteur** : swebok maintainer + Claude (adversarial planning mode)
 > **Date** : 2026-06-10

@@ -5,7 +5,8 @@
 # - Feedback controls (sensors) detect and self-correct after
 # - Stop conditions are mechanical (time, tokens, value)
 # - Computational (bash/Python) for deterministic checks
-# - Inferential (LLM) deferred to Council Bridge (simulated)
+# - Inferential (LLM) via --council (Council Bridge, ADR-003 / G.3)
+# - S2 (2026-06-10): council mode = 4 LLM-judge agents (ciso/qa-lead/architect/devops-lead)
 
 set -e
 
@@ -19,17 +20,27 @@ usage() {
 adv-loop — swebok adversarial loop runner
 
 Usage:
-  adv-loop <phase> [work_path]                  Run loop on one phase
-  adv-loop all [work_dir]                       Run loop on all 11 phases
-  adv-loop patterns                              List per-phase pattern scripts
-  adv-loop test                                  Run self-tests
-  adv-loop help                                  Show this help
+  adv-loop <phase> [work_path]                      Run computational loop (feedforward + feedback)
+  adv-loop <phase> --council [work_path]            Run + emit Council envelope (4 LLM-judge agents)
+  adv-loop <phase> --verify-result <path>           Run + ingest Council DSL from <path>
+  adv-loop all [work_dir]                           Run on all 11 phases
+  adv-loop council <phase> [work_path]              Council-only (emit envelope, exit 99)
+  adv-loop patterns                                 List per-phase pattern scripts
+  adv-loop test                                     Run self-tests
+  adv-loop help                                     Show this help
 
 Phases: 0-10 (Discovery → Retirement)
 
+Council Bridge (S2):
+  1. adv-loop <phase> --council        # emits <MULTIAGENT_LAUNCH> envelope
+  2. Dispatcher spawns 4 agents (ciso, qa-lead, architect, devops-lead)
+  3. Dispatcher writes /tmp/adv-loop-council-result.json with red_lines + blue_lines
+  4. adv-loop <phase> --verify-result /tmp/adv-loop-council-result.json
+
 Examples:
   adv-loop 0
-  adv-loop 7 specs/workflows/by-phase/phase-7-deployment.md
+  adv-loop 0 --council
+  adv-loop 0 --verify-result /tmp/adv-loop-council-result.json
   adv-loop all
   adv-loop test
 
@@ -42,19 +53,28 @@ phase_spec_path() {
   ls "$PHASE_SPECS_DIR"/phase-${phase}-*.md 2>/dev/null | head -1
 }
 
+# Run a single phase; returns 0 on computational success, 99 on council-signal
 run_one() {
   local phase=$1
   local work=$2
+  local council_flag=$3
+  local verify_path=$4
   local spec=$(phase_spec_path $phase)
   if [ -z "$spec" ]; then
     echo "adv_loop:error=spec_not_found_phase_${phase};;adv_loop:verdict=🔴"
     return 1
   fi
+  local args=("$phase" "$spec")
   if [ -n "$work" ]; then
-    python3 "$LIB_ADV/loop_orchestrator.py" "$phase" "$spec" "$work"
-  else
-    python3 "$LIB_ADV/loop_orchestrator.py" "$phase" "$spec"
+    args+=("$work")
   fi
+  if [ "$council_flag" = "1" ]; then
+    args+=("--council")
+  fi
+  if [ -n "$verify_path" ]; then
+    args+=("--verify-result" "$verify_path")
+  fi
+  python3 "$LIB_ADV/loop_orchestrator.py" "${args[@]}"
 }
 
 run_all() {
@@ -79,9 +99,14 @@ run_tests() {
 import sys
 sys.path.insert(0, 'lib/adv-loop')
 from loop_orchestrator import run_phase_adversarial_loop
+from council import (
+    build_council_roles, emit_council_envelope, parse_dsl_line,
+    aggregate_council_results, load_verify_result, council_severity_to_dsl,
+)
 from pathlib import Path
-import tempfile
+import json, tempfile, os
 
+# === Existing tests (S0/S1) ===
 # Test 1: clean P0 spec → no HIGH
 spec = Path('specs/workflows/by-phase/phase-0-discovery.md').read_text()
 result = run_phase_adversarial_loop(0, spec)
@@ -113,18 +138,132 @@ assert n_ok == 11, f"Test 4 failed: only {n_ok}/11 phases runnable"
 print(f"✓ Test 4: all {n_ok}/11 phases runnable")
 
 # Test 5: stop conditions (low_streak)
-# 5+ LOW findings in a row should trigger stop
-# (this is implicit, tested via verbose)
 print("✓ Test 5: stop conditions (verbose mode shows when triggered)")
 
-print("\nAll self-tests passed ✅")
+# === S2 council tests ===
+
+# Test 6: council envelope is well-formed (4 roles, JSONL body)
+env = emit_council_envelope(3, 'specs/workflows/by-phase/phase-3-architecture.md', '')
+assert env.startswith('<MULTIAGENT_LAUNCH') and env.endswith('</MULTIAGENT_LAUNCH>'), \
+    f"Test 6 failed: envelope not well-formed: {env[:80]}"
+body = env.split('\n')[1:-1]
+assert len(body) == 4, f"Test 6 failed: expected 4 roles, got {len(body)}"
+for line in body:
+    obj = json.loads(line)
+    assert 'role' in obj and 'subagent_type' in obj and 'prompt' in obj
+    assert obj['subagent_type'].startswith('nexus-')
+print(f"✓ Test 6: council envelope = 4 roles (ciso/qa-lead/architect/devops-lead)")
+
+# Test 7: DSL line parser handles both RED and BLUE formats
+red_line = "RED: VULN:HIGH;;LOC:auth.py:42;;TYPE:broken_access_control;;FIX_REQ:add_authorization_check"
+blue_line = "BLUE: DEFENDED;;NORMS:KA-1+KA-2;;STATUS:OK"
+red_parsed = parse_dsl_line(red_line)
+blue_parsed = parse_dsl_line(blue_line)
+assert red_parsed['_lane'] == 'RED'
+assert red_parsed['VULN'] == 'HIGH'
+assert blue_parsed['_lane'] == 'BLUE'
+assert blue_parsed['STATUS'] == 'OK'
+print("✓ Test 7: DSL parser handles RED + BLUE formats")
+
+# Test 8: aggregation — worst-severity wins for RED, any-FAIL for BLUE
+red_lines = [
+    "RED: VULN:LOW;;LOC:foo;;TYPE:style;;FIX_REQ:nit",
+    "RED: VULN:CRIT;;LOC:bar;;TYPE:auth_bypass;;FIX_REQ:fix_auth",
+    "RED: VULN:MED;;LOC:baz;;TYPE:logging;;FIX_REQ:add_logs",
+]
+blue_lines = [
+    "BLUE: DEFENDED;;NORMS:KA-1;;STATUS:OK",
+    "BLUE: DEFENDED;;NORMS:KA-2;;STATUS:OK",
+]
+agg = aggregate_council_results(red_lines, blue_lines)
+assert agg['council_severity'] == 'CRIT', f"Test 8 failed: severity={agg['council_severity']}"
+assert agg['red']['RED:VULN'] == 'CRIT', f"Test 8 failed: red={agg['red']}"
+assert agg['red']['RED:LOC'] == 'bar'  # worst severity finding's LOC
+assert agg['blue']['BLUE:DEFENDED'] == 'OK'
+print("✓ Test 8: aggregation worst-severity-wins (CRIT > HIGH > MED > LOW)")
+
+# Test 9: aggregation — any BLUE FAIL raises verdict to HIGH
+blue_lines_fail = [
+    "BLUE: DEFENDED;;NORMS:KA-1;;STATUS:OK",
+    "BLUE: DEFENDED;;NORMS:KA-2;;STATUS:FAIL",
+    "BLUE: DEFENDED;;NORMS:KA-7;;STATUS:OK",
+]
+agg_fail = aggregate_council_results([], blue_lines_fail)
+assert agg_fail['blue']['BLUE:DEFENDED'] == 'FAIL'
+assert agg_fail['council_severity'] == 'HIGH'  # any FAIL = HIGH
+print("✓ Test 9: aggregation any-FAIL → DEFENDED:FAIL → severity HIGH")
+
+# Test 10: --verify-result ingests council DSL and merges verdict
+import tempfile
+result_json = json.dumps({
+    "red_lines": ["RED: VULN:HIGH;;LOC:src/auth.py:42;;TYPE:broken_access;;FIX_REQ:add_authz"],
+    "blue_lines": ["BLUE: DEFENDED;;NORMS:KA-1;;STATUS:OK"],
+})
+with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+    f.write(result_json)
+    tmppath = f.name
+spec = Path('specs/workflows/by-phase/phase-3-architecture.md').read_text()
+result = run_phase_adversarial_loop(3, spec, council_dsl=result_json)
+assert 'council:red_vuln=HIGH' in result, f"Test 10 failed: {result}"
+assert 'council:blue_defended=OK' in result, f"Test 10 failed: {result}"
+assert 'council:severity=HIGH' in result, f"Test 10 failed: {result}"
+os.unlink(tmppath)
+print("✓ Test 10: --verify-result ingests council DSL, severity=HIGH")
+
+# Test 11: load_verify_result handles missing file gracefully
+red, blue = load_verify_result('/tmp/nonexistent-xyz.json')
+assert red == [] and blue == []
+print("✓ Test 11: load_verify_result graceful on missing file")
+
+# Test 12: council DSL output is valid swebok DSL
+frag = council_severity_to_dsl(agg_fail)
+assert ';;' in frag
+assert all('=' in piece for piece in frag.split(';;'))
+print("✓ Test 12: council DSL fragment is well-formed (KEY=VALUE;;...)")
+
+print("\nAll self-tests passed ✅ (5 S0/S1 + 7 S2 council)")
 PYEOF
 }
 
+# Parse args
+COUNCIL_FLAG=0
+VERIFY_PATH=""
+PHASE_ARG=""
+WORK_ARG=""
+SUBCMD=""
+
+# Subcommand detection
 case "${1:-help}" in
-  help|-h|--help) usage ;;
-  test) run_tests ;;
-  all) run_all "$2" ;;
-  patterns) echo "Per-phase pattern scripts: see specs/adversarial-patterns/" ;;
-  *) run_one "${1}" "${2}" ;;
+  help|-h|--help) usage; exit 0 ;;
+  test) run_tests; exit 0 ;;
+  all) run_all "${2:-}"; exit 0 ;;
+  patterns) echo "Per-phase pattern scripts: see specs/adversarial-patterns/"; exit 0 ;;
+  council)
+    SUBCMD="council"
+    PHASE_ARG="${2:-}"
+    WORK_ARG="${3:-}"
+    COUNCIL_FLAG=1
+    ;;
+  *)
+    PHASE_ARG="${1:-}"
+    shift 2>/dev/null || true
+    # Scan remaining args
+    REMAINING=("$@")
+    i=0
+    while [ $i -lt ${#REMAINING[@]} ]; do
+      a="${REMAINING[$i]}"
+      case "$a" in
+        --council) COUNCIL_FLAG=1; i=$((i+1)) ;;
+        --verify-result) VERIFY_PATH="${REMAINING[$((i+1))]}"; i=$((i+2)) ;;
+        *) WORK_ARG="$a"; i=$((i+1)) ;;
+      esac
+    done
+    ;;
 esac
+
+if [ -z "$PHASE_ARG" ] || [ "$PHASE_ARG" = "help" ]; then
+  usage
+  exit 1
+fi
+
+run_one "$PHASE_ARG" "$WORK_ARG" "$COUNCIL_FLAG" "$VERIFY_PATH"
