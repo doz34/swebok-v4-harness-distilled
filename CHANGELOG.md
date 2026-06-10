@@ -2,6 +2,66 @@
 
 All notable changes to the SWEBOK v4 Harness V2 (Distilled) will be documented here.
 
+## [2.6.0] - 2026-06-10 — Anti-Drift Auto-Trigger Sprint
+
+Closes the goal hook: *"se trigger automatiquement à chaque étape d'évolution/feature d'un projet avec dimension adversariale très poussée"*.
+
+### G1 — UserPromptSubmit auto-trigger (intent detection)
+
+- `lib/auto_trigger.py` — 4-layer intent detector (cache/pattern/semantic/fallback) with subprocess call to `intent-detector.py` and 0.5 confidence threshold
+- `pre-tool-use/auto-trigger-hook.sh` — bash wrapper with `trap 'exit 0' ERR` fail-open
+- `settings.json` — `UserPromptSubmit` matcher wired (`.claude-glm/projects/-home-doz/` settings)
+- `bin/adv-loop auto-trigger "<prompt>"` — CLI subcommand
+- Subprocess timeout 2s (NFR-P1: p50 <100ms, p95 <500ms, p99 <1s)
+- Stores `intent.phase`, `intent.confidence`, `intent.timestamp` in `.swebok_state.db`
+
+### G3 — Phase change fires gate (FIFO history + envelope emit)
+
+- `pre-tool-use/phase-change-detector.sh` — reads `intent.phase` vs `current_phase`, emits `<MULTIAGENT_LAUNCH phase="..." reason="phase_change" from="...">` envelope on diff
+- Updates `current_phase` + appends to `phase.history[]` (FIFO 10 via `list_append`)
+- Idempotent (same phase = no-op)
+- Kill-switch: `HARNESS_AUTO_TRIGGER=0`
+
+### G5 — Council scheduler (every 5 edits, 1h cooldown)
+
+- `lib/adv-loop/council_scheduler.py` — counter + threshold + cooldown state machine
+  - Whitelist: `*.md`, `*.json`, `tests/*`, `.git/*`
+  - Threshold default 5 (env `HARNESS_COUNCIL_THRESHOLD`)
+  - Cooldown default 3600s/1h (env `HARNESS_COUNCIL_COOLDOWN`)
+  - On fire: reset counter, set `council.last_at = now`, emit envelope
+- `post-tool-use/council-scheduler-hook.sh` — bash wrapper
+- `bin/adv-loop council-status` — human-readable counter/last_at display
+
+### G6 — Mini-council per edit (Haiku judge or heuristic)
+
+- `lib/adv-loop/mini_council.py` — 1 Haiku judge (or offline heuristic when Haiku unavailable)
+  - Per-phase focus anchors (P0-P10) loaded from `specs/adversarial-patterns/phase-*.sh`
+  - Heuristic catches: hardcoded secrets, SQL injection, `eval`/`exec`, bare `except:`
+  - Tracks last 3 findings; if 1+ VULN → escalates to full Council via `escalate=true` DSL
+  - Fail-open on Haiku indispo (heuristic fallback <100ms typical)
+- `post-tool-use/mini-council-hook.sh` — bash wrapper
+- Latency: 50-60ms typical on clean code (NFR-P2: <2s)
+
+### Kill-switch + docs
+
+- `HARNESS_AUTO_TRIGGER=0` env var disables all 4 hooks (`auto-trigger`, `phase-change-detector`, `council-scheduler`, `mini-council`)
+- `CLAUDE.md` updated with KILL-SWITCH law
+
+### Acceptance evidence
+
+- 38/38 self-tests pass (`bin/adv-loop test`)
+- Live validation in this session (2026-06-10 ~14:40):
+  - SM-2: `phase.history = ["P5", "P3", "P0"]` (3 transitions)
+  - SM-4: `council.last_at` set, cooldown active
+  - SM-6: 5 mini-council edits, all verdict 🟢 OK, 51-61ms latency
+  - SM-7: `<MULTIAGENT_LAUNCH>` envelope format correct (Council Bridge per ADR-003)
+
+### Repo hygiene
+
+- 3 large PDFs (`prob-ml-murphy-vol1.pdf` 88MB, `vol2.pdf` 144MB, `rl-sutton-barto-2e.pdf` 69MB) removed from history via `git filter-branch`
+- `.gitignore` already covers `audit/corpus-references/downloads/` (was added 2026-06-08)
+- 8 commits force-pushed to origin (filter-branch rewrites history)
+
 ## [1.5.11] - 2026-06-03
 
 ### CRIT-8 string-vs-path (close-out of EVIDENCE_LEDGER)
