@@ -141,7 +141,40 @@ Per Fowler : *"the human's job is to steer the agent by iterating on the harness
 | **S2** | Inferential checks (LLM-judge via Council Bridge) | ✅ Done (2026-06-10) |
 | **S3** | Steering loop persistence (memory blocks) | ✅ Done (2026-06-10) |
 | **S4** | Adversarial corpus (50+ attack payloads) | ✅ Done (2026-06-10) |
-| **S5** | Property-based tests (4 propriétés par phase) | 2 jours |
+| **S5** | Property-based tests (4 propriétés par phase) | ✅ Done (2026-06-10) |
+
+## 10.4. Property-based tests (S5) — usage
+
+```bash
+# Run all 4 properties × 11 phases = 44 property tests
+bash bin/adv-loop properties
+# → Total: 44  Passed: 44  Failed: 0  Elapsed: 9.9s
+```
+
+**Architecture (no Hypothesis, stdlib only) :**
+- `lib/adv-loop/properties.py` : 4 properties + generators + runner
+- Générateurs : `generate_work_content(seed, intensity)` (random vague), `generate_clean_content(seed)` (mesurable)
+- Property dataclass : `PropertyResult(phase, property_name, passed, n_runs, details, counterexample)`
+- 11 phases × 4 properties = 44 cases
+
+**Les 4 propriétés :**
+
+1. **Idempotence** — `same input → same verdict + counts` (steering exclu, dépend de l'historique)
+   - 2 runs, compare verdict + findings_crit/high/med/low
+2. **Determinism** — `same input → byte-identical DSL` (modulo `steering:`, `elapsed_s`, `run_total`)
+   - 2 runs, strip volatile fields, compare byte-for-byte
+3. **Monotonicity** — `adding adversarial content to clean input never reduces findings`
+   - 3 seeds × {clean vs clean+adversarial}, assert combined.total ≥ clean.total
+4. **DSL well-formed** — `output is always valid swebok DSL`
+   - 3 seeds × 5 intensities × 11 phases = 165 random inputs, all must produce parseable DSL
+   - Format : `KEY=VALUE;;KEY=VALUE;...;;adv_loop:verdict=<🟢|🟡|🟠|🔴>`
+
+**DSL output (property) :**
+- `property:total=44`, `property:passed=N`, `property:failed=N`
+- `property:failed_cases=<phase>.<prop>:<details>;...` (per failed case)
+- `property:elapsed_s=9.9`
+
+**Pourquoi property-based ?** Per Fowler (2026), les tests enumeratifs (60 payloads) testent "ce qu'on connaît", les property tests testent "ce qui DOIT être vrai pour TOUT input". Un seul test property peut remplacer 100+ tests enumeratifs et trouver des bugs que personne n'a imaginés.
 
 ## 10.3. Adversarial corpus (S4) — usage
 
@@ -277,6 +310,6 @@ bash bin/adv-loop 5 --verify-result /tmp/adv-loop-council-result.json
 
 ---
 
-> **Statut** : v1.3 (S4 complete) — 11 patterns + Council Bridge + Steering loop + 60-payload corpus, 29/29 self-tests
+> **Statut** : v1.4 (S5 complete) — 11 patterns + Council Bridge + Steering loop + 60-payload corpus + 44 property tests, 38/38 self-tests
 > **Auteur** : swebok maintainer + Claude (adversarial planning mode)
 > **Date** : 2026-06-10

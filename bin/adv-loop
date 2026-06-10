@@ -31,6 +31,7 @@ Usage:
   adv-loop ack <fingerprint>                        Steering: mark pattern as acknowledged
   adv-loop clear [phase]                            Steering: clear history (or one phase)
   adv-loop corpus [path]                            Corpus: run adversarial payload regression tests
+  adv-loop properties                               Run 4 properties × 11 phases (44 cases)
   adv-loop test                                     Run self-tests
   adv-loop help                                     Show this help
 
@@ -54,6 +55,13 @@ Corpus (S4):
   adv-loop corpus                              # run the default corpus (60 payloads)
   adv-loop corpus specs/adversarial-corpus/    # run a custom corpus dir
   adv-loop corpus path/to/corpus-v1.json       # run a specific file
+
+Properties (S5):
+  adv-loop properties                             # 4 props × 11 phases = 44 tests
+    - idempotence: same input → same verdict + counts
+    - determinism: same input → byte-identical DSL
+    - monotonicity: adversarial content never reduces findings
+    - dsl_well_formed: output is always valid swebok DSL
 
 Examples:
   adv-loop 0
@@ -513,7 +521,87 @@ n_passed_cli = int(m.group(1)) if m else 0
 assert n_passed_cli == 60, f"Test 29 failed: CLI reports {n_passed_cli} passed"
 print(f"✓ Test 29: bin/adv-loop corpus CLI works ({n_passed_cli}/60 passed)")
 
-print("\nAll self-tests passed ✅ (5 S0/S1 + 7 S2 council + 8 S3 steering + 9 S4 corpus = 29 total)")
+# === S5 property-based tests ===
+
+from properties import (
+    generate_work_content, generate_clean_content,
+    is_well_formed_dsl, property_idempotence, property_determinism,
+    property_monotonicity, property_dsl_well_formed, run_all_properties,
+    PropertyResult,
+)
+
+# Test 30: generators produce adversarial vs clean content
+adversarial = generate_work_content(seed=42, intensity=0.9, n_lines=20)
+clean = generate_clean_content(seed=42, n_lines=20)
+vague_terms = ["should", "maybe", "TBD", "fast", "good", "etc."]
+n_vague_adv = sum(adversarial.lower().count(t) for t in vague_terms)
+n_vague_clean = sum(clean.lower().count(t) for t in vague_terms)
+assert n_vague_adv > 0, "Test 30 failed: no vague terms in adversarial"
+assert n_vague_clean == 0, f"Test 30 failed: clean has {n_vague_clean} vague terms"
+print(f"✓ Test 30: generators separate adversarial ({n_vague_adv} vague) from clean ({n_vague_clean})")
+
+# Test 31: DSL well-formedness checker accepts valid + rejects invalid
+ok, err = is_well_formed_dsl("phase_loop:findings_med=0;;adv_loop:verdict=🟢 OK")
+assert ok, f"Test 31 failed: valid DSL rejected: {err}"
+ok, err = is_well_formed_dsl("")
+assert not ok
+ok, err = is_well_formed_dsl("phase_loop:findings_med=0")  # no verdict
+assert not ok and "verdict" in err
+ok, err = is_well_formed_dsl("phase_loop:findings_med=0;;bad_verdict=🟣")  # wrong color
+assert not ok
+print("✓ Test 31: DSL well-formedness checker (valid accepted, 3 invalid rejected)")
+
+# Test 32: idempotence property on phase 0 (run twice → same verdict + counts)
+spec = Path('specs/workflows/by-phase/phase-0-discovery.md').read_text()
+work = "We should make this fast. Users might be happy."
+r = property_idempotence(0, work, spec, project_root='.')
+assert r.passed, f"Test 32 failed: {r.details}"
+print(f"✓ Test 32: idempotence (P0, runs={r.n_runs}) — same input → same verdict")
+
+# Test 33: determinism property on phase 3 (byte-identical DSL minus volatile)
+spec3 = Path('specs/workflows/by-phase/phase-3-architecture.md').read_text()
+r = property_determinism(3, work, spec3, project_root='.')
+assert r.passed, f"Test 33 failed: {r.details}"
+print(f"✓ Test 33: determinism (P3, runs={r.n_runs}) — byte-identical DSL")
+
+# Test 34: monotonicity property on phase 5 (adversarial never reduces findings)
+spec5 = Path('specs/workflows/by-phase/phase-5-implementation.md').read_text()
+r = property_monotonicity(5, spec5, project_root='.', n_seeds=3)
+assert r.passed, f"Test 34 failed: {r.details}"
+print(f"✓ Test 34: monotonicity (P5, runs={r.n_runs}) — adversarial never reduces findings")
+
+# Test 35: DSL well-formedness property on phase 7 (5 seeds × 5 intensities)
+r = property_dsl_well_formed(7, project_root='.', n_seeds=3)
+assert r.passed, f"Test 35 failed: {r.details}"
+print(f"✓ Test 35: DSL well-formedness (P7, runs={r.n_runs}) — 15 random inputs all well-formed")
+
+# Test 36: full property run — all 44 cases pass
+report = run_all_properties(project_root='.')
+assert report.total == 44, f"Test 36 failed: total={report.total}"
+assert report.passed == 44, f"Test 36 failed: {report.failed} failed, first: {report.results[0]}"
+print(f"✓ Test 36: full property run = {report.passed}/{report.total} "
+      f"({report.elapsed_s:.1f}s)")
+
+# Test 37: DSL well-formedness catches malformed output
+import re as _re
+broken_dsl = "phase_loop:findings_med=0;;no_verdict"
+ok, err = is_well_formed_dsl(broken_dsl)
+assert not ok and "verdict" in err
+empty_dsl = ""
+ok, err = is_well_formed_dsl(empty_dsl)
+assert not ok
+print("✓ Test 37: DSL well-formedness catches missing verdict + empty")
+
+# Test 38: monotonicity report includes counterexample on failure (defensive)
+# We can't easily force a failure, but verify the dataclass supports it
+fake_fail = PropertyResult(
+    phase=0, property_name="monotonicity", passed=False, n_runs=5,
+    details="test", counterexample={"seed": 0, "delta": -3}
+)
+assert fake_fail.counterexample["delta"] == -3
+print("✓ Test 38: PropertyResult supports counterexample field for failures")
+
+print("\nAll self-tests passed ✅ (5 S0/S1 + 7 S2 council + 8 S3 steering + 9 S4 corpus + 9 S5 properties = 38 total)")
 PYEOF
 }
 
@@ -604,6 +692,10 @@ print(f'cleared {n} runs')
       exit 1
     fi
     PYTHONPATH=lib python3 -m adv-loop.corpus "$CORPUS_ARG"
+    exit $?
+    ;;
+  properties)
+    PYTHONPATH=lib python3 -m adv-loop.properties all
     exit $?
     ;;
   *)
