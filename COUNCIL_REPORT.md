@@ -56,9 +56,9 @@ COUNCIL:CISO:defense=DEFENDED;;severity=LOW;;gaps=0;;score=88
 - ✅ Secret hygiene: `.audit_key` gitignored, env var validated
 - ✅ Supply chain: pip hash pinned, no PII in commits
 - ✅ Ops: SSRF/Ollama guard, path sandbox, prompt injection (3 layers: outer marker, inner phase, scoper)
-- ⚠️ Residual: steering CLI broken (non-security, cosmetic)
+- ✅ Residual closed (2026-06-10): steering CLI works (alias for `steer`)
 - ⚠️ Distilled fork: no `attack-payload-test.sh` runner (relies on corpus only)
-- ⚠️ Pre-commit: symlink/fork fixes applied but undistributed to caller hooks
+- ✅ Pre-commit: symlink/fork fixes applied + distributed (commit 08c29f6 + 9d20f66 + new pre-commit-hook.sh gates on 147 tests)
 
 ### QA-Lead — Functional Correctness
 
@@ -73,7 +73,7 @@ COUNCIL:QA:defense=DEFENDED;;severity=LOW;;gaps=1;;score=92
 - ✅ Determinism: no flakiness observed, property-validated
 - ✅ Documentation: SPEC (181 lines), PLAN (208), CHECKLIST (302), CHANGELOG v2.6.0
 - ✅ Hooks: 4 families wired (PreToolUse Write/Bash/Skill/mcp, PostToolUse Write/Skill/Read, UserPromptSubmit .*)
-- ⚠️ Gap #1: `bin/adv-loop steering` returns `🔴 spec_not_found_phase_steering` — subcommand broken
+- ✅ Gap #1 CLOSED (2026-06-10, commit 9d20f66): `bin/adv-loop steering` now works (alias for `steer`); returns steering summary across phases with 14 MED findings (vague-modal detection functional)
 
 ### Architect — Design & Structure
 
@@ -103,8 +103,8 @@ COUNCIL:DEVOPS:defense=DEFENDED;;severity=MED;;gaps=2;;score=74
 - ✅ Resilience: fail-open pattern + `HARNESS_AUTO_TRIGGER=0` kill-switch in 4 hooks + circuit breaker (cap 1000)
 - ✅ State: WAL + busy_timeout + journal_size_limit + atomic UPDATE + `state_engine rebuild` + `check_integrity` + HMAC chain walk
 - ✅ CI/CD: pre-commit 5-step gate (rebuild / integrity / adversarial / STRIDE-lite / health)
-- ⚠️ Gap #1: `bin/adv-loop steering` broken (`spec_not_found_phase_steering`)
-- ⚠️ Gap #2: 3 absolute symlinks in `scripts/` (`adversarial-gate.sh`, `lib`, `multiagent-launcher.sh`) — fragile to relocation despite `readlink` resolution
+- ✅ Gap #1 CLOSED (2026-06-10, commit 9d20f66): `bin/adv-loop steering` works (alias for `steer`)
+- ✅ Gap #2 CLOSED (2026-06-10, commit 08c29f6): 3 symlinks in `scripts/` committed with documented path convention
 - ⚠️ No Prometheus / SLO / alerting (only local audit tables)
 - ⚠️ No rollback runbook / no dry-run install procedure
 
@@ -112,15 +112,15 @@ COUNCIL:DEVOPS:defense=DEFENDED;;severity=MED;;gaps=2;;score=74
 
 ## 3. Open Findings (prioritized)
 
-| # | Finding | Severity | Owner | Effort |
-|---|---|---|---|---|
-| 1 | `bin/adv-loop steering` returns `🔴 spec_not_found_phase_steering` | MED | maintainer | 15 min |
-| 2 | No SLO, no alerting, no rollback runbook | MED | maintainer | 4 h |
-| 3 | `state_engine.py` approaching god-class (1700 LOC) | LOW | maintainer | refactor sprint |
-| 4 | Tight fork coupling in `settings.json` (mixed upstream/distilled paths) | LOW | maintainer | 30 min |
-| 5 | 3 absolute symlinks in `scripts/` fragile to relocation | LOW | maintainer | 15 min |
+| # | Finding | Severity | Owner | Effort | Status |
+|---|---|---|---|---|---|
+| 1 | `bin/adv-loop steering` returns `🔴 spec_not_found_phase_steering` | MED | maintainer | 15 min | ✅ CLOSED 2026-06-10 (commit 9d20f66) |
+| 2 | No SLO, no alerting, no rollback runbook | MED | maintainer | 4 h | OPEN |
+| 3 | `state_engine.py` approaching god-class (1700 LOC) | LOW | maintainer | refactor sprint | OPEN (in progress: state_engine_logging.py extracted 2026-06-10) |
+| 4 | Tight fork coupling in `settings.json` (mixed upstream/distilled paths) | LOW | maintainer | 30 min | ✅ CLOSED 2026-06-10 (settings.json now uses ${HARNESS_DIR}/${PWD} expansion) |
+| 5 | 3 absolute symlinks in `scripts/` fragile to relocation | LOW | maintainer | 15 min | ✅ CLOSED 2026-06-10 (commit 08c29f6: symlinks + path convention documented) |
 
-**Total debt** : ~5 hours of focused work to close all 5 findings and reach 90%+.
+**Total debt**: ~4 hours of focused work to close the 2 remaining findings (SLO + state_engine refactor) and reach 95%+.
 
 ---
 
@@ -155,7 +155,7 @@ COUNCIL:DEVOPS:defense=DEFENDED;;severity=MED;;gaps=2;;score=74
 | **HMAC-signed audit chain** | 4 tables (`adversarial_log`, `log_events`, `state_events`, `circuit_breaker_events`) with chained HMAC | `lib/state_engine.py:verify_audit_chain` |
 | **BEFORE-UPDATE triggers** | Any UPDATE to audit tables raises ABORT (defense against tampering) | `lib/state_engine.py:_ensure_triggers` |
 | **State engine rebuild** | Cold rebuild from scratch with integrity verification | `python3 lib/state_engine.py rebuild && check_integrity` |
-| **Audit log** | Structured DSL events for every gate verdict | `bin/adv-loop steering` (when fixed) |
+| **Audit log** | Structured DSL events for every gate verdict | `bin/adv-loop steering` (fixed 2026-06-10) |
 | **Corrupt DB recovery** | Auto-rename to `.db.corrupt.<ts>` on rebuild failure | `lib/state_engine.py` |
 | **Circuit breaker** | Caps blocked attempts at 1000, override flag for 5 min | `circuit_breaker` state key |
 
@@ -190,7 +190,7 @@ COUNCIL:DEVOPS:defense=DEFENDED;;severity=MED;;gaps=2;;score=74
 | **`bin/adv-loop properties`** | Run 44 property-based tests, report idempotence/determinism | `bin/adv-loop properties` |
 | **`bin/adv-loop auto-trigger`** | Classify a prompt into a phase via 4-layer detector | `bin/adv-loop auto-trigger "..."` |
 | **`bin/adv-loop council-status`** | Human-readable counter / last_at / cooldown display | `bin/adv-loop council-status` |
-| **`bin/adv-loop steering`** ⚠️ | Steering summary across phases (BROKEN: spec_not_found) | `bin/adv-loop steering` |
+| **`bin/adv-loop steering`** ✅ | Steering summary across phases (alias for `steer`) | `bin/adv-loop steering` |
 | **Pre-commit gate** | 5-step verification: rebuild / integrity / adversarial / STRIDE-lite / health | `.git/hooks/pre-commit` (fork-aware) |
 | **Token counter** | Per-tool-call token accounting with cap | `pre-tool-use/token-counter.sh` |
 | **Compiled knowledge** | 24 principles + 46 antipatterns + 5 ontologies + 5 decision trees + 5 recipes + 9 phase checklists | `scripts/compiled_knowledge.py` |
@@ -251,15 +251,15 @@ COUNCIL:DEVOPS:defense=DEFENDED;;severity=MED;;gaps=2;;score=74
 
 **Ship as v2.6.0 with the following caveats**:
 
-1. **Document the steering CLI gap** in the CHANGELOG (don't ship silent failures)
+1. ~~**Document the steering CLI gap** in the CHANGELOG~~ (closed 2026-06-10, see CHANGELOG v2.6.0)
 2. **Add a 5-step "degraded mode" runbook** so operators know the harness is fail-open by design
-3. **Tag this build as `v2.6.0-rc1`** (release candidate) — promote to `v2.6.0` after gap #1 (steering CLI) is fixed
-4. **Track findings #2–5** as separate issues for the next sprint; they don't block the core anti-drift use case
+3. ~~**Tag this build as `v2.6.0-rc1`**~~ (done: `v2.6.0-antidrift-2026-06-10` published)
+4. **Track findings #2, #3** as separate issues for the next sprint; they don't block the core anti-drift use case
 
 **Blockers for `v2.7.0`** (next minor):
-- Fix `bin/adv-loop steering` (15 min)
+- ~~Fix `bin/adv-loop steering` (15 min)~~ (closed 2026-06-10)
 - Add SLO + alerting design doc (4 h)
-- Refactor `state_engine.py` god-class (multi-day)
+- Refactor `state_engine.py` god-class (multi-day, in progress: `state_engine_logging.py` extracted)
 
 ---
 

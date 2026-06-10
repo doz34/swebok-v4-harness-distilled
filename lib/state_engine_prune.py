@@ -3,21 +3,32 @@
 
 Extracted from state_engine.py to reduce god-class LOC.
 Importable as: from state_engine_prune import prune_log_events, ...
+
+CIRCULAR IMPORT NOTE: This module must NOT import from state_engine at
+module load time (state_engine imports from us). Use lazy imports inside
+functions, or use sys.modules lookup for sibling privates.
 """
 import os
 import sqlite3
+import sys
 import time
 
-import state_engine  # sibling module, shares _open, _log, STATE_DB
+
+def _se():
+    """Lazy accessor: returns the state_engine module without triggering a
+    circular import at our module-load time."""
+    return sys.modules.get('state_engine') or __import__('state_engine')
+
 
 def _prune_with_trigger(table, trigger_name, keep_last):
     """Crash-safe prune. Uses autocommit DDL semantics for DROP/CREATE
     (so the DROP propagates before the DELETE). If killed mid-sequence,
     _init_db restores the trigger via _ensure_triggers on next startup (I1).
     """
-    conn = sqlite3.connect(str(STATE_DB), timeout=30.0)
+    se = _se()
+    conn = sqlite3.connect(str(se.STATE_DB), timeout=30.0)
     conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute(f"PRAGMA busy_timeout={_BUSY_TIMEOUT_MS}")
+    conn.execute(f"PRAGMA busy_timeout={se._BUSY_TIMEOUT_MS}")
     try:
         conn.execute(f"DROP TRIGGER IF EXISTS {trigger_name}")
         try:
@@ -44,17 +55,18 @@ def _prune_with_trigger(table, trigger_name, keep_last):
                 )
                 conn.commit()
             except (sqlite3.Error, OSError) as _e:
-                _log.debug("state_engine: secondary error during cleanup", exc_info=_e)
+                se._log.debug("state_engine: secondary error during cleanup", exc_info=_e)
     finally:
         conn.close()
 
 
 def prune_log_events(keep_last=10000):
-    _init_db()
+    se = _se()
+    se._init_db()
     try:
         n = _prune_with_trigger("log_events", "trg_log_events_no_delete", keep_last)
         if n > 0:
-            recompute_audit_chain("log_events")
+            se.recompute_audit_chain("log_events")
         return n
     except sqlite3.IntegrityError as e:
         print(f"prune_log_events blocked: {e}", file=sys.stderr)
@@ -62,11 +74,12 @@ def prune_log_events(keep_last=10000):
 
 
 def prune_state_events(keep_last=10000):
-    _init_db()
+    se = _se()
+    se._init_db()
     try:
         n = _prune_with_trigger("state_events", "trg_state_events_no_delete", keep_last)
         if n > 0:
-            recompute_audit_chain("state_events")
+            se.recompute_audit_chain("state_events")
         return n
     except sqlite3.IntegrityError as e:
         print(f"prune_state_events blocked: {e}", file=sys.stderr)
@@ -74,7 +87,8 @@ def prune_state_events(keep_last=10000):
 
 
 def prune_circuit_breaker_events(keep_last=1000):
-    _init_db()
+    se = _se()
+    se._init_db()
     try:
         n = _prune_with_trigger(
             "circuit_breaker_events",
@@ -82,7 +96,7 @@ def prune_circuit_breaker_events(keep_last=1000):
             keep_last,
         )
         if n > 0:
-            recompute_audit_chain("circuit_breaker_events")
+            se.recompute_audit_chain("circuit_breaker_events")
         return n
     except sqlite3.IntegrityError as e:
         print(f"prune_cb_events blocked: {e}", file=sys.stderr)
@@ -90,7 +104,8 @@ def prune_circuit_breaker_events(keep_last=1000):
 
 
 def prune_adversarial(keep_last=10000):
-    _init_db()
+    se = _se()
+    se._init_db()
     try:
         n = _prune_with_trigger(
             "adversarial_log",
@@ -98,7 +113,7 @@ def prune_adversarial(keep_last=10000):
             keep_last,
         )
         if n > 0:
-            recompute_audit_chain("adversarial_log")
+            se.recompute_audit_chain("adversarial_log")
         return n
     except sqlite3.IntegrityError as e:
         print(f"prune_adversarial blocked: {e}", file=sys.stderr)
@@ -107,9 +122,10 @@ def prune_adversarial(keep_last=10000):
 
 def prune_backup_files(keep_last=3):
     """R2: keep only the N most recent .swebok_state.db.bak.* files."""
+    se = _se()
     try:
         backups = sorted(
-            HARNESS_DIR.glob(".swebok_state.db.bak.*"),
+            se.HARNESS_DIR.glob(".swebok_state.db.bak.*"),
             key=lambda p: int(p.name.rsplit(".", 1)[-1])
                           if p.name.rsplit(".", 1)[-1].isdigit() else 0,
         )
@@ -122,8 +138,7 @@ def prune_backup_files(keep_last=3):
                 old.unlink()
                 removed += 1
             except (sqlite3.Error, OSError) as _e:
-                _log.debug("state_engine: secondary error during cleanup", exc_info=_e)
+                se._log.debug("state_engine: secondary error during cleanup", exc_info=_e)
         return removed
     except Exception:
         return 0
-

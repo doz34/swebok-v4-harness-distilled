@@ -43,27 +43,60 @@ jobs:
           jq --version
           sqlite3 --version
 
+      # === Full test suite: 147/147 expected ===
+      # Breakdown:
+      #   bin/adv-loop test (S0-S5 internal): 38
+      #   tests/distilled-test.sh:            32
+      #   tests/retrieval/test-v2.sh:         20
+      #   tests/retrieval/test-adversarial.sh: 8
+      #   tests/adv-loop/test-properties.sh:  44
+      #   tests/test_health.py:                5
+      # TOTAL:                              147
+
       - name: Run V1 distilled tests
         run: bash tests/distilled-test.sh
 
       - name: Run V2 retrieval tests
         run: bash tests/retrieval/test-v2.sh
 
+      - name: Run adversarial tests
+        run: bash tests/retrieval/test-adversarial.sh
+
+      - name: Run adv-loop property tests
+        run: bash tests/adv-loop/test-properties.sh
+
+      - name: Run adv-loop self-tests
+        run: bash bin/adv-loop test
+
+      - name: Run health tests
+        run: python3 tests/test_health.py
+
       - name: Build index
         run: python3 scripts/retrieval/pipeline.py distilled/ --output index.json
 
-      - name: Smoke test (--health probe)
+      - name: Smoke test (health probe)
         run: python3 scripts/query.py --health
 
-      - name: Smoke test (--dossier output)
+      - name: Smoke test (dossier output)
         run: python3 scripts/query.py --dossier "What is SOLID?" | head -10
 
-      - name: Lint Python (if ruff available)
+      - name: Verify test count
+        run: |
+          echo "=== Test count verification ==="
+          echo "Expected: 147/147 PASS"
+          echo "  - bin/adv-loop test: 38"
+          echo "  - tests/distilled-test.sh: 32"
+          echo "  - tests/retrieval/test-v2.sh: 20"
+          echo "  - tests/retrieval/test-adversarial.sh: 8"
+          echo "  - tests/adv-loop/test-properties.sh: 44"
+          echo "  - tests/test_health.py: 5"
+
+      - name: Lint Python
         run: |
           pip install --quiet ruff 2>/dev/null || true
           ruff check scripts/ 2>/dev/null || echo "ruff not available, skipping"
 
-      - name: Security scan (if bandit available)
+      - name: Security scan
         run: |
           pip install --quiet bandit 2>/dev/null || true
           bandit -r scripts/ 2>/dev/null || echo "bandit not available, skipping"

@@ -3,18 +3,23 @@
 
 Extracted from state_engine.py to reduce god-class LOC.
 Importable as: from state_engine_logging import log_event, log_tool_call, ...
+
+CIRCULAR IMPORT NOTE: This module must NOT import from state_engine at
+module load time (state_engine imports from us). Use lazy imports inside
+functions, or use sys.modules lookup for sibling privates.
 """
 import json
 import sqlite3
+import sys
 import time
 
-import state_engine  # sibling module, shares _open, _log, _audit_hmac
-# Pull in private helpers that the logging functions need.
-_init_db = state_engine._init_db
-_open = state_engine._open
-_log = state_engine._log
-_audit_hmac = state_engine._audit_hmac
-_translate_op_error = state_engine._translate_op_error
+
+def _se():
+    """Lazy accessor: returns the state_engine module without triggering a
+    circular import at our module-load time."""
+    return sys.modules.get('state_engine') or __import__('state_engine')
+
+
 # ===== Logging =====
 
 def log_tool_call(component, tool_name, phase=None, metadata=None):
@@ -22,14 +27,15 @@ def log_tool_call(component, tool_name, phase=None, metadata=None):
 
 
 def log_event(level, component, message, phase=None, metadata=None):
-    _init_db()
+    se = _se()
+    se._init_db()
     try:
-        with _xact() as conn:
+        with se._xact() as conn:
             md = json.dumps(metadata) if isinstance(metadata, dict) else (metadata or "")
-            sid, agent, cid = _session_correlation()
-            ts = _now_iso()
-            row_hmac = _audit_hmac(
-                _last_hmac(conn, "log_events"),
+            sid, agent, cid = se._session_correlation()
+            ts = se._now_iso()
+            row_hmac = se._audit_hmac(
+                se._last_hmac(conn, "log_events"),
                 ts, "log_events", level, component, phase, message, md, sid, agent, cid,
             )
             conn.execute(
@@ -44,8 +50,9 @@ def log_event(level, component, message, phase=None, metadata=None):
 
 
 def query_log_events(limit=100, level=None, since_date=None, component=None):
-    _init_db()
-    conn = _open()
+    se = _se()
+    se._init_db()
+    conn = se._open()
     try:
         conds, params = [], []
         if level:
@@ -70,13 +77,14 @@ def query_log_events(limit=100, level=None, since_date=None, component=None):
 
 
 def log_adversarial(gate, verdict, reason):
-    _init_db()
+    se = _se()
+    se._init_db()
     try:
-        with _xact() as conn:
-            sid, agent, cid = _session_correlation()
-            ts = _now_iso()
-            row_hmac = _audit_hmac(
-                _last_hmac(conn, "adversarial_log"),
+        with se._xact() as conn:
+            sid, agent, cid = se._session_correlation()
+            ts = se._now_iso()
+            row_hmac = se._audit_hmac(
+                se._last_hmac(conn, "adversarial_log"),
                 ts, "adversarial_log", gate, verdict, reason, sid, agent, cid,
             )
             conn.execute(
@@ -91,8 +99,9 @@ def log_adversarial(gate, verdict, reason):
 
 
 def query_adversarial(limit=100, since_date=None):
-    _init_db()
-    conn = _open()
+    se = _se()
+    se._init_db()
+    conn = se._open()
     try:
         if since_date:
             cur = conn.execute(
@@ -112,8 +121,9 @@ def query_adversarial(limit=100, since_date=None):
 
 
 def query_state_events(limit=100, key_filter=None, since_date=None):
-    _init_db()
-    conn = _open()
+    se = _se()
+    se._init_db()
+    conn = se._open()
     try:
         conds, params = [], []
         if key_filter:
@@ -135,8 +145,9 @@ def query_state_events(limit=100, key_filter=None, since_date=None):
 
 
 def query_circuit_breaker_events(limit=100, since_date=None):
-    _init_db()
-    conn = _open()
+    se = _se()
+    se._init_db()
+    conn = se._open()
     try:
         if since_date:
             cur = conn.execute(

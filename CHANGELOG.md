@@ -6,6 +6,8 @@ All notable changes to the SWEBOK v4 Harness V2 (Distilled) will be documented h
 
 Closes the goal hook: *"se trigger automatiquement à chaque étape d'évolution/feature d'un projet avec dimension adversariale très poussée"*.
 
+> **⚠️ Adversarial Gate Fixture Disclosure**: `adversarial-gate.sh` is a FIXTURE-with-real-Judge-path, NOT an end-to-end Red/Blue gate. A canned `GATE:PASS` is a development convenience, not a real Red/Blue review. Production verdicts require the dispatcher to drive the multiagent path (or `--council` mode for the 4 LLM-judges). See `adversarial-gate.sh` lines 6-23 and `README.md` "Adversarial Gate: Fixture Disclosure" section.
+
 ### G1 — UserPromptSubmit auto-trigger (intent detection)
 
 - `lib/auto_trigger.py` — 4-layer intent detector (cache/pattern/semantic/fallback) with subprocess call to `intent-detector.py` and 0.5 confidence threshold
