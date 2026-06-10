@@ -49,7 +49,11 @@ _log = logging.getLogger("swebok.state_engine")
 import subprocess
 
 _THIS_FILE = Path(__file__).resolve()
-HARNESS_DIR = Path(os.environ.get("HARNESS_DIR", str(_THIS_FILE.parent.parent.parent)))
+# Default: HARNESS_DIR is the parent of `lib/`. The state_engine lives at
+# <HARNESS_DIR>/lib/state_engine.py, so we go up 2 levels from this file.
+# (Was parent.parent.parent — one level too many, assumed a single-project
+# layout like /home/<user>/lib/state_engine.py.)
+HARNESS_DIR = Path(os.environ.get("HARNESS_DIR", str(_THIS_FILE.parent.parent)))
 
 
 def _verify_harness_dir() -> Path:

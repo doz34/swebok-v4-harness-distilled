@@ -16,13 +16,32 @@
 
 set -euo pipefail
 
-HARNESS_DIR="${HARNESS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+# Resolve symlink (BASH_SOURCE gives the symlink path, not the target).
+# Without this, when invoked via .git/hooks/pre-commit → ../../pre-commit-hook.sh,
+# the relative cd lands inside .git/ rather than the project root.
+_HOOK_PATH="${BASH_SOURCE[0]}"
+if command -v readlink >/dev/null 2>&1; then
+    _RESOLVED=$(readlink -f "$_HOOK_PATH" 2>/dev/null || echo "$_HOOK_PATH")
+else
+    _RESOLVED="$_HOOK_PATH"
+fi
+# pre-commit-hook.sh lives at the project root, so dirname is enough.
+HARNESS_DIR="${HARNESS_DIR:-$(cd "$(dirname "$_RESOLVED")" && pwd)}"
 if [[ ! -d "$HARNESS_DIR" ]]; then
     echo "[pre-commit] HARNESS_DIR=$HARNESS_DIR not found. Skipping."
     exit 0
 fi
 
 cd "$HARNESS_DIR"
+
+# Fork detection: this hook was designed for the upstream harness
+# (/home/doz/swebok-v4-harness/) which has tests/adversarial-test.sh and
+# tests/attack-payloads-test.sh at the root. Forks (e.g. -distilled) do not
+# have these scripts, so the gate would always fail. Skip cleanly.
+if [[ ! -f "$HARNESS_DIR/tests/adversarial-test.sh" ]]; then
+    echo "[pre-commit] SKIP: upstream-only test suite not present in fork. Skipping."
+    exit 0
+fi
 
 echo "[pre-commit] Running SWEBOK v4 harness test gate..."
 
