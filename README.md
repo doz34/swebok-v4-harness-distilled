@@ -5,9 +5,9 @@
 > the way to shipping and supporting it in production. It watches your work,
 > reminds you of what comes next, and stops you from skipping important steps.
 
-[![Tests](https://img.shields.io/badge/tests-142%2F142%20PASS-brightgreen)](tests/)
+[![Tests](https://img.shields.io/badge/tests-147%2F147%20PASS-brightgreen)](tests/)
 [![Knowledge](https://img.shields.io/badge/knowledge-227%20compiled%20items-blue)](distilled/)
-[![Corpus](https://img.shields.io/badge/corpus-467%2C156%20concepts%20searchable-orange)](scripts/corpus_browser.py)
+[![Corpus](https://img.shields.io/badge/corpus-1%2C139%20books%20%7C%20471K%20concepts-orange)](scripts/corpus_browser.py)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 ---
@@ -249,6 +249,16 @@ When invoked WITHOUT `--judge-only --red/--blue`, it returns canned, hardcoded R
 The full honesty contract is in `adversarial-gate.sh` lines 6-23 (the AUDIT-2026-06-01 banner).
 
 **The Council Bridge** (`--council` mode) is the real path: 4 LLM-judges (ciso/qa-lead/architect/devops-lead) spawn via Agent tool and produce aggregated verdicts. See `docs/v1/ADR-003-multiagent-bridge.md`.
+
+### Production Modes (v2.6.0)
+
+| Mode | Command | How it works | Trust level |
+|---|---|---|---|
+| **Fixture** (dev only) | `HARNESS_TEST_FIXTURE=1 adversarial-gate.sh P3 P4` | Canned DSL strings, no real review | ⚠️ Development smoke test |
+| **Judge-only** | `adversarial-gate.sh P3 P4 --judge-only --red "..." --blue "..."` | Real DSL from external agents, judge computes verdict | ✅ Production (if agents are real) |
+| **Council** | `adversarial-gate.sh P3 P4 --council` | 4 nexus-* subagents via Agent tool (nexus-ciso, nexus-qa-lead, nexus-architect, nexus-devops-lead) | ✅ Production (strongest) |
+
+The council mode uses the same subagent types as the harness's nexus-* skills (available in Claude Code sessions with the skill pack). If the skills are not registered, the dispatcher falls back to `general-purpose` agents with role framing.
 
 ---
 
