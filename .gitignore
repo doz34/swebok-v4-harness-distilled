@@ -35,3 +35,8 @@ coverage_report/
 *.swo
 *~
 scripts/retrieval/
+
+# Open-access PDFs (untracked per project decision 2026-06-08)
+audit/corpus-references/downloads/
+audit/corpus-crawler/downloads/
+audit/p10-demo/

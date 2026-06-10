@@ -618,6 +618,25 @@ case "${1:-help}" in
   test) run_tests; exit 0 ;;
   all) run_all "${2:-}"; exit 0 ;;
   patterns) echo "Per-phase pattern scripts: see specs/adversarial-patterns/"; exit 0 ;;
+  auto-trigger)
+    # SPRINT-2026-06-10 G1: detect intent from user prompt → emit DSL
+    # Usage: adv-loop auto-trigger <prompt>...
+    shift
+    if [ $# -eq 0 ]; then
+      echo "Usage: adv-loop auto-trigger <prompt>" >&2
+      exit 1
+    fi
+    PROMPT="$*"
+    HARNESS_DIR="${HARNESS_DIR:-$PROJECT_ROOT}" \
+      python3 "$PROJECT_ROOT/lib/auto_trigger.py" "$PROMPT"
+    exit 0 ;;
+  council-status)
+    # SPRINT-2026-06-10 G5: show counter + last fire time
+    STATE_CLI="$PROJECT_ROOT/lib/state_engine_cli.py"
+    HARNESS_DIR="$PROJECT_ROOT" python3 "$STATE_CLI" get_nested edits.counter 2>/dev/null || echo "0"
+    HARNESS_DIR="$PROJECT_ROOT" python3 "$STATE_CLI" get_nested council.last_at 2>/dev/null || echo "0"
+    HARNESS_DIR="$PROJECT_ROOT" python3 "$STATE_CLI" get_nested council.threshold 2>/dev/null || echo "5"
+    exit 0 ;;
   council)
     SUBCMD="council"
     PHASE_ARG="${2:-}"

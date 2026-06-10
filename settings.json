@@ -64,6 +64,14 @@
         "matcher": "Read",
         "hooks": ["bash /home/doz/swebok-v4-harness/hooks/post-tool-use/auto-verify.sh"]
       }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          "bash /home/doz/swebok-v4-harness-distilled/pre-tool-use/auto-trigger-hook.sh"
+        ]
+      }
     ]
   },
   "mounts": {},

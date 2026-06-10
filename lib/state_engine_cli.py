@@ -174,6 +174,100 @@ def main():
                     print(f"{tbl}_rows: {n}")
             finally:
                 conn.close()
+        elif cmd == "list_append":
+            # SPRINT-2026-06-10 G3: append to a JSON-list state key with FIFO max.
+            # CLI: list_append <key> <value> [max_len=10]
+            import json
+            key = sys.argv[2]
+            value = sys.argv[3]
+            max_len = int(sys.argv[4]) if len(sys.argv) > 4 else 10
+            se._init_db()
+            with se._xact() as conn:
+                cur = conn.execute("SELECT value FROM state WHERE key = ?", (key,))
+                row = cur.fetchone()
+                items = []
+                if row and row[0]:
+                    try:
+                        items = json.loads(row[0])
+                    except (json.JSONDecodeError, TypeError):
+                        items = []
+                if not isinstance(items, list):
+                    items = []
+                items.append(value)
+                # FIFO eviction
+                if len(items) > max_len:
+                    items = items[-max_len:]
+                new_val = json.dumps(items)
+                conn.execute(
+                    "INSERT OR REPLACE INTO state (key, value) VALUES (?, ?)",
+                    (key, new_val),
+                )
+                # Audit
+                sid, agent, cid = se._session_correlation()
+                ts = se._now_iso()
+                old_val = row[0] if row else None
+                row_hmac = se._audit_hmac(
+                    se._last_hmac(conn, "state_events"),
+                    ts, "state_events", key, old_val, new_val,
+                    "list_append", sid, agent, cid,
+                )
+                conn.execute(
+                    "INSERT INTO state_events "
+                    "(ts, key, old_value, new_value, source, session_id, agent, correlation_id, row_hmac) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (ts, key, old_val, new_val,
+                     "list_append", sid, agent, cid, row_hmac),
+                )
+            print(new_val)
+        elif cmd == "list_get":
+            # SPRINT-2026-06-10 G3: read a JSON-list state key.
+            # CLI: list_get <key>
+            import json
+            key = sys.argv[2]
+            se._init_db()
+            conn = se._open()
+            try:
+                cur = conn.execute("SELECT value FROM state WHERE key = ?", (key,))
+                row = cur.fetchone()
+                if not row or not row[0]:
+                    print("[]")
+                else:
+                    try:
+                        items = json.loads(row[0])
+                        print(json.dumps(items if isinstance(items, list) else []))
+                    except (json.JSONDecodeError, TypeError):
+                        print("[]")
+            finally:
+                conn.close()
+        elif cmd == "list_clear":
+            # SPRINT-2026-06-10: clear a JSON-list state key.
+            # CLI: list_clear <key>
+            import json
+            key = sys.argv[2]
+            se._init_db()
+            with se._xact() as conn:
+                cur = conn.execute("SELECT value FROM state WHERE key = ?", (key,))
+                row = cur.fetchone()
+                old_val = row[0] if row else None
+                conn.execute(
+                    "INSERT OR REPLACE INTO state (key, value) VALUES (?, ?)",
+                    (key, json.dumps([])),
+                )
+                sid, agent, cid = se._session_correlation()
+                ts = se._now_iso()
+                row_hmac = se._audit_hmac(
+                    se._last_hmac(conn, "state_events"),
+                    ts, "state_events", key, old_val, "[]",
+                    "list_clear", sid, agent, cid,
+                )
+                conn.execute(
+                    "INSERT INTO state_events "
+                    "(ts, key, old_value, new_value, source, session_id, agent, correlation_id, row_hmac) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (ts, key, old_val, "[]",
+                     "list_clear", sid, agent, cid, row_hmac),
+                )
+            print("[]")
         else:
             print(f"unknown cmd: {cmd}", file=sys.stderr)
             sys.exit(1)
