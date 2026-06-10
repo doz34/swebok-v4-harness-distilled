@@ -424,6 +424,13 @@ def verify_audit_chain(table, limit=10000):
     return (True, None)
 
 
+def _drop_audit_triggers(conn, table):
+    """Drop all audit-protect triggers on `table` for maintenance (rebuild/recompute)."""
+    for suffix in ("_no_delete", "_no_update_v2"):
+        trg = f"trg_{table}{suffix}"
+        conn.execute(f"DROP TRIGGER IF EXISTS {trg}")
+
+
 def recompute_audit_chain(table):
     """AUDIT-2026-06-01 ITER6: recompute and update row_hmac for every row in
     `table`. This is the supported maintenance operation after a legitimate
@@ -450,6 +457,8 @@ def recompute_audit_chain(table):
     sel_sql, _col_list = spec
     conn = sqlite3.connect(str(STATE_DB), timeout=30.0)
     try:
+        # Drop audit-protect triggers before UPDATE (they block modifications)
+        _drop_audit_triggers(conn, table)
         try:
             rows = conn.execute(
                 f"SELECT {sel_sql} FROM {table} ORDER BY id ASC"
@@ -470,6 +479,12 @@ def recompute_audit_chain(table):
         conn.commit()
         return touched
     finally:
+        # Always restore triggers, even on error
+        try:
+            _ensure_triggers(conn)
+            conn.commit()
+        except Exception:
+            pass
         conn.close()
 
 
@@ -1015,13 +1030,18 @@ def rebuild(keep_audit=True):
                 try:
                     dst_conn = sqlite3.connect(str(STATE_DB))
                     try:
+                        # Drop audit-protect triggers before restore (they block INSERT OR IGNORE)
+                        for tbl in ("adversarial_log", "log_events",
+                                    "state_events", "circuit_breaker_events"):
+                            _drop_audit_triggers(dst_conn, tbl)
+                        dst_conn.commit()
                         for tbl in ("adversarial_log", "log_events",
                                     "state_events", "circuit_breaker_events"):
                             try:
                                 rows = src_conn.execute(f"SELECT * FROM {tbl}").fetchall()
                                 if not rows:
                                     continue
-                                cols = [d[0] for d in dst_conn.execute(
+                                cols = [d[1] for d in dst_conn.execute(
                                     f"PRAGMA table_info({tbl})").fetchall()]
                                 # AUDIT-2026-06-01 ITER5: clear row_hmac on
                                 # restored rows so the chain restarts fresh
@@ -1044,6 +1064,11 @@ def rebuild(keep_audit=True):
                                 )
                             except Exception:
                                 continue
+                        dst_conn.commit()
+                        # Restore triggers after data restore, before recompute
+                        for tbl in ("adversarial_log", "log_events",
+                                    "state_events", "circuit_breaker_events"):
+                            _ensure_triggers(dst_conn)
                         dst_conn.commit()
                     finally:
                         dst_conn.close()
