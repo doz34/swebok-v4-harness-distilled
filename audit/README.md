@@ -37,11 +37,11 @@ Quand tu as fini, dis simplement à Claude "j'ai rempli les grilles, lis-les". I
 | `phase-3-architecture-audit.md` | Architecture | P2 SWEBOK (Software Architecture) | ✅ FERMÉ (v2 finale 🟢) |
 | `phase-4-design-audit.md` | Design | P3 SWEBOK (Software Design) | ✅ FERMÉ (v2 finale 🟢) |
 | `phase-5-implementation-audit.md` | Implementation | P4 SWEBOK (Software Construction) | ✅ FERMÉ (v2 finale 🟢) |
-| `phase-6-testing-audit.md` | Testing | P5 SWEBOK (Software Testing) | ⬜ À remplir |
-| `phase-7-deployment-audit.md` | Deployment | Software Configuration Management | ⬜ À remplir |
-| `phase-8-operations-audit.md` | Operations | (hors SWEBOK core, justifié) | ⬜ À remplir |
-| `phase-9-maintenance-audit.md` | Maintenance | P6 SWEBOK (Software Maintenance) | ⬜ À remplir |
-| `phase-10-retirement-audit.md` | Retirement | Software Engineering Process | ⬜ À remplir |
+| `phase-6-testing-audit.md` | Testing | P5 SWEBOK (Software Testing) | ✅ FERMÉ (v2 finale 🟢) |
+| `phase-7-deployment-audit.md` | Deployment | Software Configuration Management | ✅ FERMÉ (v2 finale 🟢) |
+| `phase-8-operations-audit.md` | Operations | (hors SWEBOK core, justifié) | ✅ FERMÉ (v2 finale 🟢) |
+| `phase-9-maintenance-audit.md` | Maintenance | P6 SWEBOK (Software Maintenance) | ✅ FERMÉ (v2 finale 🟢) |
+| `phase-10-retirement-audit.md` | Retirement | Software Engineering Process | ✅ FERMÉ (v2 finale 🟢) |
 
 ---
 

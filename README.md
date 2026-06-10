@@ -5,9 +5,9 @@
 > the way to shipping and supporting it in production. It watches your work,
 > reminds you of what comes next, and stops you from skipping important steps.
 
-[![Tests](https://img.shields.io/badge/tests-52%2F52%20PASS-brightgreen)](tests/)
+[![Tests](https://img.shields.io/badge/tests-142%2F142%20PASS-brightgreen)](tests/)
 [![Knowledge](https://img.shields.io/badge/knowledge-227%20compiled%20items-blue)](distilled/)
-[![Corpus](https://img.shields.io/badge/corpus-145%2C963%20concepts%20searchable-orange)](scripts/corpus_browser.py)
+[![Corpus](https://img.shields.io/badge/corpus-467%2C156%20concepts%20searchable-orange)](scripts/corpus_browser.py)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 ---
@@ -94,8 +94,12 @@ python3 scripts/compiled_knowledge.py --recipe api-design
 # Knowledge engine: get a phase checklist
 python3 scripts/compiled_knowledge.py --checklist P5
 
-# Test suite (should report 32/32 PASS)
+# Test suite (should report 32/32 distilled, 20/20 v2, 8/8 adversarial, 44/44 properties, 38/38 self-test = 142/142 PASS)
 bash tests/distilled-test.sh
+bash tests/retrieval/test-v2.sh
+bash tests/retrieval/test-adversarial.sh
+bash tests/adv-loop/test-properties.sh
+bash bin/adv-loop test
 ```
 
 ### Use it day-to-day
@@ -231,6 +235,20 @@ python3 scripts/corpus_browser.py --safe --search "ignore previous"
 
 Every result includes the source book and line number, so you can verify
 anything against the original source.
+
+---
+
+## ⚠️ Adversarial Gate: Fixture Disclosure
+
+**The `adversarial-gate.sh` script is a FIXTURE-with-real-Judge-path, not an end-to-end Red/Blue gate.**
+
+When invoked WITHOUT `--judge-only --red/--blue`, it returns canned, hardcoded RED/BLUE DSL strings per phase. The `<MULTIAGENT_LAUNCH>` envelope it emits is a signal for the **dispatcher** (Claude Code) to spawn `nexus-attacker` / `nexus-defender` via the Agent tool, parse their real DSL output, and call this script with `--judge-only` to compute the actual verdict.
+
+**This means**: a `GATE:PASS` from `adversarial-gate.sh` is only meaningful in production if the dispatcher actually drove the multiagent path. A `GATE:PASS` from the canned fixture is a development convenience, not a real Red/Blue review.
+
+The full honesty contract is in `adversarial-gate.sh` lines 6-23 (the AUDIT-2026-06-01 banner).
+
+**The Council Bridge** (`--council` mode) is the real path: 4 LLM-judges (ciso/qa-lead/architect/devops-lead) spawn via Agent tool and produce aggregated verdicts. See `docs/v1/ADR-003-multiagent-bridge.md`.
 
 ---
 

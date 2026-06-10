@@ -413,19 +413,22 @@ print(n)
     fi
 }
 
-# === Test 25: corpus_browser.py covers all 145,963 concepts (v1.5.2) ===
+# === Test 25: corpus_browser.py reports a sane concept count (data-driven, v2.6.0)
+# Previously hard-coded 145,963 (v1.5.2 baseline). Corpus has grown since.
+# The test now asserts a LOWER BOUND (>= 145,963 = original baseline) so it stays
+# meaningful as the corpus grows AND fails if the browser breaks and reports 0.
 test_corpus_browser_full_coverage() {
-    log_test "Test 25: corpus_browser.py --stats shows 145963 concepts from 777 books"
+    log_test "Test 25: corpus_browser.py --stats reports >=145,963 concepts (data-driven)"
     local count
     count=$(python3 scripts/corpus_browser.py --stats 2>/dev/null | python3 -c "
 import sys, json
 d = json.load(sys.stdin)
 print(d['n_concepts'])
 ")
-    if [[ "$count" -eq 145963 ]]; then
-        log_pass "corpus_browser covers 145,963 concepts (100% corpus)"
+    if [[ "$count" -ge 145963 ]]; then
+        log_pass "corpus_browser covers $count concepts (>= 145,963 baseline)"
     else
-        log_fail "corpus_browser has $count concepts (expected 145963)"
+        log_fail "corpus_browser has $count concepts (expected >= 145,963)"
     fi
 }
 
@@ -480,16 +483,21 @@ print('OK' if hit else 'FAIL')
     fi
 }
 
-# === Test 29: corpus_browser is offline (no network) (v1.5.2) ===
+# === Test 29: corpus_browser is offline (no network) (v1.5.2, data-driven v2.6.0)
+# The browser must work fully offline. We assert: (1) no exception is raised when
+# HTTP_PROXY points to a black-hole (proves no network was attempted), AND (2) the
+# returned JSON has a sane n_books count (>= 777 = v1.5.2 baseline; corpus grows).
 test_corpus_browser_offline() {
-    log_test "Test 29: corpus_browser works without network"
+    log_test "Test 29: corpus_browser works without network (data-driven)"
     local ok
     # Block network with an unrouteable address — if browser tries it, the call will fail
     ok=$(HTTP_PROXY=http://127.0.0.1:1 HTTPS_PROXY=http://127.0.0.1:1 python3 scripts/corpus_browser.py --stats 2>&1 | python3 -c "
 import sys, json
 try:
     d = json.loads(sys.stdin.read())
-    print('OK' if d.get('n_books', 0) == 777 else 'FAIL')
+    n_books = d.get('n_books', 0)
+    # Pass: no exception + n_books >= 777 baseline (corpus may have grown)
+    print('OK' if n_books >= 777 else 'FAIL')
 except:
     print('FAIL')
 ")
