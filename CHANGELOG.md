@@ -56,6 +56,37 @@ Closes the goal hook: *"se trigger automatiquement à chaque étape d'évolution
   - SM-6: 5 mini-council edits, all verdict 🟢 OK, 51-61ms latency
   - SM-7: `<MULTIAGENT_LAUNCH>` envelope format correct (Council Bridge per ADR-003)
 
+### Clean Ship (2026-06-10 ~17:30 — 12 blockers closed)
+
+**Tests** (88/100 → 147/147 PASS):
+- `tests/retrieval/test-adversarial.sh` rewritten to be self-contained (no /tmp/test_adv*.py deps) — 8/8 PASS (was hanging)
+- `tests/distilled-test.sh` Test 25 (concept count) made data-driven (>= 145,963) — corpus grew to 467,156
+- `tests/distilled-test.sh` Test 29 (offline mode) made data-driven (>= 777 books) — corpus grew to 1,123 books
+- `tests/adv-loop/test-properties.sh` created from scratch — 44/44 PASS (was empty dir)
+
+**Repo hygiene**:
+- `scripts/lib`, `scripts/adversarial-gate.sh`, `scripts/multiagent-launcher.sh` committed as symlinks to canonical lib/ + root files (resolves "working tree dirty")
+- `CLAUDE.md` documents Path Convention: scripts/* = lib/* alias mapping
+- `AUDIT_REPORT.md` renamed to `AUDIT_REPORT-v1.5.3-historic-2026-06-03.md` (no longer misleading)
+- `README.md` badge corrected: 52/52 → 142/142 (then 147/147 with health tests)
+- `README.md` surfaces Adversarial Gate Fixture Disclosure prominently (was buried in code)
+- `audit/README.md` updated: all 10 phases (P0–P10) closed at 🟢 (was: P6–P10 "À remplir")
+- `v2.6.0-antidrift-2026-06-10` tag created
+- `COUNCIL_REPORT.md` published (4-consultant council, 84% with caveats)
+- `ANALYSE_INTEGRALE_2026-06-10.md` published (4-consultant integral analysis, 74% initial → 100% after fixes)
+- `lib/adv-loop/health.py` + `tests/test_health.py` extracted from `bin/adv-loop health` heredoc (testable, single concern)
+- `bin/adv-loop`: added `steer|steering` alias (resolves subcommand name discoverability)
+- All 5 Council findings closed (commit 9d20f66)
+
+**Final test counts** (2026-06-10 ~17:30):
+- `bin/adv-loop test`: 38/38 ✓
+- `tests/distilled-test.sh`: 32/32 ✓
+- `tests/retrieval/test-v2.sh`: 20/20 ✓
+- `tests/retrieval/test-adversarial.sh`: 8/8 ✓
+- `tests/adv-loop/test-properties.sh`: 44/44 ✓
+- `tests/test_health.py`: 5/5 ✓
+- **TOTAL: 147/147 PASS** ✓
+
 ### Repo hygiene
 
 - 3 large PDFs (`prob-ml-murphy-vol1.pdf` 88MB, `vol2.pdf` 144MB, `rl-sutton-barto-2e.pdf` 69MB) removed from history via `git filter-branch`
