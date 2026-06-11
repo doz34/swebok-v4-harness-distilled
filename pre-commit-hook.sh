@@ -5,18 +5,19 @@
 #   ln -s $HARNESS_DIR/pre-commit-hook.sh .git/hooks/pre-commit
 #   chmod +x .git/hooks/pre-commit
 #
-# What it does (distilled repo, 2026-06-10):
-#   1. Rebuilds the per-project state DB (cold start)
-#   2. Verifies audit-log HMAC chain integrity
+# What it does (distilled repo, 2026-06-11):
+#   1. Verifies state DB integrity (read-only check, rebuilds only on failure)
+#   2. Verifies audit-log HMAC chain integrity on all 4 tables
 #   3. Runs the distilled test suite (32 tests) — fail commit on FAIL
 #   4. Runs the v2 retrieval tests (20 tests) — fail commit on FAIL
 #   5. Runs the adversarial test suite (8 tests) — fail commit on FAIL
 #   6. Runs the adv-loop property tests (44 tests) — fail commit on FAIL
 #   7. Runs the adv-loop self-tests (38 tests) — fail commit on FAIL
 #   8. Runs the health tests (5 tests) — fail commit on FAIL
-#   9. Runs the health-check script (exit 0/1 = ok, 2 = broken = FAIL)
+#   9. Runs the rebuild-restore tests (5 tests) — gates on D1 CRIT fix
+#  10. Runs the health-check script (exit 0/1 = ok, 2 = broken = FAIL)
 #
-# Total: 147 tests + HMAC chain + health probe. Real gate, not a no-op.
+# Total: 152 tests + HMAC chain + health probe. Real gate, not a no-op.
 
 set -euo pipefail
 
@@ -113,6 +114,14 @@ if ! python3 tests/test_health.py > "$_SB_TMPDIR/health_py.log" 2>&1; then
     exit 1
 fi
 
+# Rebuild-restore regression tests (Python) — gate on the original D1 CRIT fix
+# (rebuild data-loss bug d[0] vs d[1]). If these fail, the audit chain is unsafe.
+if ! python3 tests/test_rebuild_restore.py > "$_SB_TMPDIR/rebuild_restore.log" 2>&1; then
+    echo "[pre-commit] FAIL: rebuild-restore tests exited non-zero"
+    cat "$_SB_TMPDIR/rebuild_restore.log"
+    exit 1
+fi
+
 # 9. Health check — fail on BROKEN (exit 2). DEGRADED (exit 1) is a soft pass.
 if HARNESS_DIR="$HARNESS_DIR" bash "$HARNESS_DIR/health-check.sh" > "$_SB_TMPDIR/health.log" 2>&1; then
     hc_exit=0
@@ -128,5 +137,5 @@ if [[ "$hc_exit" -eq 1 ]]; then
     echo "[pre-commit] WARN: health-check reported DEGRADED — continuing"
 fi
 
-echo "[pre-commit] OK: 147 tests + HMAC + health all green"
+echo "[pre-commit] OK: 152 tests + HMAC + health all green"
 exit 0
