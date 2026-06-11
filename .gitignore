@@ -2,6 +2,8 @@
 .swebok_state.db
 state.db
 *.db
+*.db-shm
+*.db-wal
 *.db.bak.*
 *.db.corrupt.*
 *.db.pre-rebuild.*

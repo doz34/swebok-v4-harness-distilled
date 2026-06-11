@@ -107,9 +107,19 @@ def main():
         elif cmd == "check_integrity":
             print(se.check_integrity())
         elif cmd == "verify_audit_chain":
-            tables = ([sys.argv[2]] if len(sys.argv) > 2
-                      else ["adversarial_log", "log_events",
-                            "state_events", "circuit_breaker_events"])
+            _AUDIT_TABLES = frozenset(
+                ["adversarial_log", "log_events",
+                 "state_events", "circuit_breaker_events"])
+            if len(sys.argv) > 2:
+                t = sys.argv[2]
+                if t not in _AUDIT_TABLES:
+                    print(f"ERROR: invalid table '{t}'. "
+                          f"Must be one of: {', '.join(sorted(_AUDIT_TABLES))}",
+                          file=sys.stderr)
+                    sys.exit(1)
+                tables = [t]
+            else:
+                tables = sorted(_AUDIT_TABLES)
             any_broken = False
             for t in tables:
                 ok, broken_at = se.verify_audit_chain(t)

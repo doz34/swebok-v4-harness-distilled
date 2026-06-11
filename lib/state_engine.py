@@ -382,6 +382,14 @@ def verify_audit_chain(table, limit=10000):
     has no rows yet OR row_hmac column is absent (older schema) — those are
     not chain violations.
     """
+    # S-01 defense-in-depth: reject non-audit table names (SQL injection guard)
+    _VALID_AUDIT_TABLES = frozenset(
+        ("adversarial_log", "log_events", "state_events",
+         "circuit_breaker_events"))
+    if table not in _VALID_AUDIT_TABLES:
+        raise ValueError(
+            f"verify_audit_chain: invalid table '{table}'. "
+            f"Must be one of: {', '.join(sorted(_VALID_AUDIT_TABLES))}")
     _init_db()
     conn = _open()
     try:

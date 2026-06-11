@@ -66,7 +66,11 @@ get_phase() {
 }
 
 CURRENT=$(get_phase)
-PHASE_NUM="${CURRENT:1:1}"
+if [[ "$CURRENT" =~ ^P([0-9]+) ]]; then
+    PHASE_NUM="${BASH_REMATCH[1]}"
+else
+    PHASE_NUM="0"
+fi
 
 echo "[AUTO-VERIFY] File: $FILE | Phase: $CURRENT | Lite: $LITE_MODE"
 
@@ -170,7 +174,7 @@ else
 fi
 
 # === P5+ syntax validation ===
-if [[ "$PHASE_NUM" =~ ^[56789]$ ]]; then
+if [[ "$PHASE_NUM" -ge 5 ]] 2>/dev/null; then
     echo "[AUTO-VERIFY] Phase $PHASE_NUM: Running syntax validation..."
     case "$FILE" in
         *.py)

@@ -224,7 +224,7 @@ BLUE_OUTPUT_FILE="$TEMP_DIR/blue_output.txt"
 COMBINED_OUTPUT_FILE="$TEMP_DIR/combined_output.txt"
 
 GATE="${FROM_P}_EXIT"
-PHASE_NUM="${FROM_P:1:1}"
+if [[ "$FROM_P" =~ ^P([0-9]+) ]]; then PHASE_NUM="${BASH_REMATCH[1]}"; else PHASE_NUM="0"; fi
 
 echo "=========================================="
 echo "  ADVERSARIAL GATE VALIDATION"

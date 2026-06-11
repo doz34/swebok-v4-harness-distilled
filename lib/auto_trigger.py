@@ -228,13 +228,13 @@ def detect_intent(prompt: str) -> Tuple[str, float, str, str]:
 
 
 def emit_dsl(phase: str, conf: float, intent: str, fallback: str) -> str:
-    """Emit swebok DSL (KEY=VALUE;;KEY=VALUE)."""
+    """Emit canonical swebok DSL (KEY:VALUE;;KEY:VALUE)."""
     return (
-        f"auto_trigger:phase={phase};;"
-        f"auto_trigger:confidence={conf:.3f};;"
-        f"auto_trigger:intent={intent};;"
-        f"auto_trigger:fallback={fallback};;"
-        f"auto_trigger:verdict=🟢 OK"
+        f"AUTO_TRIGGER:PHASE:{phase};;"
+        f"AUTO_TRIGGER:CONFIDENCE:{conf:.3f};;"
+        f"AUTO_TRIGGER:INTENT:{intent};;"
+        f"AUTO_TRIGGER:FALLBACK:{fallback};;"
+        f"AUTO_TRIGGER:VERDICT:OK"
     )
 
 

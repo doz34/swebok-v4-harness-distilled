@@ -35,11 +35,12 @@ else
     status[phase]="DEGRADED (phase unset)"
 fi
 
+_HC_CHAIN_LOG=$(mktemp /tmp/swebok_health_chain.XXXXXX.log)
 # 3. Audit chain intact (4 tables)
-if python3 "$STATE_ENGINE" verify_audit_chain >/tmp/_swebok_health_chain.log 2>&1; then
+if python3 "$STATE_ENGINE" verify_audit_chain >"$_HC_CHAIN_LOG" 2>&1; then
     status[chain]="OK (all 4 tables intact)"
 else
-    status[chain]="FAIL: $(cat /tmp/_swebok_health_chain.log | head -1)"
+    status[chain]="FAIL: $(head -1 "$_HC_CHAIN_LOG")"
 fi
 
 # 4. Hook latency probe (single phase-guard call)

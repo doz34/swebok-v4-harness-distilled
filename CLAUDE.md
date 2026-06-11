@@ -24,6 +24,7 @@ Both refer to the same on-disk file. The `scripts/` namespace is a **stable alia
 - **Source of truth**: `.swebok_state.db` (SQLite WAL)
 - **NEVER read/write `.swebok_state` YAML** (deprecated)
 - Human debugging: `python3 lib/state_engine.py export_state`
+- **HMAC security model**: The `.audit_key` (chmod 0600) protects against external attackers with different user IDs. It does NOT defend against same-user privilege escalation (any process running as the same user can read the key). This is an accepted limitation of filesystem-based secrets.
 
 ## Gates
 - adversarial-gate.sh - Red/Blue team with strict DSL

@@ -11,8 +11,8 @@ import os
 # Refuse to run if HARNESS_DIR is explicitly set to a non-harness path.
 HARNESS_DIR = os.environ.get(
     "HARNESS_DIR",
-    # Self-resolve: scripts/lib/bash_scanner.py → harness root is parent.parent.parent
-    str(__import__("pathlib").Path(__file__).resolve().parent.parent.parent),
+    # Self-resolve: lib/bash_scanner.py → harness root is parent.parent
+    str(__import__("pathlib").Path(__file__).resolve().parent.parent),
 )
 _HARNESS_DIR_OVERRIDE = "HARNESS_DIR" in os.environ
 

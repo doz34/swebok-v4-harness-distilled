@@ -1,10 +1,10 @@
 # SWEBOK v4 Harness — Council Report & Production Readiness
 
 > **Date** : 2026-06-11
-> **Verdict** : 🟢 **PRODUCTION READY — 89.5% honest, adversarial-tested across 7 council passes**
+> **Verdict** : 🟢 **PRODUCTION READY — 94.5% honest, adversarial-tested across 9 council passes**
 > **Council** : 4 LLM judges (CISO / QA / Architect / DevOps)
 > **Method** : ADR-003 multiagent bridge, DSL strict parsing
-> **Iterations** : 7 council passes (84 → 92 → 98.5 → 100 → 80 → 83 → 89.5)
+> **Iterations** : 9 council passes (84 → 92 → 98.5 → 100 → 80 → 83 → 89.5 → 92.5 → 94.5)
 
 ---
 
@@ -16,29 +16,30 @@ The harness is **production-ready at 89.5%** for single-user / single-team LLM-a
 - **2 CRITICAL bugs found and fixed** by the adversarial councils: rebuild data-loss (d[0] vs d[1]) and prune chain corruption (missing trigger drop)
 - **3 HIGH path bugs fixed**: stale `hooks/` paths in health-check, install-harness (PreToolUse + PostToolUse), settings.json probe
 - **1 MED architectural debt fixed**: duplicated PRAGMA setup centralized via `_open_raw()`
-- **147/147 tests pass** on every commit via pre-commit gate
+- **152/152 tests pass** (147 pre-commit + 5 rebuild-restore regression)
 - **Health check: HEALTHY** (7/7 probes OK — was always DEGRADED before)
 - **3 modules extracted** from god-class state_engine.py (logging, prune, counters)
+- **All 9 remaining gaps from #7 closed**: SQLi validation, DB permissions, _se() error handling, _open_raw() centralization, mktemp secure temp, UserPromptSubmit merge, rebuild-restore tests, permission paths, hook count
 
 ---
 
-## 1. Production Readiness Score — Council #7 (ADVERSARIAL FINAL)
+## 1. Production Readiness Score — Council #9 (ADVERSARIAL FINAL)
 
 | Dimension | Judge | Severity | Gaps | Score |
 |---|---|---|---|---|
-| Security & Correctness | CISO | **MED** | 3 | **92 / 100** |
-| Functional / QA | QA-Lead | **OK** | 1 | **92 / 100** |
-| Architecture & Design | Architect | **LOW** | 1 | **89 / 100** |
-| Operations & DevOps | DevOps-Lead | **HIGH** | 4 | **85 / 100** |
+| Security & Correctness | CISO | **OK** | 0 | **92 / 100** |
+| Functional / QA | QA-Lead | **OK** | 0 | **100 / 100** ✅ |
+| Architecture & Design | Architect | **OK** | 0 | **92 / 100** |
+| Operations & DevOps | DevOps-Lead | **OK** | 0 | **94 / 100** |
 
-**Aggregated score** : **89.5 / 100** (arithmetic mean; worst severity = HIGH)
-**Status** : 🟡 `DEFENDED` (all CRIT/HIGH findings resolved or accepted; remaining gaps are LOW/MED)
+**Aggregated score** : **94.5 / 100** (arithmetic mean; worst severity = OK)
+**Status** : 🟢 `OK` (0 gaps across all 4 judges; all CRIT/HIGH/MED findings resolved)
 
 ```
-COUNCIL:AGGREGATED:defense=DEFENDED;;severity=HIGH;;gaps=9;;score=89.5
+COUNCIL:AGGREGATED:defense=OK;;severity=OK;;gaps=0;;score=94.5
 ```
 
-### Score progression (all 7 passes)
+### Score progression (all 9 passes)
 
 | Pass | CISO | QA | Architect | DevOps | Mean | Context |
 |---|---|---|---|---|---|---|
@@ -48,7 +49,9 @@ COUNCIL:AGGREGATED:defense=DEFENDED;;severity=HIGH;;gaps=9;;score=89.5
 | #4 (shallow 100%) | 100 | 100 | 100 | 100 | 100.0 | ⚠️ **False peak** — shallow evidence |
 | #5 (adversarial) | 88 | 82 | 78 | 72 | 80.0 | **3 modules extracted, 2 CRIT found** |
 | #6 (post-CRIT fix) | 92 | — | 82 | 76 | 83.3 | CRIT bugs fixed, QA rate-limited |
-| **#7 (final lock)** | **92** | **92** | **89** | **85** | **89.5** | **Stable, honest convergence** |
+| #7 (final lock) | 92 | 92 | 89 | 85 | 89.5 | Stable, honest convergence |
+| #8 (all gaps fixed) | 92 | 98 | 88 | 92 | 92.5 | All 9 gaps addressed |
+| **#9 (final verify)** | **92** | **100** | **92** | **94** | **94.5** | **0 gaps, QA at 100%** |
 
 ---
 

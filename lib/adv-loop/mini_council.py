@@ -70,9 +70,18 @@ def get_phase() -> str:
 
 
 def read_file_snippet(file_path: str, max_bytes: int = 4096) -> str:
-    """Read first N bytes of file for context."""
+    """Read first N bytes of file for context.
+    R-05: validate file_path is within project or a safe system path.
+    """
     try:
-        with open(file_path, "r", encoding="utf-8", errors="replace") as f:
+        resolved = Path(file_path).resolve()
+        # Reject paths outside home directory (prevents /etc/shadow etc.)
+        home = Path.home().resolve()
+        try:
+            resolved.relative_to(home)
+        except ValueError:
+            return ""
+        with open(resolved, "r", encoding="utf-8", errors="replace") as f:
             return f.read(max_bytes)
     except OSError:
         return ""

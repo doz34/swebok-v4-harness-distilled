@@ -24,7 +24,7 @@ if [[ ! -d "$HARNESS_DIR" ]] || [[ ! -d "$HARNESS_DIR/scripts/lib" ]]; then
 fi
 STATE_ENGINE="$HARNESS_DIR/scripts/lib/state_engine.py"
 BASH_SCANNER="$HARNESS_DIR/scripts/lib/bash_scanner.py"
-STATE_DB="$HARNESS_DIR/.swebok_state.db"
+STATE_DB="${SWEBOK_STATE_DB:-$HARNESS_DIR/.swebok_state.db}"
 MAX_STDIN_BYTES=1048576  # H7: 1 MiB
 
 # === FAIL-SECURE BOOTSTRAP ===
