@@ -45,3 +45,4 @@ settings.json
 audit/corpus-references/downloads/
 audit/corpus-crawler/downloads/
 audit/p10-demo/
+.coverage

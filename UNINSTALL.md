@@ -17,14 +17,23 @@ cp ~/.claude/settings.json.bak.<ts> ~/.claude/settings.json
 If you have no backup (rare, or the installer was interrupted), you can manually remove the harness entries from `~/.claude/settings.json`:
 
 ```bash
-# Use jq to strip the harness hooks (keeps your other hooks intact)
-jq '
-.hooks.PreToolUse = ((.hooks.PreToolUse // []) | map(select(.hooks[0]? | test("swebok-v4-harness") | not)))
-| .hooks.PostToolUse = ((.hooks.PostToolUse // []) | map(select(.hooks[0]? | test("swebok-v4-harness") | not)))
-| .permissions.allow = ((.permissions.allow // []) | map(select(test("swebok-v4-harness") | not)))
+# Use jq to strip the harness hooks (keeps your other hooks intact).
+# The harness wires:
+#   - PreToolUse / PostToolUse / UserPromptSubmit:  `bash ${HARNESS_DIR}/<hook>` paths
+#   - permissions.allow:                              `bash scripts/<tool>` and `python3 scripts/<tool>` paths
+#   - env.HARNESS_DIR:                                the harness root
+#
+# Pipe the filter through `jq` (or save to a file and use `jq -f`).
+cat > /tmp/swebok-uninstall.jq <<'EOF'
+.hooks.PreToolUse        |= map(select((.hooks // []) | map(test("\\$\\{HARNESS_DIR\\}")) | any | not))
+| .hooks.PostToolUse     |= map(select((.hooks // []) | map(test("\\$\\{HARNESS_DIR\\}")) | any | not))
+| .hooks.UserPromptSubmit |= map(select((.hooks // []) | map(test("\\$\\{HARNESS_DIR\\}")) | any | not))
+| .permissions.allow     |= map(select(test("scripts/(swebok-|adversarial-gate|multiagent-launcher|validate-gates|validate-qa-gates|act-observe-verify|self-heal|browser-use-orchestrator|skill-invoker|generate-kg|generate-ka-index|generate-keyword-index|search-knowledge-base|intent-detector)") | not))
 | del(.env.HARNESS_DIR)
-' ~/.claude/settings.json > /tmp/settings.json.new
+EOF
+jq -f /tmp/swebok-uninstall.jq ~/.claude/settings.json > /tmp/settings.json.new
 mv /tmp/settings.json.new ~/.claude/settings.json
+rm -f /tmp/swebok-uninstall.jq
 ```
 
 ## Step 2 — Remove the state DB (optional)
@@ -53,8 +62,11 @@ Reload Claude Code (kill the current process and restart) so it re-reads `~/.cla
 ## Verification
 
 ```bash
-# Should NOT contain swebok-v4-harness
-grep -i swebok ~/.claude/settings.json || echo "OK: harness fully unwired"
+# Should NOT contain any ${HARNESS_DIR}/... hook paths
+grep -F '${HARNESS_DIR}/' ~/.claude/settings.json && echo "FAIL: harness hooks still wired" || echo "OK: no HARNESS_DIR hooks"
+
+# Should NOT contain any harness permission entries (bash/python3 scripts/...)
+grep -E '(bash|python3) scripts/(swebok-|adversarial-gate|multiagent-launcher|generate-kg|generate-ka|generate-keyword|search-knowledge-base|intent-detector)' ~/.claude/settings.json && echo "FAIL: harness permissions still present" || echo "OK: no harness permissions"
 
 # Should NOT have HARNESS_DIR env var
 jq '.env.HARNESS_DIR // "absent"' ~/.claude/settings.json
