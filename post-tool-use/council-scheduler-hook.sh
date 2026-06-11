@@ -13,7 +13,7 @@ if [[ "${HARNESS_AUTO_TRIGGER:-1}" == "0" ]]; then
     exit 0
 fi
 
-HARNESS_DIR="${HARNESS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+HARNESS_DIR="${HARNESS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 SCHEDULER="$HARNESS_DIR/lib/adv-loop/council_scheduler.py"
 
 if [[ ! -f "$SCHEDULER" ]]; then

@@ -14,7 +14,7 @@ if [[ "${HARNESS_AUTO_TRIGGER:-1}" == "0" ]]; then
     exit 0
 fi
 
-HARNESS_DIR="${HARNESS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+HARNESS_DIR="${HARNESS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 MINI_COUNCIL="$HARNESS_DIR/lib/adv-loop/mini_council.py"
 
 if [[ ! -f "$MINI_COUNCIL" ]]; then

@@ -19,7 +19,7 @@ if [[ "${HARNESS_AUTO_TRIGGER:-1}" == "0" ]]; then
     exit 0
 fi
 
-HARNESS_DIR="${HARNESS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
+HARNESS_DIR="${HARNESS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 STATE_CLI="$HARNESS_DIR/lib/state_engine_cli.py"
 AUTO_TRIGGER="$HARNESS_DIR/lib/auto_trigger.py"
 
