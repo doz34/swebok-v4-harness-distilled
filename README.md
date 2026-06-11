@@ -1,374 +1,774 @@
 # SWEBOK v4 Harness
 
-> A discipline layer for software projects that guides you through the full
-> development lifecycle — from the first conversation about what to build, all
-> the way to shipping and supporting it in production. It watches your work,
-> reminds you of what comes next, and stops you from skipping important steps.
+> **A discipline layer for AI-assisted software development.** It watches
+> every command, enforces your SDLC phases, carries the wisdom of 1,139
+> reference books, and keeps a tamper-evident audit trail of everything
+> that happened and why.
 
-[![Tests](https://img.shields.io/badge/tests-147%2F147%20PASS-brightgreen)](tests/)
-[![Knowledge](https://img.shields.io/badge/knowledge-227%20compiled%20items-blue)](distilled/)
-[![Corpus](https://img.shields.io/badge/corpus-1%2C139%20books%20%7C%20471K%20concepts-orange)](scripts/corpus_browser.py)
+[![Tests](https://img.shields.io/badge/tests-152%2F152%20PASS-brightgreen)](tests/)
+[![Audit](https://img.shields.io/badge/audit-100%25%20production%20ready-success)](ANALYSE_INTEGRALE_2026-06-10.md)
+[![Corpus](https://img.shields.io/badge/corpus-1%2C139%20books%20%7C%20471K%20concepts-blue)](scripts/corpus_browser.py)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 ---
 
-## What is it, in plain English?
+## Table of Contents
 
-When you sit down to build something, you usually know roughly what to do:
-gather requirements, sketch an architecture, write code, test it, ship it, fix
-bugs, eventually retire the project. Most teams skip steps when they're
-tired, rushed, or just don't remember. **The SWEBOK v4 Harness is a
-discipline layer that holds you to the process.**
-
-It does three things at the same time:
-
-1. **It watches your commands.** When you ask your AI coding assistant to
-   write a file or run a shell command, the harness checks whether that
-   action makes sense for the current phase. Want to delete files in
-   production? Blocked. Want to skip writing tests? Blocked.
-
-2. **It remembers what you've done.** Every action is logged to a tamper-
-   evident audit chain. If something goes wrong six months from now, you
-   can replay exactly what happened and when.
-
-3. **It carries the collective wisdom of 870+ reference books.** Ask it about
-   API design, database choice, security patterns, machine learning
-   operations, prompt engineering — and it answers with citations.
-
-The result: you build more carefully, with fewer skipped steps, and you
-have a clear record of what you did and why.
+1. [What Is This?](#what-is-this)
+2. [How It Works (Big Picture)](#how-it-works-big-picture)
+3. [The 10 SDLC Phases](#the-10-sdlc-phases)
+4. [Quick Start](#quick-start)
+5. [Architecture](#architecture)
+6. [The Compiled Knowledge Engine](#the-compiled-knowledge-engine)
+7. [The Adversarial Loop](#the-adversarial-loop)
+8. [Anti-Drift Auto-Trigger](#anti-drift-auto-trigger)
+9. [Security Model](#security-model)
+10. [Use Cases](#use-cases)
+11. [Customization](#customization)
+12. [Testing](#testing)
+13. [Limitations](#limitations)
+14. [Contributing](#contributing)
+15. [License](#license)
 
 ---
 
-## Who is this for?
+## What Is This?
 
-- **Solo developers** who want a "second pair of eyes" on every command.
-- **Small teams** that need a consistent SDLC without formal process overhead.
-- **AI-assisted workflows** (Claude Code, etc.) where you want guardrails on
-  what the assistant can and cannot do without your explicit consent.
-- **Anyone** who has shipped software, regretted skipping a step, and wants
-  to never do that again.
+You know how it goes: you sit down to build something, start coding
+immediately, skip the requirements, forget to write tests, push straight
+to production, and six months later you're debugging a 3 AM incident
+wondering "who approved this?"
 
-You do **not** need to be an expert. The harness is opinionated — it makes
-choices for you, and you can override them when needed.
+**The SWEBOK v4 Harness fixes this.** It is a set of hooks that sit
+between you (or your AI coding assistant) and your terminal. Every time
+you try to write a file, run a command, or advance to the next phase of
+your project, the harness checks:
+
+- **"Is this action appropriate for the current phase?"** (Don't code
+  during requirements gathering. Don't deploy without tests.)
+- **"Is this command safe?"** (Block `rm -rf /`, `DROP TABLE`, `eval`
+  with base64 obfuscation, and other destructive operations.)
+- **"What does the collective wisdom of 1,139 books say about this?"**
+  (Instant, deterministic answers about architecture, security, testing,
+  and more.)
+
+Everything is logged to a **tamper-evident audit chain** so you can
+always answer "what happened and when?"
+
+### Key Numbers
+
+| Metric | Value |
+|---|---|
+| Tests | **152/152 PASS** (pre-commit gated) |
+| Production audit | **100% — 0 blockers** (4-consultant council) |
+| Knowledge corpus | **1,139 books, 471,472 concepts** |
+| Curated items | **227 principles, antipatterns, recipes, etc.** |
+| SDLC phases covered | **10 (P0–P10)** |
+| Adversarial loop | **5 sprints (S0–S5)**, 60 payloads, 44 property tests |
+| Lines of code | **~21,000** (Python + Shell) |
+| License | **MIT** |
 
 ---
 
-## Quick start
+## How It Works (Big Picture)
 
-### What you need
+```
+ You type a prompt ──► Claude Code (AI assistant)
+                            │
+                ┌───────────┴───────────┐
+                │  Every tool call is    │
+                │  intercepted by hooks  │
+                └───────────┬───────────┘
+                            │
+            ┌───────────────┼───────────────┐
+            ▼               ▼               ▼
+     ┌────────────┐  ┌────────────┐  ┌────────────────┐
+     │ phase-guard│  │ bash-guard │  │ anti-drift     │
+     │            │  │            │  │ auto-trigger   │
+     │ Is this    │  │ Is this    │  │                │
+     │ right for  │  │ command    │  │ Detect intent, │
+     │ the phase? │  │ safe?      │  │ schedule       │
+     └─────┬──────┘  └─────┬──────┘  │ council review │
+           │               │         └───────┬────────┘
+           ▼               ▼                 │
+     ┌─────────────────────────────────┐     │
+     │         State Engine            │     │
+     │   (SQLite WAL + HMAC chain)     │     │
+     │                                 │     │
+     │  current_phase: P5_CONSTRUCTION │     │
+     │  gates_validated: [P1..P4]      │     │
+     │  audit_log: 1,247 HMAC-signed   │     │
+     │  circuit_breaker: 0/3           │     │
+     └─────────────────────────────────┘     │
+           │                                 │
+           ▼                                 ▼
+     ┌─────────────────────────────────────────────┐
+     │         Compiled Knowledge Engine            │
+     │                                              │
+     │  24 principles · 46 antipatterns · 6 trees  │
+     │  5 recipes · 3 comparisons · 9 checklists   │
+     │  4 risk catalogs · 144 enrichment concepts   │
+     │                                              │
+     │  "Should I use SQL or NoSQL?" → instant,    │
+     │   deterministic, cited answer. No LLM.      │
+     └─────────────────────────────────────────────┘
+```
+
+**Three layers, one purpose:**
+
+1. **Hooks** (the gatekeepers) — run on every tool call, check the state
+   engine, block or allow.
+2. **State Engine** (the memory) — SQLite with HMAC chain, remembers
+   everything, tamper-evident.
+3. **Knowledge Engine** (the brain) — 1,139 books distilled into a
+   queryable database. No LLM, no network, no hallucination.
+
+---
+
+## The 10 SDLC Phases
+
+The harness enforces a 10-phase lifecycle based on SWEBOK v4 (IEEE
+Computer Society's Software Engineering Body of Knowledge). Each phase
+has specific rules about what you can and cannot do.
+
+```
+  ┌─────────┐     ┌─────────┐     ┌──────────┐     ┌─────────┐
+  │  P0     │     │  P1     │     │  P2      │     │  P3     │
+  │Discovery│────►│Concept &│────►│Require-  │────►│Archi-   │
+  │         │     │Feasib.  │     │ments     │     │tecture  │
+  └─────────┘     └─────────┘     └──────────┘     └─────────┘
+       │                                               │
+  "What should    "Is it worth   "Exactly what   "How do we
+   we build?"     building?"      must it do?"    structure it?"
+  
+  ┌─────────┐     ┌─────────┐     ┌──────────┐     ┌─────────┐
+  │  P4     │     │  P5     │     │  P6      │     │  P7     │
+  │Design   │────►│Construc-│────►│Testing & │────►│Deploy-  │
+  │         │     │tion     │     │Verif.    │     │ment     │
+  └─────────┘     └─────────┘     └──────────┘     └─────────┘
+       │                                               │
+  "Detailed       "Write the      "Does it         "Ship it
+   contracts"      actual code"    work?"           safely"
+  
+  ┌─────────┐     ┌─────────┐
+  │  P8     │     │  P9/P10 │
+  │Opera-   │────►│Maintain │────► End of Life
+  │tions    │     │& Retire │
+  └─────────┘     └─────────┘
+       │
+  "Keep it        "Fix it, evolve
+   running"        it, or retire it"
+```
+
+### What gets blocked in each phase
+
+| Phase | Write code? | Run tests? | Deploy? | Delete files? |
+|---|---|---|---|---|
+| P0–P4 | ❌ Blocked | ❌ Blocked | ❌ Blocked | ❌ Blocked |
+| P5 | ✅ Allowed | ✅ Unit tests | ❌ Blocked | ❌ Blocked |
+| P6 | ❌ Src changes | ✅ Full testing | ❌ Blocked | ❌ Blocked |
+| P7 | ✅ Config only | ✅ Smoke tests | ✅ Allowed | ❌ Blocked |
+| P8 | ✅ Hotfixes | ✅ Regression | ✅ Rollback | ⚠️ With override |
+| P9–P10 | ✅ Patches | ✅ Validation | ✅ Migration | ⚠️ With override |
+
+**Every block is logged. Every override requires a reason. The audit
+chain doesn't lie.**
+
+---
+
+## Quick Start
+
+### Prerequisites
 
 - Linux or macOS
-- Python 3.10 or newer
-- A Bash shell (Git Bash on Windows is fine)
+- Python 3.10+
+- Bash shell
+- [Claude Code](https://claude.ai/code) (optional, but that's the
+  primary use case)
 - 5 minutes
 
 ### Install
 
 ```bash
-git clone https://github.com/doz34/swebok-v4-harness.git
-cd swebok-v4-harness
+git clone https://github.com/doz34/swebok-v4-harness-distilled.git
+cd swebok-v4-harness-distilled
 bash install-harness.sh
 ```
 
 The installer will:
 
-1. Verify the harness is intact (no missing files).
-2. Back up your existing Claude Code settings (if any).
-3. Merge the harness's hook entries into your `~/.claude/settings.json`.
-4. Generate a fresh cryptographic key for the audit chain.
-5. Tell you it's done.
+1. Verify the harness is intact (no missing files)
+2. Back up your existing Claude Code settings
+3. Merge hook entries into `~/.claude/settings.json`
+4. Generate a fresh HMAC key for the audit chain (stored in `.audit_key`,
+   mode 0600, gitignored)
+5. Initialize the state database
 
 ### Verify it works
 
 ```bash
-# Knowledge engine: ask a question
+# Ask the knowledge engine a question
 python3 scripts/compiled_knowledge.py "should I use SQL or NoSQL?"
 
-# Knowledge engine: list all 24 universal principles
-python3 scripts/compiled_knowledge.py --principle KISS
-
-# Knowledge engine: get a recipe (step-by-step procedure)
-python3 scripts/compiled_knowledge.py --recipe api-design
-
-# Knowledge engine: get a phase checklist
-python3 scripts/compiled_knowledge.py --checklist P5
-
-# Test suite (should report 32/32 distilled, 20/20 v2, 8/8 adversarial, 44/44 properties, 38/38 self-test = 142/142 PASS)
-bash tests/distilled-test.sh
-bash tests/retrieval/test-v2.sh
-bash tests/retrieval/test-adversarial.sh
-bash tests/adv-loop/test-properties.sh
-bash bin/adv-loop test
+# Run the full test suite
+bash tests/distilled-test.sh        # 32 tests
+bash tests/retrieval/test-v2.sh     # 20 tests
+bash tests/retrieval/test-adversarial.sh  # 8 tests
+bash tests/adv-loop/test-properties.sh    # 44 tests
+bash bin/adv-loop test              # 38 tests
+python3 tests/test_health.py        # 5 tests
+python3 tests/test_rebuild_restore.py  # 5 tests
+# Total: 152 tests, all should PASS
 ```
 
-### Use it day-to-day
+### Day-to-day usage
 
-Once installed, the harness runs automatically when you use Claude Code.
+Once installed, the harness runs **automatically** inside Claude Code.
 You don't need to invoke it manually. It will:
 
-- **Block** destructive commands at the wrong phase (e.g. `rm -rf` during
-  requirements gathering).
-- **Remind you** of the current phase's deliverables (e.g. "you should write
-  tests before claiming P5 is done").
-- **Suggest** the next phase when you've completed the current one.
-- **Answer** questions about design, patterns, decisions, and best practices.
+- **Block** destructive commands at the wrong phase
+- **Remind you** of deliverables for the current phase
+- **Suggest** the next phase when deliverables are met
+- **Answer** design and architecture questions instantly
 
 ---
 
-## What does it actually do?
+## Architecture
 
-### Phase gating
-
-Software has phases. The harness enforces them.
-
-| Phase | Name | What you should be doing |
-|---|---|---|
-| **P1** | Requirements | Talking to stakeholders, writing specs. No code. |
-| **P2** | Architecture | Sketching boxes and arrows. Still no code. |
-| **P3** | Design | Interface contracts, decision diagrams. |
-| **P4** | Estimation | Time, cost, risk. |
-| **P5** | Construction | Writing the actual code. |
-| **P6** | Verification | Tests, integration, acceptance. |
-| **P7** | Deployment | Release artifacts, rollout. |
-| **P8** | Maintenance | Bug fixes, patches. |
-| **P9** | Retirement | Decommissioning, end-of-life. |
-
-When you try to do something inappropriate for the current phase, the
-harness blocks it and tells you why. For example:
-
-- **In P1-P4 (before construction)**: trying to write `.py` files is
-  blocked. You should still be thinking, not coding.
-- **In P6 (verification)**: modifying `src/` (non-test code) is blocked.
-  You should be writing tests, not changing the implementation.
-- **In any phase**: `rm -rf /`, `mkfs`, `dd of=/dev/...`, dropping tables,
-  and other destructive commands are blocked. Period.
-
-### Safety net for the unexpected
-
-Even outside the phase rules, the harness has your back:
-
-- **`BASH_ENV` injection** is detected and blocked unless the env file is
-  a system one (`/etc/profile`, `/etc/bashrc`, etc.).
-- **`eval` with base64** is decoded before scanning — `eval "$(echo
-  cm0gLXJmIC8= | base64 -d)"` (which decodes to `rm -rf /`) is caught.
-- **Three strikes rule**: three blocked operations on the same file
-  hard-locks that operation. You have to explicitly override with
-  `state_engine.py set circuit_breaker.override_active true`.
-- **Audit chain**: every decision (block, allow, override) is logged with
-  a cryptographic signature. If anything tries to rewrite history, you'll
-  know.
-
-### The compiled knowledge engine
-
-The harness ships with a curated database of 227 items distilled from 870+
-software engineering reference books, organized into 7 layers:
-
-1. **Principles** (24) — universal rules like "Keep It Simple", "You
-   Aren't Gonna Need It", "Don't Repeat Yourself". Each principle tells
-   you when to apply it, when it fails, and which antipatterns it
-   protects against.
-2. **Antipatterns** (46) — concrete failure modes with symptom, cause,
-   and fix.
-3. **Ontologies** (6) — taxonomies for software engineering, data
-   engineering, machine learning systems, web frontend, Python
-   ecosystem, and security.
-4. **Decision trees** (5) — "if your data is X, choose Y" with
-   concrete answers at each leaf.
-5. **Recipes** (5) — step-by-step procedures for common tasks (API
-   design, authentication, database schema, error handling, refactoring).
-6. **Comparisons** (3) — head-to-head matrices (SQL vs NoSQL, REST vs
-   GraphQL, monolith vs microservices).
-7. **Checklists** (9) — one per phase, with deliverables and "done"
-   criteria.
-8. **Risk catalogs** (4) — security, performance, maintainability,
-   operational risks with mitigations.
-9. **Risk enrichments** (144) — adversarially-accepted concepts from the
-   870-book corpus, grouped into 17 themes (Git, React, LLMs, ML, DB,
-   patterns, etc.).
-
-You query this database from the command line:
-
-```bash
-# Free-text question, returns top-5 ranked results
-python3 scripts/compiled_knowledge.py "API design REST versioning"
-
-# Look up a specific item by ID
-python3 scripts/compiled_knowledge.py --principle KISS
-python3 scripts/compiled_knowledge.py --antipattern god-class
-python3 scripts/compiled_knowledge.py --decision-tree choose-database
-python3 scripts/compiled_knowledge.py --recipe api-design
-python3 scripts/compiled_knowledge.py --checklist P5
-
-# Compare two options
-python3 scripts/compiled_knowledge.py --comparison "sql vs nosql"
-```
-
-Every result is **deterministic**: same question, same answer, no LLM, no
-network, no hallucination.
-
-### The corpus browser
-
-If you want to go deeper than the 227 curated items, the harness also ships
-a 145,963-concept index of the 870-book corpus. You can search any
-concept from any book by line number:
-
-```bash
-# How many books and concepts are indexed?
-python3 scripts/corpus_browser.py --stats
-
-# Find every mention of "yield from generator" in the corpus
-python3 scripts/corpus_browser.py --search "yield from generator" --top 10
-
-# All concepts from a specific book
-python3 scripts/corpus_browser.py --book "Fluent Python"
-
-# Concepts in a specific line range (closest equivalent to a chapter)
-python3 scripts/corpus_browser.py --book "Fluent Python" --lines 1-500
-
-# By concept layer
-python3 scripts/corpus_browser.py --layer recipe --top 5
-
-# With prompt-injection sanitization (default ON when piping to another command)
-python3 scripts/corpus_browser.py --safe --search "ignore previous"
-```
-
-Every result includes the source book and line number, so you can verify
-anything against the original source.
-
----
-
-## ⚠️ Adversarial Gate: Fixture Disclosure
-
-**The `adversarial-gate.sh` script is a FIXTURE-with-real-Judge-path, not an end-to-end Red/Blue gate.**
-
-When invoked WITHOUT `--judge-only --red/--blue`, it returns canned, hardcoded RED/BLUE DSL strings per phase. The `<MULTIAGENT_LAUNCH>` envelope it emits is a signal for the **dispatcher** (Claude Code) to spawn `nexus-attacker` / `nexus-defender` via the Agent tool, parse their real DSL output, and call this script with `--judge-only` to compute the actual verdict.
-
-**This means**: a `GATE:PASS` from `adversarial-gate.sh` is only meaningful in production if the dispatcher actually drove the multiagent path. A `GATE:PASS` from the canned fixture is a development convenience, not a real Red/Blue review.
-
-The full honesty contract is in `adversarial-gate.sh` lines 6-23 (the AUDIT-2026-06-01 banner).
-
-**The Council Bridge** (`--council` mode) is the real path: 4 LLM-judges (ciso/qa-lead/architect/devops-lead) spawn via Agent tool and produce aggregated verdicts. See `docs/v1/ADR-003-multiagent-bridge.md`.
-
-### Production Modes (v2.6.0)
-
-| Mode | Command | How it works | Trust level |
-|---|---|---|---|
-| **Fixture** (dev only) | `HARNESS_TEST_FIXTURE=1 adversarial-gate.sh P3 P4` | Canned DSL strings, no real review | ⚠️ Development smoke test |
-| **Judge-only** | `adversarial-gate.sh P3 P4 --judge-only --red "..." --blue "..."` | Real DSL from external agents, judge computes verdict | ✅ Production (if agents are real) |
-| **Council** | `adversarial-gate.sh P3 P4 --council` | 4 nexus-* subagents via Agent tool (nexus-ciso, nexus-qa-lead, nexus-architect, nexus-devops-lead) | ✅ Production (strongest) |
-
-The council mode uses the same subagent types as the harness's nexus-* skills (available in Claude Code sessions with the skill pack). If the skills are not registered, the dispatcher falls back to `general-purpose` agents with role framing.
-
----
-
-## Architecture, in 30 seconds
+### System diagram
 
 ```
-┌────────────────────────────────────────────────────────────┐
-│  Claude Code  (or any AI tool that calls Bash/Edit/Write) │
-└──────────────────────────┬─────────────────────────────────┘
-                           │  every tool call
-                           ▼
-┌────────────────────────────────────────────────────────────┐
-│  Pre-tool-use hook  (reads settings.json)                  │
-│  ┌──────────────────────┐  ┌────────────────────────────┐ │
-│  │  phase-guard.sh      │  │  bash-guard.sh             │ │
-│  │  (Write/Edit/Skill)  │  │  (Bash only)               │ │
-│  └──────────┬───────────┘  └──────────┬─────────────────┘ │
-│             │                         │                    │
-│             ▼                         ▼                    │
-│  ┌──────────────────────────────────────────────────────┐  │
-│  │  state engine  (atomic SQLite, audit chain)          │  │
-│  │  • current_phase: P5                                 │  │
-│  │  • gates_validated: [P1, P2, P3, P4]                 │  │
-│  │  • circuit_breaker: 0/3                              │  │
-│  │  • audit_log: 1,247 events, all HMAC-signed         │  │
-│  └──────────────────────────────────────────────────────┘  │
-└────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                        Claude Code (AI Assistant)                   │
+│                                                                     │
+│  When you type: "Create a login API endpoint"                       │
+│  Claude wants to: Write → src/auth.py, Bash → python3 manage.py    │
+└────────────────────────────┬────────────────────────────────────────┘
+                             │
+                  settings.json routes tool calls to hooks
+                             │
+         ┌───────────────────┼───────────────────────────────┐
+         ▼                   ▼                               ▼
+  ┌──────────────┐   ┌──────────────┐   ┌───────────────────────────┐
+  │  PHASE-GUARD │   │  BASH-GUARD  │   │  POST-TOOL-USE HOOKS     │
+  │              │   │              │   │                           │
+  │ Triggers on: │   │ Triggers on: │   │ • auto-verify.sh         │
+  │ • Write      │   │ • Bash       │   │   (syntax check P5+)     │
+  │ • Edit       │   │              │   │ • council-scheduler-hook │
+  │ • Skill      │   │ Scans for:   │   │   (schedule reviews)     │
+  │              │   │ • rm -rf     │   │ • mini-council-hook      │
+  │ Checks:      │   │ • DROP TABLE │   │   (quick heuristic)      │
+  │ • Current    │   │ • eval(base64│   │                           │
+  │   phase      │   │ • sudo       │   └───────────────────────────┘
+  │ • File type  │   │ • curl|sh    │
+  │ • Phase rules│   │ • mkfs, dd   │
+  └──────┬───────┘   └──────┬───────┘
+         │                  │
+         ▼                  ▼
+  ┌──────────────────────────────────────────────────────────────┐
+  │                     STATE ENGINE                             │
+  │                                                              │
+  │  .swebok_state.db (SQLite WAL, per-project isolation)       │
+  │  ┌─────────────┐ ┌──────────────┐ ┌──────────────────────┐ │
+  │  │ state table │ │ 4 audit      │ │ circuit_breaker      │ │
+  │  │ (key/value) │ │ tables       │ │ (3-strike lock)      │ │
+  │  │             │ │ (HMAC chain) │ │                      │ │
+  │  │ phase: P5   │ │              │ │ file X: 2/3 blocks  │ │
+  │  │ gates: [..] │ │ append-only  │ │                      │ │
+  │  │ tools: 142  │ │ triggers     │ │ override: false      │ │
+  │  └─────────────┘ └──────────────┘ └──────────────────────┘ │
+  │                                                              │
+  │  Security: HMAC key per install, mode 0600, gitignored      │
+  │  Integrity: verify_audit_chain, export_state, rebuild        │
+  └──────────────────────────────────────────────────────────────┘
+         │
+         ▼
+  ┌──────────────────────────────────────────────────────────────┐
+  │                 COMPILED KNOWLEDGE ENGINE                     │
+  │                                                              │
+  │  distilled/                                                  │
+  │  ├── principles.json     (24 universal rules)                │
+  │  ├── antipatterns.json   (46 failure modes)                 │
+  │  ├── ontologies/         (6 domain taxonomies)               │
+  │  ├── decision-trees/     (5 "if X then Y" guides)           │
+  │  ├── recipes/            (5 step-by-step procedures)         │
+  │  ├── comparisons/        (3 head-to-head matrices)          │
+  │  ├── checklists/         (9 per-phase gate checklists)      │
+  │  ├── risks/              (4 threat catalogs)                │
+  │  └── corpus_enrichment.json (144 adversarially-accepted)    │
+  │                                                              │
+  │  Query: <5ms · Deterministic · $0 · Offline · No LLM        │
+  └──────────────────────────────────────────────────────────────┘
+```
 
-                       (separate, manual)
+### File structure
+
+```
+swebok-v4-harness-distilled/
+├── CLAUDE.md                  # Laws and routing rules (the "constitution")
+├── README.md                  # This file
+├── CHANGELOG.md               # Version history
+├── LICENSE                    # MIT
+├── settings.json              # Hook wiring (merged into ~/.claude/)
+│
+├── lib/                       # Python core (canonical location)
+│   ├── state_engine.py        #   State machine + HMAC audit chain (~1100 LOC)
+│   ├── state_engine_cli.py    #   CLI dispatcher for state_engine
+│   ├── state_engine_counters.py  # Atomic counters (extracted)
+│   ├── state_engine_logging.py   # Logging API (extracted)
+│   ├── state_engine_prune.py     # Crash-safe pruning (extracted)
+│   ├── bash_scanner.py        #   Phase-aware command filtering
+│   ├── dsl_engine.py          #   DSL parser (KEY:VALUE;; delimiter)
+│   └── auto_trigger.py        #   Intent detection (4-layer)
+│
+├── pre-tool-use/              # Hooks that run BEFORE each tool call
+│   ├── phase-guard.sh         #   Block Write/Edit/Skill in wrong phase
+│   ├── bash-guard.sh          #   Block dangerous shell commands
+│   ├── token-counter.sh       #   Track token usage per phase
+│   ├── auto-trigger-hook.sh   #   Detect user intent, auto-classify phase
+│   └── phase-change-detector.sh  # Fire gate on phase transition
+│
+├── post-tool-use/             # Hooks that run AFTER each tool call
+│   ├── auto-verify.sh         #   Syntax-check Python/JSON/YAML in P5+
+│   ├── council-scheduler-hook.sh  # Schedule full council every N edits
+│   └── mini-council-hook.sh   #   Quick heuristic review per edit
+│
+├── distilled/                 # The curated knowledge base (7 layers)
+│   ├── principles.json        #   24 universal principles
+│   ├── antipatterns.json      #   46 antipatterns with fixes
+│   ├── ontologies/            #   6 domain taxonomies
+│   ├── decision-trees/        #   5 decision guides
+│   ├── recipes/               #   5 procedural guides
+│   ├── comparisons/           #   3 comparison matrices
+│   ├── checklists/            #   9 phase checklists
+│   ├── risks/                 #   4 risk catalogs
+│   ├── corpus_enrichment.json #   144 enrichment concepts
+│   └── citations/             #   Source attribution
+│
+├── distilled_corpus/          # Raw distillation (1,139 books, gitignored)
+│   └── per_book/              #   1,139 JSON files, one per book
+│
+├── scripts/                   # CLI tools
+│   ├── compiled_knowledge.py  #   Query the knowledge engine
+│   ├── corpus_browser.py      #   Browse the 471K-concept corpus
+│   ├── batch_distill.py       #   Distill new books into the corpus
+│   └── (symlinks → ../lib/)   #   lib/ alias for bash scripts
+│
+├── bin/                       # Adversarial loop runner
+│   └── adv-loop               #   CLI: test, corpus, health, steer
+│
+├── tests/                     # Test suites (152 tests total)
+│   ├── distilled-test.sh      #   32 tests: knowledge engine
+│   ├── test_health.py         #   5 tests: health checks
+│   ├── test_rebuild_restore.py #  5 tests: rebuild regression
+│   ├── retrieval/
+│   │   ├── test-v2.sh         #   20 tests: v2 retrieval
+│   │   └── test-adversarial.sh #  8 tests: adversarial patterns
+│   └── adv-loop/
+│       └── test-properties.sh #   44 tests: property-based (4 × 11 phases)
+│
+├── specs/adversarial-patterns/ # Per-phase adversarial patterns (P0–P10)
+├── audit/                     # Phase audit reports (P0–P10, all 🟢)
+├── docs/                      # Architecture docs, ADRs
+├── adversarial-gate.sh        # Red/Blue/Judge gate with DSL
+├── multiagent-launcher.sh     # Council bridge (4 LLM judges)
+├── health-check.sh            # Readiness probe (7 checks)
+├── pre-commit-hook.sh         # Git pre-commit gate (152 tests + HMAC)
+└── install-harness.sh         # One-command installer
+```
+
+### Data flow: what happens when you type a command
+
+```
+ User types: "Create a REST API for user authentication"
                            │
                            ▼
-┌────────────────────────────────────────────────────────────┐
-│  compiled_knowledge.py  (the brain)                       │
-│  "should I use SQL or NoSQL?" → ranked, cited answers     │
-└────────────────────────────────────────────────────────────┘
+              ┌────────────────────────┐
+              │  Claude Code parses    │
+              │  and plans actions:    │
+              │                        │
+              │  1. Write → auth.py    │
+              │  2. Write → test_auth  │
+              │  3. Bash → pytest      │
+              └───────────┬────────────┘
+                          │
+         ┌────────────────┼────────────────┐
+         ▼                ▼                ▼
+   Action 1: Write   Action 2: Write   Action 3: Bash
+   auth.py            test_auth.py      pytest
+         │                │                │
+         ▼                ▼                ▼
+   ┌───────────┐   ┌───────────┐   ┌───────────┐
+   │phase-guard│   │phase-guard│   │bash-guard │
+   │           │   │           │   │           │
+   │ Phase P5? │   │ Phase P5? │   │ Safe cmd? │
+   │ .py file? │   │ test/ OK? │   │ pytest OK │
+   │           │   │           │   │           │
+   │ ✅ ALLOW  │   │ ✅ ALLOW  │   │ ✅ ALLOW  │
+   └───────────┘   └───────────┘   └───────────┘
+         │                │                │
+         └────────────────┼────────────────┘
+                          ▼
+              ┌────────────────────────┐
+              │  State Engine updates: │
+              │  • tool_call_count +=3 │
+              │  • audit log: 3 events │
+              │  • HMAC chain updated  │
+              └────────────────────────┘
 ```
 
-The **hooks** are the gatekeepers. They run on every tool call and ask
-the state engine "is this allowed right now?". If the answer is no, the
-hook returns a structured reason and Claude Code refuses the action.
+If the phase was P2 (Requirements) instead of P5, the phase-guard would
+**block** the Write actions with a clear message:
 
-The **state engine** is the single source of truth. It uses SQLite with
-write-ahead logging for atomicity, and every state change is HMAC-signed
-to detect tampering.
-
-The **compiled knowledge engine** is the brain. You don't need to use it
-in your day-to-day work, but it's there when you have a design question
-and want a quick, sourced answer.
+```
+[PHASE-GUARD] BLOCKED: Writing .py files is not allowed in P2_REQUIREMENTS.
+Current phase: P2_REQUIREMENTS
+Reason: Construction (code writing) begins at P5. During P2, focus on
+requirements specifications and stakeholder validation.
+To advance phases: complete P2 deliverables and request gate review.
+```
 
 ---
 
-## Use cases
+## The Compiled Knowledge Engine
 
-### "I want to start a new project with this"
+The harness ships with a curated, deterministic knowledge base distilled
+from **1,139 software engineering reference books**. This is **not RAG** —
+it is a compiled database of rules, patterns, and decisions.
 
-1. Install the harness (above).
-2. Open Claude Code in your project directory.
-3. Tell Claude what you want to build. The harness will keep you in
-   `P1_REQUIREMENTS` until you've actually written requirements.
-4. When you're ready, tell Claude: "advance to P2". The harness will
-   verify your P1 deliverables before letting you move on.
+### Why this beats RAG
 
-### "I want to add it to an existing project"
+| Property | RAG (vector search + LLM) | This Engine |
+|---|---|---|
+| Determinism | ❌ Fuzzy similarity | ✅ Exact match, same answer every time |
+| Latency | 200–2000ms | **<5ms** (in-memory dict lookup) |
+| Cost | $0.01–0.10/query | **$0** (pure Python) |
+| Network | Required | **None** (works offline, air-gapped) |
+| Hallucination | Possible | **Impossible** (rules are explicit) |
+| Audit | ❌ Black box | ✅ Every answer cites its source |
 
-1. Install the harness. The hooks activate immediately for new commands.
-2. Run `python3 lib/state_engine.py set current_phase P5` to set the
-   current phase to whatever you're actually doing.
-3. Run `python3 lib/state_engine.py set gates_validated '["P1","P2","P3","P4"]'`
-   to mark the earlier phases as already done.
-4. The harness will then enforce P5+ rules on your ongoing work.
+### 7 knowledge layers
 
-### "I want to use only the knowledge engine, no phase gating"
-
-```bash
-# Skip the install, just clone and use directly
-git clone https://github.com/doz34/swebok-v4-harness.git
-cd swebok-v4-harness
-python3 scripts/compiled_knowledge.py "your question"
+```
+┌──────────────────────────────────────────────────┐
+│ Layer 1: PRINCIPLES (24)                         │
+│ "Keep It Simple", "You Aren't Gonna Need It",    │
+│ "Don't Repeat Yourself", "Fail Fast", etc.       │
+│ Each with: when to apply, when it fails,         │
+│ linked antipatterns.                              │
+├──────────────────────────────────────────────────┤
+│ Layer 2: ANTIPATTERNS (46)                       │
+│ God Class, Spaghetti Code, Magic Numbers,         │
+│ Golden Hammer, etc. Each with: symptom, cause,   │
+│ and concrete fix.                                 │
+├──────────────────────────────────────────────────┤
+│ Layer 3: ONTOLOGIES (6)                          │
+│ Software Engineering, Python, Web Frontend,       │
+│ Data Engineering, Security, ML Systems.           │
+│ Hierarchical taxonomies for each domain.          │
+├──────────────────────────────────────────────────┤
+│ Layer 4: DECISION TREES (5)                      │
+│ "If your data is relational → SQL"                │
+│ "If you need real-time → WebSocket"               │
+│ Concrete if/then guides with leaf answers.        │
+├──────────────────────────────────────────────────┤
+│ Layer 5: RECIPES (5)                             │
+│ API Design, Authentication, Database Schema,      │
+│ Error Handling, Refactoring. Step-by-step.        │
+├──────────────────────────────────────────────────┤
+│ Layer 6: COMPARISONS (3)                         │
+│ SQL vs NoSQL, REST vs GraphQL,                    │
+│ Monolith vs Microservices. Scored matrices.       │
+├──────────────────────────────────────────────────┤
+│ Layer 7: CHECKLISTS + RISKS (13)                 │
+│ 9 per-phase checklists (P0–P9) with deliverables  │
+│ 4 risk catalogs (security, perf, maintain, ops)   │
+└──────────────────────────────────────────────────┘
 ```
 
-The knowledge engine has no dependencies on the hooks or the state engine.
-You can use it as a standalone CLI in any workflow.
-
-### "I want to inspect the audit log after an incident"
+### Usage examples
 
 ```bash
+# Free-text question → top-5 ranked results
+python3 scripts/compiled_knowledge.py "should I use SQL or NoSQL?"
+
+# Look up a specific principle
+python3 scripts/compiled_knowledge.py --principle KISS
+
+# Look up an antipattern
+python3 scripts/compiled_knowledge.py --antipattern god-class
+
+# Get a decision tree
+python3 scripts/compiled_knowledge.py --decision-tree choose-database
+
+# Get a recipe
+python3 scripts/compiled_knowledge.py --recipe api-design
+
+# Get a phase checklist
+python3 scripts/compiled_knowledge.py --checklist P5
+
+# Compare options
+python3 scripts/compiled_knowledge.py --comparison "sql vs nosql"
+
+# Get all risk items
+python3 scripts/compiled_knowledge.py --risks
+
+# Get statistics
+python3 scripts/compiled_knowledge.py --stats
+```
+
+### Adding new books
+
+```bash
+# Distill a single book
+python3 scripts/batch_distill.py file \
+  --input ~/my-book.pdf \
+  --title "My Book" \
+  --author "Author Name" \
+  --year 2025
+
+# Batch distill from a JSON manifest
+python3 scripts/batch_distill.py manifest \
+  --manifest my-manifest.json
+```
+
+---
+
+## The Adversarial Loop
+
+The harness includes a 5-sprint adversarial system that stress-tests every
+phase gate.
+
+```
+  Sprint 0         Sprint 1          Sprint 2          Sprint 3          Sprint 4          Sprint 5
+  ┌───────┐       ┌───────────┐    ┌───────────┐    ┌───────────┐    ┌───────────┐    ┌───────────┐
+  │ BASE  │──────►│ PER-PHASE │───►│ COUNCIL   │───►│ STEERING  │───►│ CORPUS    │───►│ PROPERTIES│
+  │ LOOP  │       │ PATTERNS  │    │ BRIDGE    │    │ PERSIST.  │    │ 60 PAYLOAD│    │ 44 TESTS  │
+  │       │       │           │    │           │    │           │    │           │    │           │
+  │11     │       │11 bash    │    │4 LLM      │    │SHA-256    │    │9          │    │4 props ×  │
+  │phase  │       │patterns   │    │judges     │    │fingerprnt │    │categories │    │11 phases  │
+  │checks │       │P0-P10     │    │ciso/qa/   │    │recurring  │    │11 phases  │    │           │
+  │       │       │           │    │arch/devops│    │patterns   │    │           │    │idempotent │
+  └───────┘       └───────────┘    └───────────┘    └───────────┘    └───────────┘    │determin.  │
+                                                                                    │monotonic  │
+                                                                                    │well-formed│
+                                                                                    └───────────┘
+```
+
+**Results:**
+- **38 self-tests** (S0–S5)
+- **44 property-based tests** (4 properties × 11 phases: idempotence,
+  determinism, monotonicity, DSL well-formedness)
+- **60 adversarial payloads** across 9 categories
+- **3 real bugs found** by the corpus that S0–S3 missed
+
+### Adversarial gate modes
+
+| Mode | Command | Trust Level | Use Case |
+|---|---|---|---|
+| **Fixture** | `HARNESS_TEST_FIXTURE=1 adversarial-gate.sh P3 P4` | ⚠️ Dev only | Smoke testing |
+| **Judge-only** | `adversarial-gate.sh P3 P4 --judge-only --red "..." --blue "..."` | ✅ Production | Real agent output |
+| **Council** | `adversarial-gate.sh P3 P4 --council` | ✅ Strongest | 4 LLM judges |
+
+> **⚠️ Fixture Disclosure:** The default (fixture) mode returns canned
+> DSL strings for development. It is NOT a real adversarial review.
+> Production verdicts MUST use `--council` or `--judge-only`. See
+> `adversarial-gate.sh` lines 6–23 for the full honesty contract.
+
+---
+
+## Anti-Drift Auto-Trigger
+
+Version 2.6.0 adds an anti-drift system that automatically detects when
+you're working on something and schedules adversarial reviews without you
+having to remember.
+
+```
+  You type a prompt
+         │
+         ▼
+  ┌──────────────────┐
+  │ G1: AUTO-TRIGGER │  UserPromptSubmit hook fires on every prompt
+  │                  │  4-layer intent detection:
+  │  • Cache lookup  │    cache → pattern → semantic → fallback
+  │  • Regex match   │  Confidence threshold: 0.5
+  │  • Semantic      │  Stores intent.phase in state DB
+  │  • Fallback      │
+  └────────┬─────────┘
+           │
+           ▼
+  ┌──────────────────┐
+  │ G3: PHASE CHANGE │  Detects phase transitions
+  │                  │  Emits <MULTIAGENT_LAUNCH> envelope
+  │  FIFO history:10 │  Dispatcher spawns Red/Blue agents
+  └────────┬─────────┘
+           │
+           ▼
+  ┌──────────────────┐
+  │ G5: COUNCIL      │  Schedules full council review
+  │    SCHEDULER     │  Every 5 edits (configurable)
+  │                  │  1-hour cooldown between reviews
+  │  Threshold: 5    │  Whitelist: *.md, *.json, tests/*
+  │  Cooldown: 1h    │
+  └────────┬─────────┘
+           │
+           ▼
+  ┌──────────────────┐
+  │ G6: MINI-COUNCIL │  Per-edit heuristic review
+  │                  │  Detects: hardcoded secrets, SQL injection,
+  │  Latency: <100ms │  eval/exec, bare except, TODO/FIXME
+  │  Escalates VULN  │  Falls back to Haiku judge if available
+  └──────────────────┘
+```
+
+**Kill switch:** Set `HARNESS_AUTO_TRIGGER=0` to disable all 4 hooks.
+
+---
+
+## Security Model
+
+### What we protect against
+
+```
+  ┌──────────────────────────────────────────────────────────┐
+  │                    THREAT MODEL                          │
+  │                                                          │
+  │  ┌─────────────────┐    ┌─────────────────────────────┐ │
+  │  │ External        │    │ Accidental                  │ │
+  │  │ attacker with   │    │ developer mistake           │ │
+  │  │ different UID   │    │                             │ │
+  │  │                 │    │ • rm -rf in wrong dir       │ │
+  │  │ → HMAC key is   │    │ • Skipping test phase       │ │
+  │  │   chmod 0600    │    │ • Deploying without review  │ │
+  │  │ → Audit chain   │    │ • Running eval(base64(...)) │ │
+  │  │   is tamper-    │    │                             │ │
+  │  │   evident       │    │ → Phase guard blocks        │ │
+  │  └─────────────────┘    │ → Bash guard catches        │ │
+  │                          │ → Circuit breaker locks     │ │
+  │                          └─────────────────────────────┘ │
+  │                                                          │
+  │  ┌─────────────────┐    ┌─────────────────────────────┐ │
+  │  │ Prompt          │    │ Supply chain                │ │
+  │  │ injection via   │    │ compromise                  │ │
+  │  │ malicious input │    │                             │ │
+  │  │                 │    │ → pip hash-pinned           │ │
+  │  │ → 3-layer       │    │ → HARNESS_DIR validated     │ │
+  │  │   detection:    │    │ → State DB per-project      │ │
+  │  │   outer marker, │    │ → No PII in commits         │ │
+  │  │   inner phase,  │    │                             │ │
+  │  │   scoper        │    │                             │ │
+  │  └─────────────────┘    └─────────────────────────────┘ │
+  └──────────────────────────────────────────────────────────┘
+```
+
+### Security features checklist
+
+| Feature | How | Tested |
+|---|---|---|
+| HMAC audit chain | SHA-256, per-row, chained | ✅ verify_audit_chain |
+| Append-only audit | BEFORE DELETE/UPDATE triggers | ✅ 4 tables |
+| State DB isolation | Per-project, world-writable CWD refused | ✅ unit tests |
+| HARNESS_DIR validation | Trust boundary check, samefile() | ✅ state_engine |
+| Bash command scanning | Phase-aware, 30+ dangerous patterns | ✅ bash_scanner |
+| SQL injection protection | Allowlist table names, parameterized queries | ✅ CLI + counters |
+| Path traversal detection | Symlink rejection, path sandboxing | ✅ adversarial tests |
+| SSRF protection | Private IP rejection (Ollama provider) | ✅ test-adversarial |
+| Kill switch | 1 env var disables all auto-triggers | ✅ documented |
+
+### What we do NOT protect against
+
+- **Same-user privilege escalation**: any process running as your user
+  can read the HMAC key. The audit chain defends against different-user
+  tampering, not same-user attacks.
+- **Physical access**: someone with your machine can edit the state DB.
+- **Social engineering**: the harness cannot prevent you from manually
+  overriding it.
+
+---
+
+## Use Cases
+
+### Starting a new project
+
+```bash
+# Install (one time)
+bash install-harness.sh
+
+# Open Claude Code in your project
+cd my-project
+claude
+
+# Tell Claude: "I want to build a task management app"
+# → Harness keeps you in P1 (Requirements) until specs are written
+# → Phase guard blocks any .py/.js file creation
+
+# When requirements are done:
+"Advance to P3 (Architecture)"
+# → Harness verifies P1+P2 deliverables
+# → Adversarial gate runs before allowing the transition
+```
+
+### Adding to an existing project
+
+```bash
+# Install, then set your current phase
+python3 lib/state_engine.py set current_phase P5_CONSTRUCTION
+
+# Mark earlier phases as done
+python3 lib/state_engine.py set gates_validated '["P1","P2","P3","P4"]'
+
+# Now the harness enforces P5 rules going forward
+```
+
+### Knowledge engine only (no hooks)
+
+```bash
+# Just clone and query — no installation needed
+git clone https://github.com/doz34/swebok-v4-harness-distilled.git
+cd swebok-v4-harness-distilled
+python3 scripts/compiled_knowledge.py "how to design a rate limiter?"
+```
+
+### Incident forensics
+
+```bash
+# Check audit chain integrity (all 4 tables)
+python3 lib/state_engine.py check_integrity
+
+# Verify specific table
+python3 lib/state_engine.py verify_audit_chain
+
 # Replay a time range
 python3 lib/state_engine.py replay_session 2026-06-01 2026-06-02
 
-# Check the audit chain integrity
-python3 lib/state_engine.py check_integrity
-
-# Export everything for forensics
-python3 lib/state_engine.py export_state > incident-export.json
+# Full export for forensics
+python3 lib/state_engine.py export_state > incident.json
 ```
 
-### "I want to bypass the harness for a specific command"
+### Bypass for a specific command
 
 ```bash
-# Override the circuit breaker for the next operation
+# Override the circuit breaker (logged with reason)
 python3 lib/state_engine.py set circuit_breaker.override_active true
-
-# Run your dangerous command (logged with reason)
 rm -rf /tmp/stale-data
-
-# Re-engage the harness
 python3 lib/state_engine.py set circuit_breaker.override_active false
 ```
 
-Every override is logged with a reason. The audit chain doesn't lie.
+### Health check
+
+```bash
+bash health-check.sh
+
+# Output:
+#   integrity: OK
+#   phase: OK (P5_CONSTRUCTION)
+#   chain: OK (all 4 tables intact)
+#   latency: OK (3ms)
+#   backups: OK (3 snapshots)
+#   audit_key: OK (mode 0600)
+#   hooks: OK (7 hook entries)
+#   Status: HEALTHY
+```
 
 ---
 
@@ -376,7 +776,7 @@ Every override is logged with a reason. The audit chain doesn't lie.
 
 ### Add a custom principle
 
-Edit `distilled/principles.json` and add a new entry. The schema:
+Edit `distilled/principles.json`:
 
 ```json
 {
@@ -387,72 +787,94 @@ Edit `distilled/principles.json` and add a new entry. The schema:
   "category": "universal",
   "citation_density": "high",
   "books_endorsing": ["My Favorite Book"],
-  "synthesis": "One-paragraph explanation of the principle.",
-  "applies_when": "Conditions under which the principle is relevant.",
-  "violations_signal": "What a violation looks like in code.",
+  "synthesis": "One-paragraph explanation.",
+  "applies_when": "When X happens.",
+  "violations_signal": "You'll see Y in the code.",
   "antipatterns": ["linked_antipattern_id"]
 }
 ```
 
-Reload by re-running `python3 scripts/compiled_knowledge.py --principle MY_PRINCIPLE`.
-
 ### Add a custom phase rule
 
-Edit `lib/bash_scanner.py` to add a per-phase rule. Each rule is a regex
-that triggers a block. The existing rules are in the `_phase_rules`
-dict at the top of the file.
+Edit `lib/bash_scanner.py` — add a regex to the `_phase_rules` dict:
+
+```python
+_phase_rules["P5"] = [
+    # existing rules...
+    re.compile(r'\bmy_dangerous_command\b'),
+]
+```
 
 ### Add a custom recipe
 
-Create a new file in `distilled/recipes/` (markdown format) and reload.
-The recipe is automatically picked up by the engine.
+Create `distilled/recipes/my-recipe.md` — the engine picks it up
+automatically.
 
 ---
 
-## Security and trust
+## Testing
 
-- **The audit chain is tamper-evident.** Every row has an HMAC signature
-  computed over the previous row's HMAC, the timestamp, and the content.
-  Modifying any row breaks the chain.
-- **The HMAC key is per-installation.** A fresh random 32-byte key is
-  generated on first install. The key never leaves your machine.
-- **The knowledge engine is offline.** It does not call any network
-  resource. It is safe to use on air-gapped machines.
-- **The state DB is per-project.** Each project gets its own
-  `.swebok_state.db`. The harness's own state and your project's state
-  are isolated.
+### Run all tests
 
-If you find a security issue, please open a GitHub issue with the
-`security` label.
+```bash
+# The pre-commit hook runs all 152 tests automatically
+bash pre-commit-hook.sh
 
----
+# Or run individual suites:
+bash tests/distilled-test.sh              # 32 tests: knowledge engine
+bash tests/retrieval/test-v2.sh           # 20 tests: v2 retrieval
+bash tests/retrieval/test-adversarial.sh  #  8 tests: adversarial patterns
+bash tests/adv-loop/test-properties.sh    # 44 tests: property-based
+bash bin/adv-loop test                    # 38 tests: adversarial loop
+python3 tests/test_health.py             #  5 tests: health checks
+python3 tests/test_rebuild_restore.py    #  5 tests: rebuild regression
+```
 
-## Limitations and honest scope
+### Test breakdown
 
-- **It is not a sandbox.** The harness blocks dangerous commands but
-  does not prevent the assistant from doing anything else. It is one
-  layer of defense, not the only one.
-- **It is not an authentication boundary.** Anyone with access to your
-  terminal can bypass the harness by editing the state DB or removing
-  the hooks. It is designed to catch accidents, not adversaries.
-- **The knowledge engine is curated, not generative.** The 227 items
-  represent what the maintainers consider the consensus of the field.
-  Newer practices may not be in there yet. Contributions welcome.
-
-See `SECURITY.md` for the full threat model and `AUDIT_REPORT-v1.5.3-historic-2026-06-03.md` for
-the quarterly audit findings.
+| Suite | Count | What it tests |
+|---|---|---|
+| `distilled-test.sh` | 32 | Knowledge engine (principles, antipatterns, ontologies, etc.) |
+| `test-v2.sh` | 20 | V2 retrieval engine, query accuracy |
+| `test-adversarial.sh` | 8 | SSRF protection, symlink rejection, size limits |
+| `test-properties.sh` | 44 | 4 properties × 11 phases (idempotence, determinism, etc.) |
+| `adv-loop test` | 38 | Adversarial loop self-tests (S0–S5) |
+| `test_health.py` | 5 | Health check functions |
+| `test_rebuild_restore.py` | 5 | State DB rebuild preserves data |
+| **Total** | **152** | **All gated by pre-commit hook** |
 
 ---
 
-## Development and contributing
+## Limitations
 
-- **Run the tests:** `bash tests/distilled-test.sh` (32 tests) and
-  `bash tests/retrieval/test-v2.sh` (20 tests). All should pass.
-- **Add a knowledge item:** edit the relevant JSON file in `distilled/`,
-  add a test in `tests/distilled-test.sh`, run the tests.
-- **Add a phase rule:** edit `lib/bash_scanner.py`, add a test in
-  `tests/`, run the tests.
-- **Audit the project:** see `AUDIT_REPORT-v1.5.3-historic-2026-06-03.md` for the v1.5.3 methodology (historic) or `ANALYSE_INTEGRALE_2026-06-10.md` for the latest 4-consultant adversarial council.
+- **Not a sandbox.** The harness blocks dangerous commands but does not
+  prevent the AI assistant from doing everything. It is one layer of
+  defense, not the only one.
+- **Not an authentication boundary.** Anyone with terminal access can
+  edit the state DB or remove hooks. It catches accidents, not
+  adversaries.
+- **Knowledge is curated, not generative.** The 227 items are what the
+  maintainers consider field consensus. Newer practices may not be there
+  yet. Contributions welcome.
+- **Adversarial gate is fixture by default.** Production verdicts
+  require `--council` or `--judge-only` mode. The fixture mode is
+  explicitly labeled as such (see `adversarial-gate.sh` lines 6–23).
+- **Same-user HMAC limitation.** The HMAC audit chain defends against
+  tampering by different users, not by processes running as the same
+  user.
+
+---
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Add tests for your change
+4. Run `bash pre-commit-hook.sh` — all 152 tests must pass
+5. Submit a pull request
+
+For security issues, please use the GitHub `security` label rather than
+public disclosure.
 
 ---
 
@@ -462,8 +884,18 @@ MIT. See [LICENSE](LICENSE).
 
 ## Acknowledgments
 
-The compiled knowledge was distilled from 870+ software engineering
-reference books across 16 domains, applying the SWEBOK v4 (Software
-Engineering Body of Knowledge) taxonomy. The corpus browser exposes
-the full 145,963 concepts of these books, line-by-line, for any reader
-who wants to go deeper than the curated 227 items.
+The compiled knowledge was distilled from **1,139 software engineering
+reference books** across 16 domains, applying the SWEBOK v4 (IEEE
+Computer Society's Software Engineering Body of Knowledge) taxonomy.
+
+The adversarial loop methodology follows the 5-sprint pattern (S0=base,
+S1=patterns, S2=council, S3=steering, S4=corpus, S5=properties) — a
+reproducible framework for adversarial testing of discipline layers.
+
+Production readiness was validated by a **4-consultant adversarial
+council** (CISO, Architect, DevOps/QA Lead, Product) through 4
+iterations (84% → 92% → 98.5% → 100%).
+
+---
+
+*Built with ❤️ and too many reference books.*
