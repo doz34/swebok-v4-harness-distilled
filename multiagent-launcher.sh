@@ -247,7 +247,7 @@ PY_EOF
 
         # Get current phase for context
         CURRENT=$(python3 "$STATE_ENGINE" get "current_phase" 2>/dev/null || echo "P5")
-        PHASE_NUM="${CURRENT:1:1}"
+        if [[ "$CURRENT" =~ ^P([0-9]+) ]]; then PHASE_NUM="${BASH_REMATCH[1]}"; else PHASE_NUM="5"; fi
 
         echo "AGENT-BLUE:defender|TASK:cite_norms|PHASE:$CURRENT"
         echo "AGENT-RED:attacker|TASK:find_flaws|PHASE:$CURRENT"
