@@ -289,7 +289,7 @@ def main() -> int:
     prompt = " ".join(args)
     try:
         phase, conf, intent, layer = detect_intent(prompt)
-    except Exception as e:
+    except (ValueError, TypeError, KeyError, IndexError, AttributeError, ImportError) as e:
         # Catastrophic fail-open
         print(f"auto_trigger:error={type(e).__name__};;auto_trigger:verdict=🟡 DEGRADED")
         return 0

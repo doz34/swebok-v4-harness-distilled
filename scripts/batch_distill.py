@@ -57,7 +57,7 @@ def convert_pdf_to_text(pdf_path: str) -> str:
             capture_output=True, text=True, timeout=120
         )
         return result.stdout
-    except Exception as e:
+    except (subprocess.SubprocessError, OSError, FileNotFoundError) as e:
         print(f"  ⚠️ PDF extraction failed: {e}", file=sys.stderr)
         return ""
 
@@ -81,10 +81,10 @@ def convert_epub_to_text(epub_path: str) -> str:
                     text = re.sub(r'\s+', ' ', text).strip()
                     if text:
                         text_parts.append(text)
-                except Exception:
+                except (KeyError, ValueError, OSError, UnicodeDecodeError):
                     continue
             return '\n\n'.join(text_parts)
-    except Exception as e:
+    except (zipfile.BadZipFile, OSError, ValueError, KeyError) as e:
         print(f"  ⚠️ EPUB extraction failed: {e}", file=sys.stderr)
         return ""
 
@@ -112,7 +112,7 @@ def convert_mobi_to_text(mobi_path: str) -> str:
         printable = re.sub(r'[^\x20-\x7E\n\t]+', ' ', text)
         printable = re.sub(r'\s+', ' ', printable)
         return printable
-    except Exception as e:
+    except (OSError, UnicodeDecodeError, ValueError) as e:
         print(f"  ⚠️ MOBI extraction failed: {e}", file=sys.stderr)
         return ""
 

@@ -32,7 +32,7 @@ def _load_state_engine():
     try:
         import state_engine  # noqa: WPS433
         return state_engine, True
-    except Exception:  # noqa: BLE001
+    except (ImportError, ModuleNotFoundError, SyntaxError):  # noqa: BLE001
         pass
     # Fallback: search upward for a lib/ dir that contains state_engine.py.
     # This lets the module work from any subdirectory (e.g. tests).
@@ -44,7 +44,7 @@ def _load_state_engine():
             try:
                 import state_engine  # noqa: WPS433
                 return state_engine, True
-            except Exception:  # noqa: BLE001
+            except (ImportError, ModuleNotFoundError, SyntaxError):  # noqa: BLE001
                 return None, False
         p = p.parent
     return None, False
@@ -69,7 +69,7 @@ def check_hmac_chain() -> tuple[str, int]:
             chain_ok, _ = se.verify_audit_chain(tbl)
             if not chain_ok:
                 return "BROKEN", 2  # CRIT: any broken chain = broken
-    except Exception as e:  # noqa: BLE001
+    except (sqlite3.Error, OSError, ValueError, TypeError, KeyError, IndexError, AttributeError) as e:  # noqa: BLE001
         return f"error:{type(e).__name__}", 2
     return "ok", 0
 
@@ -83,7 +83,7 @@ def check_hooks_wired() -> int:
             for h in phase:
                 n += len(h.get("hooks", []))
         return n
-    except Exception:  # noqa: BLE001
+    except (OSError, json.JSONDecodeError, KeyError, TypeError, AttributeError):  # noqa: BLE001
         return 0
 
 
@@ -106,7 +106,7 @@ def check_circuit_breaker() -> tuple[str, int]:
         if cb.get("override_active"):
             return "override", 1  # MED: degraded
         return "clean", 0
-    except Exception:  # noqa: BLE001
+    except (sqlite3.Error, json.JSONDecodeError, OSError, KeyError, TypeError):  # noqa: BLE001
         return "unknown", 0
 
 
@@ -120,7 +120,7 @@ def check_edits_counter() -> str:
         con.close()
         if row:
             return f"{row[0]}/5"
-    except Exception:  # noqa: BLE001
+    except (sqlite3.Error, OSError, TypeError):  # noqa: BLE001
         pass
     return "0/5"
 
@@ -138,7 +138,7 @@ def check_intent_phase() -> str:
             if isinstance(v, dict):
                 return str(v.get("phase", "unknown"))
             return str(v)
-    except Exception:  # noqa: BLE001
+    except (sqlite3.Error, json.JSONDecodeError, OSError, KeyError, TypeError):  # noqa: BLE001
         pass
     return "unknown"
 
@@ -155,7 +155,7 @@ def check_gates_validated() -> str:
             v = json.loads(row[0])
             if v:
                 return ",".join(v)
-    except Exception:  # noqa: BLE001
+    except (sqlite3.Error, json.JSONDecodeError, OSError, KeyError, TypeError):  # noqa: BLE001
         pass
     return "none"
 

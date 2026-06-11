@@ -45,7 +45,7 @@ def probe_one(client: httpx.Client, url: str, follow: bool = True) -> dict:
         body = r.content[: 4 * 1024]
         out["first_4kb_sha256"] = hashlib.sha256(body).hexdigest()
         out["working"] = 200 <= r.status_code < 400
-    except Exception as exc:  # noqa: BLE001
+    except (httpx.HTTPError, OSError, ValueError, TypeError, AttributeError) as exc:  # noqa: BLE001
         out["http_code"] = 0
         out["error"] = str(exc)
         out["working"] = False

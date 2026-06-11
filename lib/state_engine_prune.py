@@ -148,5 +148,5 @@ def prune_backup_files(keep_last=3):
             except (sqlite3.Error, OSError) as _e:
                 se._log.debug("state_engine: secondary error during cleanup", exc_info=_e)
         return removed
-    except Exception:
+    except (OSError, ValueError, sqlite3.Error):
         return 0

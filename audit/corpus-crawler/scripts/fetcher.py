@@ -93,7 +93,7 @@ class Fetcher:
             rp.read()
             self._robots_cache[host] = rp
             return rp
-        except Exception as exc:
+        except (OSError, ValueError, TypeError, AttributeError) as exc:
             LOG.warning("robots.txt fetch failed for %s: %s", host, exc)
             self._robots_cache[host] = None
             return None
@@ -106,7 +106,7 @@ class Fetcher:
         ua = self.policy["user_agent"]
         try:
             ok = rp.can_fetch(ua, url)
-        except Exception as exc:
+        except (OSError, AttributeError, TypeError) as exc:
             return True, f"robots parse error: {exc}"
         # Edge case: if the robots.txt has no User-agent entry at all,
         # RobotFileParser returns False for everything (its default
@@ -277,7 +277,7 @@ class Fetcher:
                 last_exc = exc
                 if attempt < attempts:
                     time.sleep(backoff ** attempt)
-            except Exception as exc:  # noqa: BLE001
+            except (httpx.HTTPError, OSError, ValueError, TypeError, KeyError, IndexError, AttributeError, json.JSONDecodeError) as exc:  # noqa: BLE001
                 last_exc = exc
                 break
         res = FetchResult(

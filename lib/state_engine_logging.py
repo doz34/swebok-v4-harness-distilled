@@ -55,7 +55,7 @@ def log_event(level, component, message, phase=None, metadata=None):
                 (ts, level, component, phase, message, md, sid, agent, cid, row_hmac),
             )
         return True
-    except Exception:
+    except (sqlite3.Error, ValueError, TypeError, KeyError, IndexError, AttributeError, json.JSONDecodeError):
         return False
 
 
@@ -104,7 +104,7 @@ def log_adversarial(gate, verdict, reason):
                 (ts, gate, verdict, reason, sid, agent, cid, row_hmac),
             )
         return True
-    except Exception:
+    except (sqlite3.Error, ValueError, TypeError, KeyError, IndexError, AttributeError):
         return False
 
 

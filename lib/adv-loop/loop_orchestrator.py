@@ -175,7 +175,7 @@ def _run_loop(
                         f"(RED={agg['red_count']}, BLUE={agg['blue_count']})",
                 fix_suggestion=None,
             ))
-        except Exception as e:
+        except (KeyError, AttributeError, TypeError, ValueError, IndexError, ImportError) as e:
             council_fragment = f"council:error={e};;council:severity=LOW"
 
     # 7. Steering loop persistence (S3) — log this run, detect patterns
@@ -209,7 +209,7 @@ def _run_loop(
         steering_log_run(steering_db_path(work_dir), run_rec)
         summary = get_steering_summary(steering_db_path(work_dir), phase, threshold=3, last_n=10)
         steering_fragment = steering_dsl(summary)
-    except Exception as e:
+    except (KeyError, AttributeError, TypeError, ValueError, IndexError, OSError, ImportError) as e:
         steering_fragment = f"steering:error={e}"
 
     final_verdict = stop.verdict()

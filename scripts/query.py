@@ -192,7 +192,7 @@ def main():
                 r._load_l1()
                 if r.l1 and r.l1 is not False:
                     idx_chunks = len(r.l1.chunks)
-            except Exception as e:
+            except (OSError, ValueError, TypeError, KeyError, IndexError, AttributeError, ImportError, json.JSONDecodeError) as e:
                 idx_exists = f"error: {e}"
         report = {
             "status": "ok" if (ck.principles and (idx_exists is True or idx_exists != "error")) else "degraded",

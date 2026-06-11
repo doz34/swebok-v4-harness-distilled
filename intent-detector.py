@@ -533,7 +533,7 @@ def main():
                  detection.intent_type, str(detection.confidence)],
                 check=False, capture_output=True, timeout=10
             )
-        except Exception:
+        except (subprocess.SubprocessError, FileNotFoundError, OSError):
             pass
     else:
         print(f"Intent Type: {detection.intent_type}")

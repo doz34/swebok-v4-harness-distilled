@@ -255,7 +255,7 @@ def main() -> int:
         else:
             print(f"unknown cmd: {cmd}", file=sys.stderr)
             return 1
-    except Exception as e:
+    except (ValueError, TypeError, KeyError, IndexError, AttributeError, OSError) as e:
         print(f"mini_council:error={type(e).__name__};;mini_council:verdict=🟡 DEGRADED")
         return 0
     return 0

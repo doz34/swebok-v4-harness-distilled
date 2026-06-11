@@ -258,7 +258,7 @@ def _xact():
                 backoff *= 2
                 continue
             raise
-        except Exception:
+        except (sqlite3.Error, ValueError, TypeError, KeyError, IndexError, AttributeError, OSError):
             try:
                 conn.execute("ROLLBACK")
             except (sqlite3.Error, OSError) as _e:
@@ -325,7 +325,7 @@ def _audit_secret():
         except (sqlite3.Error, OSError) as _e:
             _log.debug("state_engine: secondary error during cleanup", exc_info=_e)
         return secret
-    except Exception as e:
+    except (OSError, TypeError, ValueError) as e:
         # Read-only FS / permission error — DO NOT fall back to a known constant.
         # A forgeable fallback would let any attacker who read this source code
         # produce valid HMACs for arbitrary audit rows. The system must refuse
@@ -495,7 +495,7 @@ def recompute_audit_chain(table):
         try:
             _ensure_triggers(conn)
             conn.commit()
-        except Exception:
+        except (sqlite3.Error, OSError):
             pass
         conn.close()
 
@@ -621,7 +621,7 @@ def _init_db():
             ts = int(time.time())
             try:
                 shutil.copy2(str(STATE_DB), str(STATE_DB.with_suffix(f".db.bak.{ts}")))
-            except Exception as e:
+            except OSError as e:
                 print(f"WARN: backup-before-migrate failed: {e}", file=sys.stderr)
         for v in range(on_disk + 1, STATE_VERSION + 1):
             mig_fn = _MIGRATIONS.get(v)
@@ -808,7 +808,7 @@ def set(key_path, value, source="cli"):
         return True
     except sqlite3.OperationalError as e:
         return _translate_op_error(e, "set")
-    except Exception:
+    except (sqlite3.Error, ValueError, TypeError, KeyError, IndexError, AttributeError):
         return False
 
 
@@ -938,7 +938,7 @@ def reset_all_circuits(phase=None):
                  "reset_all_circuits", sid, agent, cid, row_hmac),
             )
         return True
-    except Exception:
+    except (sqlite3.Error, ValueError, TypeError, KeyError, IndexError, AttributeError):
         return False
 
 
@@ -999,7 +999,7 @@ def append_gate(gate_name):
                  "append_gate", sid, agent, cid, row_hmac),
             )
         return True
-    except Exception:
+    except (sqlite3.Error, ValueError, TypeError, KeyError, IndexError, AttributeError, json.JSONDecodeError):
         return False
 
 
@@ -1017,7 +1017,7 @@ def rebuild(keep_audit=True):
                              str(STATE_DB.with_suffix(f".db.pre-rebuild.{ts}")))
             STATE_DB.rename(backup)
             print(f"[REBUILD] Corrupt DB moved to {backup}")
-        except Exception as e:
+        except OSError as e:
             print(f"[REBUILD] ERROR: {e}", file=sys.stderr)
             return False
         for ext in ("-wal", "-shm"):
@@ -1082,7 +1082,7 @@ def rebuild(keep_audit=True):
                                     f"({','.join(cols)}) VALUES ({placeholders})",
                                     [r[:len(cols)] for r in rows],
                                 )
-                            except Exception:
+                            except (sqlite3.Error, IndexError, TypeError, KeyError):
                                 continue
                         dst_conn.commit()
                         # Restore triggers after data restore, before recompute
@@ -1104,7 +1104,7 @@ def rebuild(keep_audit=True):
                             "state_events", "circuit_breaker_events"):
                     try:
                         recompute_audit_chain(tbl)
-                    except Exception as e:
+                    except (sqlite3.Error, ValueError, TypeError, KeyError, IndexError, AttributeError, OSError) as e:
                         recompute_failures.append((tbl, str(e)))
                         _log.error("state_engine: recompute_audit_chain failed for %s: %r", tbl, e)
                 if recompute_failures:
@@ -1120,7 +1120,7 @@ def rebuild(keep_audit=True):
                     src.unlink()
                 except (sqlite3.Error, OSError) as _e:
                     _log.debug("state_engine: secondary error during cleanup", exc_info=_e)
-        except Exception as e:
+        except (OSError, sqlite3.Error, ValueError, TypeError, KeyError, IndexError, AttributeError) as e:
             print(f"[REBUILD] audit restore warning: {e}", file=sys.stderr)
     print("[REBUILD] Fresh DB initialized with defaults.")
     return True

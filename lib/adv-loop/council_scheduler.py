@@ -176,7 +176,7 @@ def main() -> int:
         else:
             print(f"unknown cmd: {cmd}", file=sys.stderr)
             return 1
-    except Exception as e:
+    except (ValueError, TypeError, KeyError, IndexError, AttributeError, OSError) as e:
         print(f"council_scheduler:error={type(e).__name__};;council_scheduler:verdict=🟡 DEGRADED")
         return 0
     return 0

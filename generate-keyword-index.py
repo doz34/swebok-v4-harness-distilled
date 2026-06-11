@@ -193,7 +193,7 @@ def extract_file_metadata(filepath: Path) -> Dict:
     """Extract metadata from a file."""
     try:
         content = filepath.read_text(errors='ignore')
-    except Exception:
+    except (OSError, UnicodeDecodeError):
         return {}
 
     filename = filepath.name
@@ -263,7 +263,7 @@ def generate_ka_index(files: List[Path], verbose: bool = False) -> Dict:
     for f in files:
         try:
             content = f.read_text(errors='ignore')[:1000]
-        except Exception:
+        except (OSError, UnicodeDecodeError):
             continue
 
         ka = extract_ka_from_content(content, f.name)

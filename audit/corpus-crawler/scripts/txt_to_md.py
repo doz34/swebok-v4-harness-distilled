@@ -71,7 +71,7 @@ def convert(txt_path: Path, out_dir: Path, source_url: Optional[str] = None,
 
     try:
         raw = txt_path.read_text(encoding="utf-8", errors="replace")
-    except Exception as exc:
+    except (OSError, UnicodeDecodeError) as exc:
         return ConversionResult(
             input_path=str(txt_path), output_path="", sidecar_path=str(side_path),
             title="", char_count=0, sha256=sha_hex,

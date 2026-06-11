@@ -230,7 +230,7 @@ def cmd_validate(args) -> int:
             else:
                 print(f"  [HTTP {code}] {eid:<45} {url}")
                 n_warn += 1
-        except Exception as exc:
+        except (httpx.HTTPError, OSError, ValueError, TypeError, AttributeError) as exc:
             print(f"  [FAIL    ] {eid:<45} {url}  ({exc})")
             n_warn += 1
     client.close()

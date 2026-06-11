@@ -226,7 +226,7 @@ def _decode_ansi_c(body: str) -> str:
     try:
         # unicode_escape handles \xHH, \OOO, \\, \', \", \n, \t, ...
         return body.encode('utf-8').decode('unicode_escape', errors='ignore')
-    except Exception:
+    except (UnicodeError, TypeError, AttributeError):
         return body
 
 

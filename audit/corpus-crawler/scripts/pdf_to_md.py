@@ -147,12 +147,12 @@ def convert(
     engine = "pdfplumber"
     try:
         text, pages, image_only = _convert_pdfplumber(pdf_path)
-    except Exception as exc:
+    except (OSError, ValueError, KeyError, TypeError, IndexError, AttributeError, ImportError) as exc:
         LOG.warning("pdfplumber failed on %s: %s — falling back to pymupdf", pdf_path, exc)
         try:
             text, pages, image_only = _convert_pymupdf(pdf_path)
             engine = "pymupdf"
-        except Exception as exc2:
+        except (OSError, ValueError, KeyError, TypeError, IndexError, AttributeError, ImportError) as exc2:
             LOG.error("pymupdf also failed on %s: %s", pdf_path, exc2)
             side_path.write_text(json.dumps({
                 "error": str(exc2), "engine_attempted": "pymupdf",

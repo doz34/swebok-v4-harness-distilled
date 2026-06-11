@@ -72,7 +72,7 @@ def _clean(soup: BeautifulSoup) -> BeautifulSoup:
     for tag in list(soup.find_all(_DROP_TAGS)):
         try:
             tag.decompose()
-        except Exception:
+        except (AttributeError, TypeError):
             pass
     # Then walk remaining tags and drop noisy ones by class/id/aria
     for tag in list(soup.find_all(True)):
@@ -97,7 +97,7 @@ def _clean(soup: BeautifulSoup) -> BeautifulSoup:
         except (AttributeError, TypeError):
             try:
                 tag.decompose()
-            except Exception:
+            except (AttributeError, TypeError):
                 pass
     return soup
 
@@ -297,7 +297,7 @@ def convert(html_path: Path, out_dir: Path, source_url: Optional[str] = None,
 
     try:
         raw = html_path.read_text(encoding="utf-8", errors="replace")
-    except Exception as exc:
+    except (OSError, UnicodeDecodeError) as exc:
         return ConversionResult(
             input_path=str(html_path), output_path="", sidecar_path=str(side_path),
             title="", char_count=0, heading_count=0, sha256=sha_hex,

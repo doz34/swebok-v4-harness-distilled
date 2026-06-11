@@ -152,7 +152,7 @@ def reset_aov_iterations():
                 ("phase_data", json.dumps(pd)),
             )
         return True
-    except Exception:
+    except (sqlite3.Error, ValueError, TypeError, KeyError, IndexError, AttributeError):
         return False
 
 

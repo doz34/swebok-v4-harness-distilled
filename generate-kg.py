@@ -59,7 +59,7 @@ def index_file(conn, filepath, source):
 
         conn.execute("INSERT INTO swebok_fts (content, ka, phase, metadata) VALUES (?, ?, ?, ?)",
                     (content, ka, phase, metadata))
-    except Exception as e:
+    except (OSError, UnicodeDecodeError, sqlite3.Error, ValueError, TypeError, KeyError, IndexError, AttributeError) as e:
         print(f"[WARN] Failed to index {filepath}: {e}")
 
 def main():
