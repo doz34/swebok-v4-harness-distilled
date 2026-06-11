@@ -16,7 +16,7 @@ trap 'exit 0' ERR
 
 HARNESS_DIR="${HARNESS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 STATE_ENGINE="$HARNESS_DIR/lib/state_engine.py"
-STATE_DB="$HARNESS_DIR/.swebok_state.db"
+STATE_DB="${SWEBOK_STATE_DB:-$HARNESS_DIR/.swebok_state.db}"
 
 # No DB or no engine → no-op (do not block)
 if [[ ! -f "$STATE_DB" ]] || [[ ! -f "$STATE_ENGINE" ]]; then

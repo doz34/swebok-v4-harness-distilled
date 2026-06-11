@@ -31,7 +31,7 @@ set -euo pipefail
 HARNESS_DIR="${HARNESS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 STATE_ENGINE="$HARNESS_DIR/scripts/lib/state_engine.py"
 DSL_ENGINE="$HARNESS_DIR/scripts/lib/dsl_engine.py"
-TEMP_DIR="${TEMP_DIR:-/tmp/swebok-adversarial}"
+TEMP_DIR="${TEMP_DIR:-$(mktemp -d /tmp/swebok-adversarial.XXXXXX)}"
 
 mkdir -p "$TEMP_DIR"
 
