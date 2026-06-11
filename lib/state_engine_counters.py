@@ -12,25 +12,11 @@ import json
 import re
 import sqlite3
 import sys
+from state_engine_compat import _se
 
 # JSON path SQLi protection: only allow alphanumeric + underscore
 _SAFE_JSON_PATH_RE = re.compile(r'^[A-Za-z0-9_]+$')
 
-
-def _se():
-    """Lazy accessor: returns the state_engine module without triggering a
-    circular import at our module-load time."""
-    mod = sys.modules.get('state_engine')
-    if mod is None:
-        try:
-            mod = __import__('state_engine')
-        except ImportError:
-            raise ImportError(
-                "state_engine module not found. This sibling module must be "
-                "imported through state_engine.py (which re-exports our symbols), "
-                "not directly."
-            )
-    return mod
 
 
 # ===== Atomic counters =====

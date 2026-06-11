@@ -19,24 +19,10 @@ import sqlite3
 import sys
 import time
 from pathlib import Path
+from state_engine_compat import _se
 
 _log = logging.getLogger("swebok.state_engine")
 
-
-def _se():
-    """Lazy accessor: returns the state_engine module without triggering a
-    circular import at our module-load time."""
-    mod = sys.modules.get('state_engine')
-    if mod is None:
-        try:
-            mod = __import__('state_engine')
-        except ImportError:
-            raise ImportError(
-                "state_engine module not found. This sibling module must be "
-                "imported through state_engine.py (which re-exports our symbols), "
-                "not directly."
-            )
-    return mod
 
 
 # ===== Recovery =====
@@ -89,7 +75,7 @@ def rebuild(keep_audit=True):
                         # Drop audit-protect triggers before restore (they block INSERT OR IGNORE)
                         for tbl in ("adversarial_log", "log_events",
                                     "state_events", "circuit_breaker_events"):
-                            se._drop_audit_triggers(dst_conn, tbl)
+                            se.drop_audit_triggers(dst_conn, tbl)
                         dst_conn.commit()
                         for tbl in ("adversarial_log", "log_events",
                                     "state_events", "circuit_breaker_events"):
@@ -124,7 +110,7 @@ def rebuild(keep_audit=True):
                         # Restore triggers after data restore, before recompute
                         for tbl in ("adversarial_log", "log_events",
                                     "state_events", "circuit_breaker_events"):
-                            se._ensure_triggers(dst_conn)
+                            se.ensure_triggers(dst_conn)
                         dst_conn.commit()
                     finally:
                         dst_conn.close()

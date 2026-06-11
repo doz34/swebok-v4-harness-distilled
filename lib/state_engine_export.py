@@ -15,24 +15,10 @@ functions, or use sys.modules lookup for sibling privates.
 import json
 import logging
 import sys
+from state_engine_compat import _se
 
 _log = logging.getLogger("swebok.state_engine")
 
-
-def _se():
-    """Lazy accessor: returns the state_engine module without triggering a
-    circular import at our module-load time."""
-    mod = sys.modules.get('state_engine')
-    if mod is None:
-        try:
-            mod = __import__('state_engine')
-        except ImportError:
-            raise ImportError(
-                "state_engine module not found. This sibling module must be "
-                "imported through state_engine.py (which re-exports our symbols), "
-                "not directly."
-            )
-    return mod
 
 
 # ===== Export =====

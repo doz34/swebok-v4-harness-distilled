@@ -1,136 +1,260 @@
-# SWEBOK v4 Harness - Architecture
+# SWEBOK v4 Harness — Architecture (Distilled)
 
-## Overview
+> **Version**: v2.6.2 (2026-06-11)
+> **Scope**: The distilled (`swebok-v4-harness-distilled`) fork's current module
+> decomposition, security model, and data flow. Replaces the v1.4.1-era single-file
+> `state_engine.py` description that this document previously contained.
 
-The SWEBOK v4 Harness is an SDLC enforcement framework that enforces phase-gated development through Claude Code hooks and scripts.
+---
 
-## Simplified Architecture
-
-**Key Principle**: "Smaller delta" - SQLite replaces YAML+flock, handles mono AND multi-session natively.
-
-## Core Components
-
-### 1. State Engine (`scripts/lib/state_engine.py`)
-- **Purpose**: Centralized state management
-- **Backend**: SQLite with WAL mode (handles concurrent access)
-- **Multi-session**: SQLite WAL allows multiple readers while writing
-- **Mono-session**: Works without modification
-- **Atomic Operations**: Counters use single-statement atomic UPSERT (`INSERT...ON CONFLICT DO UPDATE`) and JSON1 `json_set`/`json_extract` for nested keys (no read-modify-write race). State+audit writes that need a combined transaction (e.g. `set()` writes both `state` and `state_events` atomically) use `BEGIN EXCLUSIVE` with a 10-attempt retry loop in `_xact()`. Audit rows carry an HMAC-SHA256 chain (`row_hmac`); `verify_audit_chain` detects tampering and `recompute_audit_chain` re-attaches the chain after a legitimate prune.
-
-**Key Functions**:
-- `get(key_path)` - Read state using dot notation
-- `set(key_path, value)` - Write state with dot notation (ATOMIC for nested keys)
-- `increment_blocked()` - Atomic via single-statement UPSERT
-- `increment_aov_iterations()` - Atomic via `json_set` + `json_extract`
-- `increment_heal_iterations()` - Atomic via `json_set` + `json_extract`
-- `log_adversarial(gate, verdict, reason)` - Audit logging
-- `reset_all_circuits(phase)` - Reset counters on phase transition
-
-**State Storage**:
-```
-.state.db (SQLite)
-├── state (key-value table)
-│   ├── current_phase: "P5_CONSTRUCTION"
-│   ├── circuit_breaker: '{"blocked_attempts":0,"override_active":false}'
-│   └── phase_data: '{"P6":{"aov_iterations":0}}'
-└── metadata (version info)
-```
-
-### 2. Bash Scanner (`scripts/lib/bash_scanner.py`)
-- **Purpose**: Phase-aware command filtering for Bash tool
-- **Method**: Pattern matching per phase
-- **FAIL-SECURE**: Blocks on any parse error
-
-**Phase Rules**:
-| Phase | Blocked |
-|-------|---------|
-| P1/P2 | Code files (.py, .ts, .js) and src/ paths |
-| P3/P4 | Implementation paths (src/, impl/, implementations/) |
-| P5 | NEW src/ creation (mkdir src, touch src/x.py) |
-| P6 | ALL /src access except test-related |
-| P7/P8 | Destructive commands (rm -rf, DROP TABLE) |
-
-### 3. DSL Engine (`scripts/lib/dsl_engine.py`)
-- **Purpose**: Parse the strict DSL format with `;;` delimiter
-- **Delimiter**: `;;` (pipe `|` preserved in values)
-
-**Format**:
-```
-GATE:PASS;;FIX_REQ:NONE;;REASON:NO_CRITICAL_FLAWS
-RED: VULN:CRIT;;LOC:USER_INPUT;;TYPE:INJECTION;;FIX_REQ:SANITIZE
-BLUE: DEFENDED;;NORMS:KA-1+KA-13;;STATUS:OK
-```
-
-### 4. Phase Guard (`hooks/pre-tool-use/phase-guard.sh`)
-- **Purpose**: Block Write/Edit operations based on current phase
-- **Circuit Breaker**: 3 blocks → override for 5 minutes
-
-### 5. Bash Guard (`hooks/pre-tool-use/bash-guard.sh`)
-- **Purpose**: Scan Bash tool commands for forbidden patterns
-- **Method**: Calls bash_scanner.py for phase-aware filtering
-
-### 6. MCP Bridge (`scripts/act-observe-verify.sh`, `scripts/self-heal.sh`)
-- **Purpose**: Bridge to MCP tools via XML tags
-- **Format**: `<MCP_CALL><tool>...</tool><args>{...}</args></MCP_CALL>`
-- **Anti-Loop**: aov_iterations >= 2 blocks further attempts
-
-## File Structure
+## 1. System diagram
 
 ```
-swebok-v4-harness/
-├── hooks/
-│   ├── pre-tool-use/
-│   │   ├── phase-guard.sh      # Phase enforcement
-│   │   └── bash-guard.sh     # Bash command scanning
-│   └── post-tool-use/
-│       └── auto-verify.sh
-├── scripts/
-│   ├── lib/
-│   │   ├── state_engine.py     # SQLite-based state (SIMPLIFIED)
-│   │   ├── bash_scanner.py     # Command filtering
-│   │   └── dsl_engine.py       # DSL parsing
-│   ├── adversarial-gate.sh
-│   ├── act-observe-verify.sh
-│   ├── self-heal.sh
-│   ├── bdd-generator.sh        # BDD scenario generation (P6)
-│   └── browser-use-orchestrator.sh  # Browser Use automation (P6)
-├── tests/
-│   └── adversarial-test.sh      # 47/47 PASS
-└── docs/v1/                    # Versioned documentation
+┌─────────────────────────────────────────────────────────────────────┐
+│                        Claude Code (AI Assistant)                   │
+│                                                                     │
+│  When you type: "Create a login API endpoint"                       │
+│  Claude wants to: Write → src/auth.py, Bash → python3 manage.py    │
+└────────────────────────────┬────────────────────────────────────────┘
+                             │
+                  settings.json routes tool calls to hooks
+                             │
+         ┌───────────────────┼───────────────────────────────┐
+         ▼                   ▼                               ▼
+  ┌──────────────┐   ┌──────────────┐   ┌───────────────────────────┐
+  │  PHASE-GUARD │   │  BASH-GUARD  │   │  POST-TOOL-USE HOOKS     │
+  │              │   │              │   │                           │
+  │ Triggers on: │   │ Triggers on: │   │ • auto-verify.sh         │
+  │ • Write      │   │ • Bash       │   │   (syntax check P5+)     │
+  │ • Edit       │   │              │   │ • council-scheduler-hook │
+  │ • Skill      │   │ Scans for:   │   │   (schedule reviews)     │
+  │              │   │ • rm -rf     │   │ • mini-council-hook      │
+  │ Checks:      │   │ • DROP TABLE │   │   (quick heuristic)      │
+  │ • Current    │   │ • eval(base64│   │                           │
+  │   phase      │   │ • sudo       │   │ • auto-trigger-hook.sh   │
+  │ • File type  │   │ • curl|sh    │   │   (UserPromptSubmit)     │
+  │ • Phase rules│   │ • mkfs, dd   │   │                           │
+  └──────┬───────┘   └──────┬───────┘   └───────────────────────────┘
+         │                  │
+         ▼                  ▼
+  ┌──────────────────────────────────────────────────────────────┐
+  │                     STATE ENGINE                             │
+  │                                                              │
+  │  .swebok_state.db (SQLite WAL, per-project isolation)       │
+  │  ┌─────────────┐ ┌──────────────┐ ┌──────────────────────┐ │
+  │  │ state table │ │ 4 audit      │ │ circuit_breaker      │ │
+  │  │ (key/value) │ │ tables       │ │ (3-strike lock)      │ │
+  │  │             │ │ (HMAC chain) │ │                      │ │
+  │  │ phase: P5   │ │              │ │ file X: 2/3 blocks   │ │
+  │  │ gates: [..] │ │ append-only  │ │                      │ │
+  │  │ tools: 152  │ │ triggers     │ │ override: false      │ │
+  │  └─────────────┘ └──────────────┘ └──────────────────────┘ │
+  │                                                              │
+  │  Security: HMAC key per install, mode 0600, gitignored      │
+  │  Integrity: verify_audit_chain, export_state, rebuild        │
+  └──────────────────────────────────────────────────────────────┘
 ```
 
-## Data Flow
+## 2. State Engine — module decomposition (v2.6.2)
+
+The `state_engine.py` god-class has been progressively decomposed into 7
+sibling modules plus 1 compat helper, all importable as a flat namespace
+(e.g. `from state_engine import verify_audit_chain` works because the
+parent re-exports). Total: **~2,600 LOC** spread across the cluster.
+
+| Module | LOC | Owns |
+|---|---|---|
+| `state_engine.py` (core) | ~900 | DB connection, schema, `_init_db`, `_xact`, `get`/`set`/`increment`, public re-exports |
+| `state_engine_audit.py` | 294 | HMAC chain (`audit_hmac`, `last_hmac`, `verify_audit_chain`, `recompute_audit_chain`), trigger management (`drop_audit_triggers`, `ensure_triggers`) |
+| `state_engine_counters.py` | 219 | Atomic scalar + nested JSON phase counters (`increment_lint`, etc.) |
+| `state_engine_logging.py` | 177 | Logging API (`log_event`, `log_tool_call`, `log_adversarial`, `query_*`) |
+| `state_engine_prune.py` | 152 | Crash-safe prune (`prune_log_events`, `prune_state_events`, …) |
+| `state_engine_recovery.py` | 174 | DB recovery (`rebuild`, `check_integrity`) |
+| `state_engine_self_audit.py` | 197 | Quarterly self-audit (`self_audit`, `replay_session`) |
+| `state_engine_gates.py` | 73 | Gate lifecycle (`append_gate`) |
+| `state_engine_export.py` | 73 | JSON export (`export_state`, `export_audit`) |
+| `state_engine_cli.py` | 296 | `main()` CLI dispatcher + subcommand handlers |
+| `state_engine_compat.py` | 50 | Shared `_se()` lazy accessor for sibling modules |
+| **Total** | **~2,600** | 11 sibling modules + 1 compat helper |
+
+**Sibling module pattern**: every child module exposes its public API at
+the top level, and `state_engine.py` re-exports them via
+`from state_engine_audit import (audit_hmac, last_hmac, …)  # noqa: F401`.
+Children never import `state_engine` at module-load time (would create a
+circular import); instead they use the shared `from state_engine_compat
+import _se` accessor to resolve sibling privates lazily.
+
+**Public surface vs implementation details**: post-v2.6.2 the audit chain
+primitives (`audit_hmac`, `last_hmac`, `drop_audit_triggers`,
+`ensure_triggers`) are public (no leading underscore) — they're called
+from 5+ sibling modules and form the documented public surface for the
+audit chain.
+
+## 3. Compiled knowledge engine (7 layers, 1,139 books distilled)
+
+| Layer | Count | Examples |
+|---|---|---|
+| Principles | 24 | KISS, YAGNI, DRY, Fail Fast |
+| Antipatterns | 46 | God Class, Spaghetti Code, Magic Numbers |
+| Ontologies | 6 | SWEBOK taxonomy, Python ecosystem, ML systems |
+| Decision trees | 5 | choose-database, choose-protocol |
+| Recipes | 5 | api-design, authentication, error-handling |
+| Comparisons | 3 | SQL vs NoSQL, REST vs GraphQL, monolith vs microservices |
+| Checklists | 9 | one per phase P0–P9 (deliverables + done criteria) |
+| Risks | 4 | security, performance, maintainability, operational |
+| Corpus enrichment | 144 | adversarial-accepted concepts from 1,139 books |
+
+Query: `<5ms`, deterministic, $0, offline, no LLM. See
+`scripts/compiled_knowledge.py` for the CLI.
+
+## 4. Security model
+
+### What we protect against
+
+| Threat | Defense |
+|---|---|
+| External attacker (different UID) | HMAC key chmod 0600, audit chain tamper-evident |
+| Accidental developer mistake (rm -rf in wrong dir, eval base64) | Phase guard + bash guard + circuit breaker |
+| Prompt injection via malicious input | 3-layer detection (outer marker, inner phase, scoper) |
+| Supply chain compromise | pip hash-pinned, HARNESS_DIR validated, state DB per-project |
+
+### What we do NOT protect against
+
+- **Same-user privilege escalation**: any process running as your user
+  can read the HMAC key. Audit chain defends against different-user
+  tampering, not same-user attacks.
+- **Physical access**: someone with your machine can edit the state DB.
+- **Social engineering**: the harness cannot prevent you from manually
+  overriding it.
+
+### Security features checklist
+
+| Feature | How | Tested |
+|---|---|---|
+| HMAC audit chain | SHA-256, per-row, chained | `verify_audit_chain` (4 tables) |
+| Append-only audit | BEFORE DELETE/UPDATE triggers | `test_health.py::test_hooks_wired_count` |
+| State DB isolation | Per-project, world-writable CWD refused | unit tests |
+| HARNESS_DIR validation | Trust boundary check, `samefile()` | `state_engine.py:78-85` |
+| Bash command scanning | Phase-aware, 30+ dangerous patterns | `bash_scanner.py` |
+| SQL injection protection | Allowlist table names, parameterized queries | CLI + counters |
+| Path traversal detection | Symlink rejection, path sandboxing | `test-adversarial.sh` |
+| SSRF protection | Private IP rejection (Ollama provider) | `test-adversarial.sh` |
+| Kill switch | 1 env var disables all auto-triggers | `HARNESS_AUTO_TRIGGER=0` |
+
+## 5. Data flow: what happens when you type a command
 
 ```
-User Prompt → Claude Code → Intent Detection
-                                 ↓
-                   Phase Guard (hooks/pre-tool-use/)
-                                 ↓
-                   Bash Guard (if Bash tool)
-                                 ↓
-                   State Engine (SQLite - no locking code!)
-                                 ↓
-                   Action Allowed/Blocked
+ User types: "Create a REST API for user authentication"
+                           │
+                           ▼
+              ┌────────────────────────┐
+              │  Claude Code parses    │
+              │  and plans actions:    │
+              │                        │
+              │  1. Write → auth.py    │
+              │  2. Write → test_auth  │
+              │  3. Bash → pytest      │
+              └───────────┬────────────┘
+                          │
+         ┌────────────────┼────────────────┐
+         ▼                ▼                ▼
+   Action 1: Write   Action 2: Write   Action 3: Bash
+   auth.py            test_auth.py      pytest
+         │                │                │
+         ▼                ▼                ▼
+   ┌───────────┐   ┌───────────┐   ┌───────────┐
+   │phase-guard│   │phase-guard│   │bash-guard │
+   │           │   │           │   │           │
+   │ Phase P5? │   │ Phase P5? │   │ Safe cmd? │
+   │ .py file? │   │ test/ OK? │   │ pytest OK │
+   │           │   │           │   │           │
+   │ ✅ ALLOW  │   │ ✅ ALLOW  │   │ ✅ ALLOW  │
+   └───────────┘   └───────────┘   └───────────┘
+         │                │                │
+         └────────────────┼────────────────┘
+                          ▼
+              ┌────────────────────────┐
+              │  State Engine updates: │
+              │  • tool_call_count +=3 │
+              │  • audit log: 3 events │
+              │  • HMAC chain updated  │
+              └────────────────────────┘
 ```
 
-## Security Model
+If the phase were P2 (Requirements) instead of P5, the phase-guard would
+**block** the Write actions with a clear message (see
+`hooks/pre-tool-use/phase-guard.sh`).
 
-1. **FAIL-SECURE**: Any error → block action
-2. **Defense in Depth**: phase-guard + bash-guard
-3. **Circuit Breaker**: 3 blocks → override with 5min TTL
-4. **Anti-Loop**: aov_iterations >= 2, heal_iterations >= 3
-5. **Audit Trail**: adversarial_log in SQLite
-
-## Multi-Session Support
+## 6. Multi-session support
 
 SQLite with WAL mode natively handles concurrent access:
-- **Readers**: Don't block each other
-- **Writers**: BEGIN EXCLUSIVE serializes writes
-- **No explicit fcntl.flock code needed**
-- **No stale lock recovery hack needed**
+- **Readers**: don't block each other
+- **Writers**: `BEGIN EXCLUSIVE` serializes writes (10-attempt retry in `_xact()`)
+- **No explicit `fcntl.flock`** — SQLite WAL handles it
+- **No stale lock recovery** — `.swebok_state.db-wal` and `.shm` are managed by SQLite
 
-## Version
+## 7. File structure (distilled fork)
 
-- Current: 1.4.1 (2026-06-01)
-- Changes: Audit fixes - atomicity, P9 path blocking, MCP XML format, docs consistency
-- See: `docs/v1/VERSION`
+```
+swebok-v4-harness-distilled/
+├── CLAUDE.md                  # Laws and routing rules (the "constitution")
+├── README.md                  # User-facing docs (15 sections, ASCII diagrams)
+├── CHANGELOG.md               # Version history
+├── LICENSE                    # MIT
+├── settings.json              # Hook wiring (merged into ~/.claude/)
+│
+├── lib/                       # Python core (canonical location)
+│   ├── state_engine.py        #   State machine + re-exports (~900 LOC)
+│   ├── state_engine_audit.py  #   HMAC chain + triggers (294 LOC)
+│   ├── state_engine_counters.py
+│   ├── state_engine_logging.py
+│   ├── state_engine_prune.py
+│   ├── state_engine_recovery.py
+│   ├── state_engine_self_audit.py
+│   ├── state_engine_gates.py
+│   ├── state_engine_export.py
+│   ├── state_engine_cli.py
+│   ├── state_engine_compat.py #   Shared _se() lazy accessor
+│   ├── bash_scanner.py        #   Phase-aware command filtering
+│   ├── dsl_engine.py          #   DSL parser (KEY:VALUE;; delimiter)
+│   ├── auto_trigger.py        #   Intent detection (4-layer)
+│   └── adv-loop/              #   Adversarial loop (S0–S5)
+│
+├── pre-tool-use/              # Hooks that run BEFORE each tool call
+│   ├── phase-guard.sh
+│   ├── bash-guard.sh
+│   ├── token-counter.sh
+│   ├── auto-trigger-hook.sh
+│   └── phase-change-detector.sh
+│
+├── post-tool-use/             # Hooks that run AFTER each tool call
+│   ├── auto-verify.sh
+│   ├── council-scheduler-hook.sh
+│   └── mini-council-hook.sh
+│
+├── distilled/                 # The curated knowledge base (7 layers)
+├── distilled_corpus/          # Raw distillation (1,139 books, gitignored)
+├── scripts/                   # CLI tools (symlinks → ../lib/ for bash)
+├── bin/                       # Adversarial loop runner
+├── tests/                     # Test suites (152 tests total)
+├── specs/adversarial-patterns/ # Per-phase adversarial patterns (P0–P10)
+├── audit/                     # Phase audit reports (P0–P10, all 🟢)
+├── docs/                      # Architecture docs, ADRs
+├── adversarial-gate.sh        # Red/Blue/Judge gate with DSL
+├── multiagent-launcher.sh     # Council bridge (4 LLM judges)
+├── health-check.sh            # Readiness probe (7 checks)
+├── pre-commit-hook.sh         # Git pre-commit gate (152 tests + HMAC)
+└── install-harness.sh         # One-command installer
+```
+
+## 8. Version history
+
+- **v2.6.2** (2026-06-11) — 11 sibling modules, 1,139 books, 152 tests, 94.5% Council #9
+- **v2.6.0** (2026-06-10) — Anti-Drift Auto-Trigger (G1 + G3 + G5 + G6)
+- **v2.5.0** (2026-06-10) — Adversarial loop S0–S5 (44 property tests)
+- **v2.0.0** (2026-06-03) — Multi-view retrieval (L0 + L1 + router)
+- **v1.5.x** (2026-06-03) — Production hardening batch (CRIT-8 + STRIDE)
+- **v1.4.1** (2026-06-01) — *This document's last accurate version* (single-file state engine)
+
+See `CHANGELOG.md` for the full diff history and `audit/` for the per-phase
+audit reports (all 10 phases closed at 🟢).

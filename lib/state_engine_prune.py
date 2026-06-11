@@ -12,28 +12,14 @@ import os
 import sqlite3
 import sys
 import time
+from state_engine_compat import _se
 
-
-def _se():
-    """Lazy accessor: returns the state_engine module without triggering a
-    circular import at our module-load time."""
-    mod = sys.modules.get('state_engine')
-    if mod is None:
-        try:
-            mod = __import__('state_engine')
-        except ImportError:
-            raise ImportError(
-                "state_engine module not found. This sibling module must be "
-                "imported through state_engine.py (which re-exports our symbols), "
-                "not directly."
-            )
-    return mod
 
 
 def _prune_with_trigger(table, trigger_name, keep_last):
     """Crash-safe prune. Uses autocommit DDL semantics for DROP/CREATE
     (so the DROP propagates before the DELETE). If killed mid-sequence,
-    _init_db restores the trigger via _ensure_triggers on next startup (I1).
+    _init_db restores the trigger via ensure_triggers on next startup (I1).
     """
     se = _se()
     conn = se._open_raw()

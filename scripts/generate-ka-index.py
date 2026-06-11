@@ -1,0 +1,1 @@
+../generate-ka-index.py

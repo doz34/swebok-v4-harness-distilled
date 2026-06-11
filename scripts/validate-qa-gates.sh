@@ -1,0 +1,1 @@
+../validate-qa-gates.sh

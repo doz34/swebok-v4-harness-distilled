@@ -296,10 +296,10 @@ def _safe_add_column(conn, table, col, ctype):
 
 # ===== HMAC audit chain (MISSING-04 — CISO S blocker) =====
 # Extracted to state_engine_audit.py (ADR-004 Strategy C, 2026-06-11).
-# Re-exported here for sibling-module access via `se._audit_hmac()`,
-# `se._last_hmac()`, etc. — see state_engine_logging.py, state_engine_cli.py.
+# Re-exported here for sibling-module access via `se.audit_hmac()`,
+# `se.last_hmac()`, etc. — see state_engine_logging.py, state_engine_cli.py.
 from state_engine_audit import (  # noqa: F401  (re-export for sibling access)
-    _audit_hmac, _last_hmac, _drop_audit_triggers, _ensure_triggers,
+    audit_hmac, last_hmac, drop_audit_triggers, ensure_triggers,
     verify_audit_chain, recompute_audit_chain,
 )
 
@@ -392,7 +392,7 @@ def _init_db():
         )
         if on_disk == 0:
             _init_default_state(conn)
-        _ensure_triggers(conn)
+        ensure_triggers(conn)
         conn.commit()
         _DB_READY = True
         try:
@@ -550,8 +550,8 @@ def set(key_path, value, source="cli"):
                 )
             sid, agent, cid = _session_correlation()
             ts = _now_iso()
-            row_hmac = _audit_hmac(
-                _last_hmac(conn, "state_events"),
+            row_hmac = audit_hmac(
+                last_hmac(conn, "state_events"),
                 ts, "state_events", key_path, old_value, str(value), source, sid, agent, cid,
             )
             conn.execute(
@@ -620,8 +620,8 @@ def record_block(file_path, reason="blocked"):
             )
             sid, agent, cid = _session_correlation()
             ts = _now_iso()
-            row_hmac = _audit_hmac(
-                _last_hmac(conn, "circuit_breaker_events"),
+            row_hmac = audit_hmac(
+                last_hmac(conn, "circuit_breaker_events"),
                 ts, "circuit_breaker_events", file_path or "", new_count, reason, sid, agent, cid,
             )
             conn.execute(
@@ -680,8 +680,8 @@ def reset_all_circuits(phase=None):
             # Audit row
             sid, agent, cid = _session_correlation()
             ts = _now_iso()
-            row_hmac = _audit_hmac(
-                _last_hmac(conn, "state_events"),
+            row_hmac = audit_hmac(
+                last_hmac(conn, "state_events"),
                 ts, "state_events", "reset_all_circuits", None, phase or "global",
                 "reset_all_circuits", sid, agent, cid,
             )
@@ -713,49 +713,13 @@ from state_engine_prune import (  # noqa: F401  (re-export)
 )
 
 
-# ===== append_gate =====
-
-def append_gate(gate_name):
-    if not gate_name:
-        return False
-    _init_db()
-    try:
-        with _xact() as conn:
-            cur = conn.execute("SELECT value FROM state WHERE key = 'gates_validated'")
-            row = cur.fetchone()
-            gates = []
-            if row and row[0]:
-                try:
-                    gates = json.loads(row[0])
-                except json.JSONDecodeError:
-                    gates = []
-            if not isinstance(gates, list):
-                gates = []
-            if gate_name not in gates:
-                gates.append(gate_name)
-            conn.execute(
-                "INSERT OR REPLACE INTO state (key, value) VALUES (?, ?)",
-                ("gates_validated", json.dumps(gates)),
-            )
-            sid, agent, cid = _session_correlation()
-            ts = _now_iso()
-            old_val = row[0] if row else None
-            new_val = json.dumps(gates)
-            row_hmac = _audit_hmac(
-                _last_hmac(conn, "state_events"),
-                ts, "state_events", "gates_validated", old_val, new_val,
-                "append_gate", sid, agent, cid,
-            )
-            conn.execute(
-                "INSERT INTO state_events "
-                "(ts, key, old_value, new_value, source, session_id, agent, correlation_id, row_hmac) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                (ts, "gates_validated", old_val, new_val,
-                 "append_gate", sid, agent, cid, row_hmac),
-            )
-        return True
-    except (sqlite3.Error, ValueError, TypeError, KeyError, IndexError, AttributeError, json.JSONDecodeError):
-        return False
+# ===== append_gate (extracted to state_engine_gates.py) =====
+# Original append_gate() implementation (~42 LOC) was extracted to
+# state_engine_gates.py per Architect MED-2 gap closure.
+# Re-exported here for backward-compat with existing callers.
+from state_engine_gates import (  # noqa: F401  (re-export)
+    append_gate,
+)
 
 
 # ===== Recovery (extracted to state_engine_recovery.py) =====
@@ -791,13 +755,8 @@ from state_engine_self_audit import (  # noqa: F401  (re-export)
 
 def main():
     """Backward-compat shim — delegates to state_engine_cli.main()."""
-    import importlib.util
-    import os
-    cli_path = os.path.join(os.path.dirname(__file__), "state_engine_cli.py")
-    spec = importlib.util.spec_from_file_location("state_engine_cli", cli_path)
-    cli_mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(cli_mod)
-    cli_mod.main()
+    from state_engine_cli import main as _cli_main
+    _cli_main()
 
 
 if __name__ == "__main__":

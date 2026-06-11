@@ -18,24 +18,10 @@ import logging
 import os
 import sqlite3
 import sys
+from state_engine_compat import _se
 
 _log = logging.getLogger("swebok.state_engine")
 
-
-def _se():
-    """Lazy accessor: returns the state_engine module without triggering a
-    circular import at our module-load time."""
-    mod = sys.modules.get('state_engine')
-    if mod is None:
-        try:
-            mod = __import__('state_engine')
-        except ImportError:
-            raise ImportError(
-                "state_engine module not found. This sibling module must be "
-                "imported through state_engine.py (which re-exports our symbols), "
-                "not directly."
-            )
-    return mod
 
 
 # ===== HMAC audit chain (MISSING-04 — CISO S blocker) =====
@@ -82,7 +68,7 @@ def _audit_secret():
         ) from e
 
 
-def _audit_hmac(prev_hmac_hex, ts, *fields):
+def audit_hmac(prev_hmac_hex, ts, *fields):
     """Compute HMAC-SHA256 over (prev_hmac, ts, field1, field2, ...).
 
     Returns the new hex digest. The chain links every row to the previous
@@ -99,7 +85,7 @@ def _audit_hmac(prev_hmac_hex, ts, *fields):
     return h.hexdigest()
 
 
-def _last_hmac(conn, table):
+def last_hmac(conn, table):
     """Return the most recent row_hmac in `table`, or '' if empty/missing."""
     try:
         row = conn.execute(
@@ -137,7 +123,7 @@ def verify_audit_chain(table, limit=10000):
     se._init_db()
     conn = se._open()
     try:
-        # Per-table column selection — must mirror what _audit_hmac was given
+        # Per-table column selection — must mirror what audit_hmac was given
         # at INSERT time. This is the contract: the field list here MUST
         # match the field list in the corresponding INSERT path.
         column_specs = {
@@ -173,14 +159,14 @@ def verify_audit_chain(table, limit=10000):
             # chain pivot — the next populated row starts a fresh chain segment.
             prev = ""
             continue
-        recomputed = _audit_hmac(prev, ts, table, *content)
+        recomputed = audit_hmac(prev, ts, table, *content)
         if recomputed != stored_hmac:
             return (False, rid)
         prev = stored_hmac
     return (True, None)
 
 
-def _drop_audit_triggers(conn, table):
+def drop_audit_triggers(conn, table):
     """Drop all audit-protect triggers on `table` for maintenance (rebuild/recompute)."""
     for suffix in ("_no_delete", "_no_update_v2"):
         trg = f"trg_{table}{suffix}"
@@ -215,7 +201,7 @@ def recompute_audit_chain(table):
     conn = se._open_raw()
     try:
         # Drop audit-protect triggers before UPDATE (they block modifications)
-        _drop_audit_triggers(conn, table)
+        drop_audit_triggers(conn, table)
         try:
             rows = conn.execute(
                 f"SELECT {sel_sql} FROM {table} ORDER BY id ASC"
@@ -228,7 +214,7 @@ def recompute_audit_chain(table):
             rid = row[0]
             ts = row[1]
             content = row[2:]
-            new_hmac = _audit_hmac(prev, ts, table, *content)
+            new_hmac = audit_hmac(prev, ts, table, *content)
             conn.execute(f"UPDATE {table} SET row_hmac = ? WHERE id = ?",
                          (new_hmac, rid))
             prev = new_hmac
@@ -238,14 +224,14 @@ def recompute_audit_chain(table):
     finally:
         # Always restore triggers, even on error
         try:
-            _ensure_triggers(conn)
+            ensure_triggers(conn)
             conn.commit()
         except (sqlite3.Error, OSError):
             pass
         conn.close()
 
 
-def _ensure_triggers(conn):
+def ensure_triggers(conn):
     """I1 defense-in-depth: re-issue CREATE TRIGGER IF NOT EXISTS on every startup.
 
     v1.5.11 (STRIDE-Rep-1 close-out): BEFORE UPDATE triggers are NOW

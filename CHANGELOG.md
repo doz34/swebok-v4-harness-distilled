@@ -2,6 +2,78 @@
 
 All notable changes to the SWEBOK v4 Harness V2 (Distilled) will be documented here.
 
+## Migration: v1.x → v2.x
+
+If you are upgrading from the v1.x line (1.5.0–1.5.11), the state DB
+schema, hook wire format, and CLI subcommand surface have all changed.
+A clean reinstall is the recommended path.
+
+### Pre-flight checklist
+
+1. **Back up your state DB** (mandatory):
+   ```bash
+   cp .swebok_state.db .swebok_state.db.v1-bak-$(date +%s)
+   ```
+
+2. **Back up your `~/.claude/settings.json`** (the installer will merge
+   into the new format, and you may want to compare what changed):
+   ```bash
+   cp ~/.claude/settings.json ~/.claude/settings.json.v1-bak-$(date +%s)
+   ```
+
+### Wire-format changes (1.x → 2.x)
+
+| Was (1.x) | Is (2.x) |
+|---|---|
+| `bash /home/<user>/swebok-v4-harness/<tool>.sh` (absolute user-specific path) | `bash ${HARNESS_DIR}/<tool>.sh` (portable; HARNESS_DIR set in env) |
+| `bash scripts/<tool>.sh` (relative-to-project, vendor copy required) | `bash scripts/<tool>.sh` (UNCHANGED — but `scripts/<tool>` is now a symlink to the harness root) |
+| Single `state_engine.py` (1700+ LOC, god class) | `lib/state_engine.py` (900 LOC) + 9 sibling modules + 1 compat helper |
+| PreToolUse + PostToolUse hooks only | + UserPromptSubmit hook (auto-trigger) |
+| 1 audit table (`adversarial_log`) | 4 audit tables (adds `log_events`, `state_events`, `circuit_breaker_events`) |
+| HMAC chain on 1 table | HMAC chain on all 4 audit tables |
+| No pre-commit gate | 152-test pre-commit gate (gates every commit) |
+| `.swebok_state.db` mode 0644 | mode 0600 (operator-only) |
+
+### What to do
+
+```bash
+# 1. Uninstall the v1.x harness (see UNINSTALL.md, "Step 1 — Restore your original")
+#    The v1.x wire format used `swebok-v4-harness` substrings; v2.x uses
+#    `${HARNESS_DIR}/...` and `scripts/<tool>` patterns. The UNINSTALL.md
+#    jq filter has been updated to match v2.x format.
+
+# 2. Remove the v1.x state DB (it will be incompatible with v2.x schema)
+rm -f .swebok_state.db .swebok_state.db-wal .swebok_state.db-shm
+
+# 3. Install v2.x
+git clone https://github.com/doz34/swebok-v4-harness-distilled.git
+cd swebok-v4-harness-distilled
+git checkout v2.6.2
+bash install-harness.sh
+
+# 4. Verify
+bash health-check.sh
+# Should report: Status: HEALTHY
+```
+
+### What's preserved
+
+- The 4 audit tables in v2.x have **different schemas** than v1.x's
+  single `adversarial_log`. v1.x rows are NOT migrated; if you need
+  them for forensics, keep the `.swebok_state.db.v1-bak` file.
+- HMAC keys are NOT migrated. v2.x generates a fresh key on install
+  (stored in `.audit_key`, mode 0600, gitignored).
+
+### When to skip migration
+
+If you are still on v1.x and the harness is working for you, you can
+stay on v1.x indefinitely — it's not deprecated, and v1.5.11 is
+production-ready. The v2.x line is the recommended path for new
+installs and projects that want anti-drift auto-trigger, the
+per-phase adversarial patterns, and the 152-test pre-commit gate.
+
+---
+
 ## [2.6.2] - 2026-06-11 — Council #9 Final + 3 Stale-Path Fixes + README Rewrite
 
 **Patch release** (5 commits since v2.6.0). Production-ready, 147/147 tests PASS.

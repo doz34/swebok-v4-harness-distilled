@@ -70,25 +70,29 @@ else
 fi
 
 # The harness's own hook entries — these are what we merge into the user file.
+# Permission entries use the canonical `scripts/` alias (per CLAUDE.md Path
+# Convention), so the wire format matches settings.json. Hook entries use
+# absolute ${HARNESS_DIR} paths because the hooks must resolve regardless
+# of the user's CWD.
 read -r -d '' HARNESS_HOOKS_FRAGMENT <<JSON || true
 {
   "permissions": {
     "allow": [
-      "bash $HARNESS_DIR/swebok-bootstrap.sh",
-      "bash $HARNESS_DIR/adversarial-gate.sh",
-      "bash $HARNESS_DIR/validate-gates.sh",
-      "bash $HARNESS_DIR/validate-qa-gates.sh",
-      "bash $HARNESS_DIR/act-observe-verify.sh",
-      "bash $HARNESS_DIR/self-heal.sh",
-      "bash $HARNESS_DIR/browser-use-orchestrator.sh",
-      "bash $HARNESS_DIR/multiagent-launcher.sh",
-      "bash $HARNESS_DIR/skill-invoker.sh",
-      "python3 $HARNESS_DIR/scripts/compiled_knowledge.py",
-      "python3 $HARNESS_DIR/generate-kg.py",
-      "python3 $HARNESS_DIR/intent-detector.py",
-      "python3 $HARNESS_DIR/generate-ka-index.py",
-      "python3 $HARNESS_DIR/generate-keyword-index.py",
-      "python3 $HARNESS_DIR/search-knowledge-base.py"
+      "bash scripts/swebok-bootstrap.sh",
+      "bash scripts/adversarial-gate.sh",
+      "bash scripts/validate-gates.sh",
+      "bash scripts/validate-qa-gates.sh",
+      "bash scripts/act-observe-verify.sh",
+      "bash scripts/self-heal.sh",
+      "bash scripts/browser-use-orchestrator.sh",
+      "bash scripts/multiagent-launcher.sh",
+      "bash scripts/skill-invoker.sh",
+      "python3 scripts/compiled_knowledge.py",
+      "python3 scripts/generate-kg.py",
+      "python3 scripts/intent-detector.py",
+      "python3 scripts/generate-ka-index.py",
+      "python3 scripts/generate-keyword-index.py",
+      "python3 scripts/search-knowledge-base.py"
     ]
   },
   "hooks": {

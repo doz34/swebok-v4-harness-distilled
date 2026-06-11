@@ -15,9 +15,11 @@
 #   7. Runs the adv-loop self-tests (38 tests) — fail commit on FAIL
 #   8. Runs the health tests (5 tests) — fail commit on FAIL
 #   9. Runs the rebuild-restore tests (5 tests) — gates on D1 CRIT fix
-#  10. Runs the health-check script (exit 0/1 = ok, 2 = broken = FAIL)
+#  10. Runs the pytest suite (24 tests + 20% coverage gate) — fail on FAIL
+#  11. Runs the health-check script (exit 0/1 = ok, 2 = broken = FAIL)
 #
-# Total: 152 tests + HMAC chain + health probe. Real gate, not a no-op.
+# Total: 152 bash + 24 pytest = 176 tests + HMAC chain + health probe.
+# Real gate, not a no-op.
 
 set -euo pipefail
 
@@ -46,7 +48,7 @@ if [[ ! -d "$HARNESS_DIR/tests" ]]; then
     exit 1
 fi
 
-echo "[pre-commit] Running SWEBOK v4 harness test gate (147 tests + 5 rebuild-restore = 152 total)..."
+echo "[pre-commit] Running SWEBOK v4 harness test gate (152 bash + 24 pytest = 176 total + HMAC + health)..."
 
 # 0. Secure temp directory
 _SB_TMPDIR=$(mktemp -d "${TMPDIR:-/tmp}/swebok_precommit.XXXXXX")
@@ -122,6 +124,15 @@ if ! python3 tests/test_rebuild_restore.py > "$_SB_TMPDIR/rebuild_restore.log" 2
     exit 1
 fi
 
+# pytest suite (Python) — covers state_engine_cli, export, self_audit, and
+# the CLI surface that hooks use. Enforces the coverage gate from pytest.ini.
+# (Council #10 QA MED-1: pytest was unwired from the pre-commit gate.)
+if ! python3 -m pytest tests/ > "$_SB_TMPDIR/pytest.log" 2>&1; then
+    echo "[pre-commit] FAIL: pytest suite exited non-zero"
+    tail -30 "$_SB_TMPDIR/pytest.log"
+    exit 1
+fi
+
 # 9. Health check — fail on BROKEN (exit 2). DEGRADED (exit 1) is a soft pass.
 if HARNESS_DIR="$HARNESS_DIR" bash "$HARNESS_DIR/health-check.sh" > "$_SB_TMPDIR/health.log" 2>&1; then
     hc_exit=0
@@ -137,5 +148,5 @@ if [[ "$hc_exit" -eq 1 ]]; then
     echo "[pre-commit] WARN: health-check reported DEGRADED — continuing"
 fi
 
-echo "[pre-commit] OK: 152 tests + HMAC + health all green"
+echo "[pre-commit] OK: 152 bash + 24 pytest tests + HMAC + health all green"
 exit 0

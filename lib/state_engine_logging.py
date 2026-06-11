@@ -12,22 +12,8 @@ import json
 import sqlite3
 import sys
 import time
+from state_engine_compat import _se
 
-
-def _se():
-    """Lazy accessor: returns the state_engine module without triggering a
-    circular import at our module-load time."""
-    mod = sys.modules.get('state_engine')
-    if mod is None:
-        try:
-            mod = __import__('state_engine')
-        except ImportError:
-            raise ImportError(
-                "state_engine module not found. This sibling module must be "
-                "imported through state_engine.py (which re-exports our symbols), "
-                "not directly."
-            )
-    return mod
 
 
 # ===== Logging =====
@@ -44,8 +30,8 @@ def log_event(level, component, message, phase=None, metadata=None):
             md = json.dumps(metadata) if isinstance(metadata, dict) else (metadata or "")
             sid, agent, cid = se._session_correlation()
             ts = se._now_iso()
-            row_hmac = se._audit_hmac(
-                se._last_hmac(conn, "log_events"),
+            row_hmac = se.audit_hmac(
+                se.last_hmac(conn, "log_events"),
                 ts, "log_events", level, component, phase, message, md, sid, agent, cid,
             )
             conn.execute(
@@ -93,8 +79,8 @@ def log_adversarial(gate, verdict, reason):
         with se._xact() as conn:
             sid, agent, cid = se._session_correlation()
             ts = se._now_iso()
-            row_hmac = se._audit_hmac(
-                se._last_hmac(conn, "adversarial_log"),
+            row_hmac = se.audit_hmac(
+                se.last_hmac(conn, "adversarial_log"),
                 ts, "adversarial_log", gate, verdict, reason, sid, agent, cid,
             )
             conn.execute(

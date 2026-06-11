@@ -222,8 +222,8 @@ def main():
                 sid, agent, cid = se._session_correlation()
                 ts = se._now_iso()
                 old_val = row[0] if row else None
-                row_hmac = se._audit_hmac(
-                    se._last_hmac(conn, "state_events"),
+                row_hmac = se.audit_hmac(
+                    se.last_hmac(conn, "state_events"),
                     ts, "state_events", key, old_val, new_val,
                     "list_append", sid, agent, cid,
                 )
@@ -271,8 +271,8 @@ def main():
                 )
                 sid, agent, cid = se._session_correlation()
                 ts = se._now_iso()
-                row_hmac = se._audit_hmac(
-                    se._last_hmac(conn, "state_events"),
+                row_hmac = se.audit_hmac(
+                    se.last_hmac(conn, "state_events"),
                     ts, "state_events", key, old_val, "[]",
                     "list_clear", sid, agent, cid,
                 )

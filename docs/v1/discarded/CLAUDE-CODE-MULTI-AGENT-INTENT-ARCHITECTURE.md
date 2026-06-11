@@ -1,5 +1,21 @@
 # SWEBOK v4 Harness — Architecture Specification
 
+> **⚠️  DISCARDED — kept for historical reference only.**
+>
+> This document describes an early design proposal for a Claude Code
+> multi-agent intent-detection / skill-router / specialist-agent
+> architecture. It predates the SWEBOK v4 harness's actual state-engine
+> + audit-chain + per-phase adversarial pattern architecture.
+>
+> The current canonical architecture is documented in
+> `v1/ARCHITECTURE.md` (rewritten 2026-06-11) and `docs/v1/ARCHITECTURE-SPEC.md`
+> was the original (rejected) proposal that this file lived at before
+> being relocated here.
+>
+> No code in this repository implements the patterns described below —
+> references to "intent detection", "skill router", "specialist agents"
+> are pre-design-stage sketches that never landed in the state engine.
+
 ## 1. System Overview
 
 ```

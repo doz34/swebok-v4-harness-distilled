@@ -1,0 +1,1 @@
+../generate-keyword-index.py
