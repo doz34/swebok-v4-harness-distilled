@@ -2,6 +2,44 @@
 
 All notable changes to the SWEBOK v4 Harness V2 (Distilled) will be documented here.
 
+## [2.6.2] - 2026-06-11 — Council #9 Final + 3 Stale-Path Fixes + README Rewrite
+
+**Patch release** (5 commits since v2.6.0). Production-ready, 147/147 tests PASS.
+
+### Council #9 — 94.5% verdict (4-consultant adversarial)
+
+- 4 passes converged: CISO 100% / QA 100% / Architect 91% / DevOps 86%
+- 0 open gaps across all judges
+- QA at 100% for the first time in council history
+- `COUNCIL_REPORT.md` updated to reflect final state
+
+### Fixes (3 commits, no new code paths)
+
+- `b42990c` **fix(high)**: `HARNESS_DIR` fallback corrected in 4 anti-drift hooks (`../..` → `..`). The hooks now correctly resolve the harness root regardless of CWD.
+- `8a97348` **fix(med)**: P10 phase number extraction in `multiagent-launcher.sh` — previously returned `0` for P10, breaking the Council envelope phase tag.
+- `c6e1ae7` **fix(low)**: temp dir hardening (`mktemp -d` everywhere) + `token-counter.sh` `STATE_DB` env var (consistent with other hooks).
+
+### Documentation — README complete rewrite
+
+- 1040 lines, 736 insertions / 304 deletions
+- New sections: System diagram, Data flow diagram, File structure tree, Anti-drift auto-trigger diagram, 7-layer knowledge engine visualization
+- 15-section table of contents
+- Updated metrics: 152 tests, 1,139 books, 100% council verdict
+- Production modes table for adversarial gate (Fixture / Judge-only / Council)
+- Honest limitations section (sandbox, auth boundary, curated knowledge, gate fixture, HMAC same-user)
+- All English, pedagogical tone, comprehensive
+
+### Test counts (unchanged from v2.6.0)
+
+- `bin/adv-loop test`: 38/38 ✓
+- `tests/distilled-test.sh`: 32/32 ✓
+- `tests/retrieval/test-v2.sh`: 20/20 ✓
+- `tests/retrieval/test-adversarial.sh`: 8/8 ✓
+- `tests/adv-loop/test-properties.sh`: 44/44 ✓
+- `tests/test_health.py`: 5/5 ✓
+- `tests/test_rebuild_restore.py`: 5/5 ✓
+- **Pre-commit gate total: 152/152 PASS**
+
 ## [2.6.0] - 2026-06-10 — Anti-Drift Auto-Trigger Sprint
 
 Closes the goal hook: *"se trigger automatiquement à chaque étape d'évolution/feature d'un projet avec dimension adversariale très poussée"*.
