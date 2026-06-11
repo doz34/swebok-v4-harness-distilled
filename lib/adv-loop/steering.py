@@ -25,6 +25,7 @@ DSL fields emitted (per run):
 import sqlite3
 import hashlib
 import json
+import os
 import time
 import sys
 from contextlib import contextmanager
@@ -100,6 +101,11 @@ def _connect(db_path: str, write: bool = False):
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     conn.execute("PRAGMA journal_mode = WAL")
+    # Restrict DB file permissions to owner-only
+    try:
+        os.chmod(db_path, 0o600)
+    except OSError:
+        pass
     if write:
         conn.execute("PRAGMA synchronous = NORMAL")
     try:

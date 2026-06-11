@@ -47,15 +47,19 @@ fi
 
 echo "[pre-commit] Running SWEBOK v4 harness test gate (147 tests + 5 rebuild-restore = 152 total)..."
 
+# 0. Secure temp directory
+_SB_TMPDIR=$(mktemp -d "${TMPDIR:-/tmp}/swebok_precommit.XXXXXX")
+trap 'rm -rf "$_SB_TMPDIR"' EXIT
+
 # 1. Integrity check (read-only — no destructive rebuild)
-python3 lib/state_engine.py check_integrity > /tmp/swebok_precommit_integrity.log 2>&1
-if ! grep -q '^ok$' /tmp/swebok_precommit_integrity.log; then
+python3 lib/state_engine.py check_integrity > "$_SB_TMPDIR/integrity.log" 2>&1
+if ! grep -q '^ok$' "$_SB_TMPDIR/integrity.log"; then
     echo "[pre-commit] WARN: integrity check not 'ok', attempting rebuild..."
     python3 lib/state_engine.py rebuild >/dev/null 2>&1
-    python3 lib/state_engine.py check_integrity > /tmp/swebok_precommit_integrity.log 2>&1
-    if ! grep -q '^ok$' /tmp/swebok_precommit_integrity.log; then
+    python3 lib/state_engine.py check_integrity > "$_SB_TMPDIR/integrity.log" 2>&1
+    if ! grep -q '^ok$' "$_SB_TMPDIR/integrity.log"; then
         echo "[pre-commit] FAIL: state DB integrity not 'ok' even after rebuild"
-        cat /tmp/swebok_precommit_integrity.log
+        cat "$_SB_TMPDIR/integrity.log"
         exit 1
     fi
 fi
@@ -79,7 +83,7 @@ fi
 run_test_suite() {
     local name="$1"; shift
     local script="$1"; shift
-    local logfile="/tmp/swebok_precommit_${name}.log"
+    local logfile="$_SB_TMPDIR/${name}.log"
     echo "[pre-commit]   → $name ($script $*)"
     if ! bash "$script" "$@" > "$logfile" 2>&1; then
         echo "[pre-commit] FAIL: $name exited non-zero"
@@ -103,21 +107,21 @@ run_test_suite "adv-loop"         "bin/adv-loop" "test"
 run_test_suite "adv-properties"   "tests/adv-loop/test-properties.sh"
 
 # Health tests (Python) — run after the bash suites
-if ! python3 tests/test_health.py > /tmp/swebok_precommit_health_py.log 2>&1; then
+if ! python3 tests/test_health.py > "$_SB_TMPDIR/health_py.log" 2>&1; then
     echo "[pre-commit] FAIL: health tests exited non-zero"
-    cat /tmp/swebok_precommit_health_py.log
+    cat "$_SB_TMPDIR/health_py.log"
     exit 1
 fi
 
 # 9. Health check — fail on BROKEN (exit 2). DEGRADED (exit 1) is a soft pass.
-if HARNESS_DIR="$HARNESS_DIR" bash "$HARNESS_DIR/health-check.sh" > /tmp/swebok_precommit_health.log 2>&1; then
+if HARNESS_DIR="$HARNESS_DIR" bash "$HARNESS_DIR/health-check.sh" > "$_SB_TMPDIR/health.log" 2>&1; then
     hc_exit=0
 else
     hc_exit=$?
 fi
 if [[ "$hc_exit" -ge 2 ]]; then
     echo "[pre-commit] FAIL: health-check reported BROKEN (exit $hc_exit)"
-    cat /tmp/swebok_precommit_health.log
+    cat "$_SB_TMPDIR/health.log"
     exit 1
 fi
 if [[ "$hc_exit" -eq 1 ]]; then
