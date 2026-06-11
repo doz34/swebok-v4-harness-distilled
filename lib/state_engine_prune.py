@@ -17,7 +17,17 @@ import time
 def _se():
     """Lazy accessor: returns the state_engine module without triggering a
     circular import at our module-load time."""
-    return sys.modules.get('state_engine') or __import__('state_engine')
+    mod = sys.modules.get('state_engine')
+    if mod is None:
+        try:
+            mod = __import__('state_engine')
+        except ImportError:
+            raise ImportError(
+                "state_engine module not found. This sibling module must be "
+                "imported through state_engine.py (which re-exports our symbols), "
+                "not directly."
+            )
+    return mod
 
 
 def _prune_with_trigger(table, trigger_name, keep_last):

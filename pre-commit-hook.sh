@@ -47,13 +47,17 @@ fi
 
 echo "[pre-commit] Running SWEBOK v4 harness test gate (147 tests expected)..."
 
-# 1. Cold rebuild + HMAC integrity
-python3 lib/state_engine.py rebuild >/dev/null 2>&1
-python3 lib/state_engine.py check_integrity > /tmp/swebok_precommit_integrity.log
+# 1. Integrity check (read-only — no destructive rebuild)
+python3 lib/state_engine.py check_integrity > /tmp/swebok_precommit_integrity.log 2>&1
 if ! grep -q '^ok$' /tmp/swebok_precommit_integrity.log; then
-    echo "[pre-commit] FAIL: state DB integrity not 'ok' after rebuild"
-    cat /tmp/swebok_precommit_integrity.log
-    exit 1
+    echo "[pre-commit] WARN: integrity check not 'ok', attempting rebuild..."
+    python3 lib/state_engine.py rebuild >/dev/null 2>&1
+    python3 lib/state_engine.py check_integrity > /tmp/swebok_precommit_integrity.log 2>&1
+    if ! grep -q '^ok$' /tmp/swebok_precommit_integrity.log; then
+        echo "[pre-commit] FAIL: state DB integrity not 'ok' even after rebuild"
+        cat /tmp/swebok_precommit_integrity.log
+        exit 1
+    fi
 fi
 
 # 2. HMAC chain on all 4 audit tables

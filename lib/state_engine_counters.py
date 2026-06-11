@@ -9,14 +9,28 @@ module load time (state_engine imports from us). Use lazy imports inside
 functions, or use sys.modules lookup for sibling privates.
 """
 import json
+import re
 import sqlite3
 import sys
+
+# JSON path SQLi protection: only allow alphanumeric + underscore
+_SAFE_JSON_PATH_RE = re.compile(r'^[A-Za-z0-9_]+$')
 
 
 def _se():
     """Lazy accessor: returns the state_engine module without triggering a
     circular import at our module-load time."""
-    return sys.modules.get('state_engine') or __import__('state_engine')
+    mod = sys.modules.get('state_engine')
+    if mod is None:
+        try:
+            mod = __import__('state_engine')
+        except ImportError:
+            raise ImportError(
+                "state_engine module not found. This sibling module must be "
+                "imported through state_engine.py (which re-exports our symbols), "
+                "not directly."
+            )
+    return mod
 
 
 # ===== Atomic counters =====
@@ -72,6 +86,11 @@ def _incr_nested_phase(key, subkey, phase="P6", delta=1):
     """
     se = _se()
     se._init_db()
+    # Validate phase and subkey to prevent JSON path SQLi
+    if not _SAFE_JSON_PATH_RE.match(phase):
+        raise ValueError(f"Invalid phase: {phase!r} (must match ^[A-Za-z0-9_]+$)")
+    if not _SAFE_JSON_PATH_RE.match(subkey):
+        raise ValueError(f"Invalid subkey: {subkey!r} (must match ^[A-Za-z0-9_]+$)")
     conn = None
     try:
         conn = se._open_raw()

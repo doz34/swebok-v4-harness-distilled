@@ -77,7 +77,7 @@ fi
 
 # 7. Hooks wired
 if [[ -f "$HARNESS_DIR/settings.json" ]]; then
-    wired=$(jq -r '(.hooks.PreToolUse // [] | length) + (.hooks.PostToolUse // [] | length)' "$HARNESS_DIR/settings.json" 2>/dev/null || echo 0)
+    wired=$(jq -r '(.hooks.PreToolUse // [] | length) + (.hooks.PostToolUse // [] | length) + (.hooks.UserPromptSubmit // [] | length)' "$HARNESS_DIR/settings.json" 2>/dev/null || echo 0)
     if [[ "$wired" -ge 4 ]]; then
         status[hooks]="OK ($wired hook entries)"
     else

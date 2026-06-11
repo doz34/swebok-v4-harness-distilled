@@ -8,6 +8,12 @@
 
 import sys
 import sqlite3
+from pathlib import Path
+
+# Ensure sibling modules are importable regardless of invocation method
+_this_dir = str(Path(__file__).resolve().parent)
+if _this_dir not in sys.path:
+    sys.path.insert(0, _this_dir)
 
 import state_engine as se
 

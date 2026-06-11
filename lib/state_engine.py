@@ -459,7 +459,7 @@ def recompute_audit_chain(table):
     if spec is None:
         return -1
     sel_sql, _col_list = spec
-    conn = sqlite3.connect(str(STATE_DB), timeout=30.0)
+    conn = _open_raw()
     try:
         # Drop audit-protect triggers before UPDATE (they block modifications)
         _drop_audit_triggers(conn, table)
@@ -560,6 +560,11 @@ def _init_db():
     conn = sqlite3.connect(str(STATE_DB), timeout=30.0)
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute(f"PRAGMA busy_timeout={_BUSY_TIMEOUT_MS}")
+    # Restrict DB file permissions to owner-only (like .audit_key)
+    try:
+        os.chmod(str(STATE_DB), 0o600)
+    except OSError:
+        pass
     try:
         conn.execute("CREATE TABLE IF NOT EXISTS state ("
                      "key TEXT PRIMARY KEY, value TEXT, "
@@ -799,6 +804,16 @@ def set(key_path, value, source="cli"):
         return False
 
 
+# ===== Sibling-module import helper =====
+# Ensure this file's directory (lib/) is on sys.path so that sibling modules
+# like state_engine_counters / state_engine_logging / state_engine_prune are
+# found regardless of whether the caller set PYTHONPATH, ran us directly, or
+# imported as lib.state_engine.
+_this_dir = str(_THIS_FILE.parent)
+if _this_dir not in sys.path:
+    sys.path.insert(0, _this_dir)
+
+
 # ===== Atomic counters (extracted to state_engine_counters.py) =====
 from state_engine_counters import (  # noqa: F401  (re-export)
     _incr_scalar, _incr_nested_phase, reset_aov_iterations,
@@ -919,16 +934,6 @@ def reset_all_circuits(phase=None):
         return False
 
 
-# ===== Sibling-module import helper =====
-# Ensure this file's directory (lib/) is on sys.path so that sibling modules
-# like state_engine_logging / state_engine_prune are found regardless of
-# whether the caller set PYTHONPATH, ran us directly, or imported as
-# lib.state_engine.
-_this_dir = str(_THIS_FILE.parent)
-if _this_dir not in sys.path:
-    sys.path.insert(0, _this_dir)
-
-
 # ===== Logging (extracted to state_engine_logging.py) =====
 from state_engine_logging import (  # noqa: F401  (re-export)
     log_tool_call, log_event, query_log_events,
@@ -1027,7 +1032,10 @@ def rebuild(keep_audit=True):
     _init_db()
     if keep_audit:
         try:
-            pre_rebuild = sorted(HARNESS_DIR.glob(".swebok_state.db.pre-rebuild.*"))
+            pre_rebuild = sorted(STATE_DB.parent.glob(
+                STATE_DB.name + ".pre-rebuild.*" if STATE_DB.parent == HARNESS_DIR
+                else ".swebok_state.db.pre-rebuild.*"
+            ))
             if pre_rebuild:
                 src = pre_rebuild[-1]
                 src_conn = sqlite3.connect(str(src))

@@ -74,15 +74,15 @@ read -r -d '' HARNESS_HOOKS_FRAGMENT <<JSON || true
 {
   "permissions": {
     "allow": [
-      "bash $HARNESS_DIR/scripts/swebok-bootstrap.sh",
-      "bash $HARNESS_DIR/scripts/adversarial-gate.sh",
-      "bash $HARNESS_DIR/scripts/validate-gates.sh",
-      "bash $HARNESS_DIR/scripts/validate-qa-gates.sh",
-      "bash $HARNESS_DIR/scripts/act-observe-verify.sh",
-      "bash $HARNESS_DIR/scripts/self-heal.sh",
-      "bash $HARNESS_DIR/scripts/browser-use-orchestrator.sh",
-      "bash $HARNESS_DIR/scripts/multiagent-launcher.sh",
-      "bash $HARNESS_DIR/scripts/skill-invoker.sh",
+      "bash $HARNESS_DIR/swebok-bootstrap.sh",
+      "bash $HARNESS_DIR/adversarial-gate.sh",
+      "bash $HARNESS_DIR/validate-gates.sh",
+      "bash $HARNESS_DIR/validate-qa-gates.sh",
+      "bash $HARNESS_DIR/act-observe-verify.sh",
+      "bash $HARNESS_DIR/self-heal.sh",
+      "bash $HARNESS_DIR/browser-use-orchestrator.sh",
+      "bash $HARNESS_DIR/multiagent-launcher.sh",
+      "bash $HARNESS_DIR/skill-invoker.sh",
       "python3 $HARNESS_DIR/scripts/compiled_knowledge.py",
       "python3 $HARNESS_DIR/generate-kg.py",
       "python3 $HARNESS_DIR/intent-detector.py",
@@ -172,7 +172,7 @@ echo "  1. Restart Claude Code so the merged settings.json is loaded."
 echo "  2. Verify with: jq '.hooks.PreToolUse | length' ~/.claude/settings.json"
 echo "  3. To undo: cp $backup_path $SETTINGS_FILE (if applicable)"
 echo "  4. Opt-in council bridge: export MULTIAGENT_BRIDGE_ENABLED=1 then run"
-echo "       bash \$HARNESS_DIR/scripts/adversarial-gate.sh --council P5 P6"
+echo "       bash \$HARNESS_DIR/adversarial-gate.sh --council P5 P6"
 echo "     See OPERATIONS.md §12 and ADR-003-multiagent-bridge.md."
 echo
 echo "To uninstall, see UNINSTALL.md (planned)."

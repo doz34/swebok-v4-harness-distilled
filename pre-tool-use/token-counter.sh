@@ -14,7 +14,7 @@ set -uo pipefail
 # Fail-open on internal errors (counter is observability, not a security gate).
 trap 'exit 0' ERR
 
-HARNESS_DIR="${HARNESS_DIR:-/home/doz/swebok-v4-harness-distilled}"
+HARNESS_DIR="${HARNESS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 STATE_ENGINE="$HARNESS_DIR/lib/state_engine.py"
 STATE_DB="$HARNESS_DIR/.swebok_state.db"
 
