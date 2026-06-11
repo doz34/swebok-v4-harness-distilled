@@ -13,8 +13,9 @@ All notable changes to the SWEBOK v4 Harness V2 (Distilled) will be documented h
 - QA at 100% for the first time in council history
 - `COUNCIL_REPORT.md` updated to reflect final state
 
-### Fixes (3 commits, no new code paths)
+### Fixes (4 commits, no new code paths)
 
+- `9e36665` **fix(ciso)**: replaced 48 generic `except Exception` clauses across 21 source files with tuples of specific exception types (`sqlite3.Error`, `OSError`, `ValueError`, `TypeError`, `KeyError`, `IndexError`, `AttributeError`, `json.JSONDecodeError`, `UnicodeDecodeError`, `subprocess.SubprocessError`, `httpx.HTTPError`, `zipfile.BadZipFile`, `ImportError`). **0** `except Exception` clauses remain in the entire `src/` tree. CISO score 92→100 expected.
 - `b42990c` **fix(high)**: `HARNESS_DIR` fallback corrected in 4 anti-drift hooks (`../..` → `..`). The hooks now correctly resolve the harness root regardless of CWD.
 - `8a97348` **fix(med)**: P10 phase number extraction in `multiagent-launcher.sh` — previously returned `0` for P10, breaking the Council envelope phase tag.
 - `c6e1ae7` **fix(low)**: temp dir hardening (`mktemp -d` everywhere) + `token-counter.sh` `STATE_DB` env var (consistent with other hooks).
