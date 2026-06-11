@@ -125,6 +125,15 @@ read -r -d '' HARNESS_HOOKS_FRAGMENT <<JSON || true
       }
     ]
   },
+  "UserPromptSubmit": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          "bash $HARNESS_DIR/pre-tool-use/auto-trigger-hook.sh"
+        ]
+      }
+    ]
+  },
   "env": {
     "HARNESS_DIR": "$HARNESS_DIR",
     "MULTIAGENT_BRIDGE_ENABLED": "0"
@@ -159,6 +168,7 @@ $existing
 | .env = ((($harness.env // {}) ) + (.env // {}))   # existing env wins
 | .hooks.PreToolUse  = merge_hook_array(.hooks.PreToolUse;  $harness.hooks.PreToolUse)
 | .hooks.PostToolUse = merge_hook_array(.hooks.PostToolUse; $harness.hooks.PostToolUse)
+| .hooks.UserPromptSubmit = merge_hook_array(.hooks.UserPromptSubmit; $harness.hooks.UserPromptSubmit)
 ')
 
 echo "$merged" | jq . > "$SETTINGS_FILE"

@@ -45,7 +45,7 @@ if [[ ! -d "$HARNESS_DIR/tests" ]]; then
     exit 1
 fi
 
-echo "[pre-commit] Running SWEBOK v4 harness test gate (147 tests expected)..."
+echo "[pre-commit] Running SWEBOK v4 harness test gate (147 tests + 5 rebuild-restore = 152 total)..."
 
 # 1. Integrity check (read-only — no destructive rebuild)
 python3 lib/state_engine.py check_integrity > /tmp/swebok_precommit_integrity.log 2>&1
